@@ -2,13 +2,13 @@ module.exports = function (app) {
    var Joi = app.get("joi");
 
    const contrato = Joi.object().keys({
-      dataInicio : Joi.string(),
-      dataTermino : Joi.string(),
-      palavraChave : Joi.string(),
-      idEmpresa : Joi.string(),
-      idTermo : Joi.string(),
-      idRegiao : Joi.string(),
-      idIdioma : Joi.array().items(Joi.string())
+      dataInicio : Joi.string().required(),
+      dataTermino : Joi.string().required(),
+      palavraChave : Joi.string().required(),
+      idEmpresa : Joi.string().required(),
+      idRegiao : Joi.string().required(),
+      idTermo : Joi.array().single(),
+      idIdioma : Joi.array().single()
    });
 
    return contrato;

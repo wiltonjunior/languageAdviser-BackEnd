@@ -11,13 +11,19 @@ module.exports = function (app) {
          res.status(501).json(result.error);
       } else {
          var db = req.app.get("database");
-         var contrato = db.collection("contrato");
-         contrato.save(dados)
-         .then(val => {
-            res.status(200).json(val).end()
-         }, err => {
-            res.status(501).json(err).end()
-         });
+         if(verificarRegiao(db,dados.idRegiao)!=0){
+            var resposta = {"mensagem" : "Região com contrato já existente"};
+            res.status(501).json(resposta);
+         }
+         else {
+           var contrato = db.collection("contrato");
+           contrato.save(dados)
+           .then(val => {
+              res.status(200).json(val).end()
+           }, err => {
+              res.status(501).json(err).end()
+           });
+         }
       }
    };
 
@@ -109,7 +115,25 @@ module.exports = function (app) {
       }, err => {
          res.status(501).json(err).end()
       });
+   };
+
+   function verificarRegiao(db,id) {
+     var resultado = 0;
+     db.query("LET cont = (FOR contrato IN contrato FILTER contrato.idRegiao == @id RETURN contrato) RETURN length(cont)",{'id' : id})
+     .then(cursor => {
+       cursor.next()
+       .then(val=> {
+         resultado=val
+         if (resultado!=0) {
+           return 1;
+         }
+         else {
+           return 0;
+         }
+       });
+     });
    }
+
 
    return contrato;
 }

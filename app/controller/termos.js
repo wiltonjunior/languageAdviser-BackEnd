@@ -48,7 +48,7 @@ module.exports = function (app) {
    termo.listarIdioma = function (req,res) {
      var id = req.params.id;
      var db = req.app.get("database");
-     db.query('FOR idioma IN idioma FOR termo IN termo FILTER termo._key == @id and termo.idIdioma == idioma._key RETURN idioma',{'id' : id})
+     db.query('FOR idioma IN idioma FOR termo IN termos FILTER termo._key == @id and termo.idIdioma == idioma._key RETURN idioma',{'id' : id})
      .then(cursor => {
         cursor.next()
         .then(val => {
