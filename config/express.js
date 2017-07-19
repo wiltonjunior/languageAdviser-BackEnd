@@ -9,6 +9,7 @@ module.exports = function () {
 
   app.set("database",database);
   app.set("joi",Joi);
+  app.set("port", process.env.PORT||3000);
 
   app.use(bodyParser.urlencoded({extended:true}));
   app.use(bodyParser.json());
