@@ -11,6 +11,7 @@
   "dependencies": {
     "arangojs": "^5.0.0",
     "body-parser": "^1.17.2",
+    "cors": "^2.8.4",
     "express": "^4.15.3",
     "express-load": "^1.1.16",
     "joi": "^10.6.0",

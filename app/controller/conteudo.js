@@ -14,7 +14,7 @@ module.exports = function (app) {
          var conteudo = db.collection("conteudo");
          conteudo.save(dados)
          .then(val => {
-            res.status(200).json(val).end()
+            res.status(201).json(val).end()
          }, err => {
             res.status(501).json(err).end()
          });

@@ -11,19 +11,42 @@ module.exports = function (app) {
          res.status(501).json(result.error);
       } else {
          var db = req.app.get("database");
-         if(verificarRegiao(db,dados.idRegiao)!=0){
-            var resposta = {"mensagem" : "Região com contrato já existente"};
-            res.status(501).json(resposta);
-         }
-         else {
-           var contrato = db.collection("contrato");
-           contrato.save(dados)
-           .then(val => {
-              res.status(200).json(val).end()
-           }, err => {
-              res.status(501).json(err).end()
-           });
-         }
+         db.query("LET cont = (FOR contrato IN contrato FILTER contrato.idRegiao == @id RETURN contrato) RETURN length(cont)",{'id' : dados.idRegiao})
+         .then(cursor => {
+            cursor.next()
+            .then(val => {
+               if(val!=0) {
+                  db.query("LET cont = (FOR contrato IN contrato FILTER contrato.idRegiao == @id RETURN contrato) LET contrato = (FOR c IN cont FILTER c.idTermo ANY IN @termos or c.idTermo ANY == @termos or c.idTermo == @termos or c.idTermo IN @termos RETURN c) RETURN length(contrato)",{'id' : dados.idRegiao,'termos' : dados.idTermo})
+                  .then(cursor => {
+                     cursor.next()
+                     .then(val => {
+                        if(val!=0) {
+                           var resposta = {'mensagem' : 'Contrato com termos parecidos já existe'};
+                           res.status(501).json(resposta);
+                        }
+                        else {
+                           var contrato = db.collection("contrato");
+                           contrato.save(dados)
+                           .then(val => {
+                              res.status(201).json(val).end()
+                           }, err => {
+                              res.status(501).json(err).end()
+                           })
+                        }
+                     })
+                  })
+               }
+               else {
+                 var contrato = db.collection("contrato");
+                 contrato.save(dados)
+                 .then(val => {
+                    res.status(201).json(val).end()
+                 }, err => {
+                     res.status(501).json(err).end()
+                 })
+               }
+            })
+         })
       }
    };
 
@@ -54,7 +77,7 @@ module.exports = function (app) {
    contrato.listarEmpresa = function (req,res) {
       var id = req.params.id;
       var db = req.app.get("database");
-      db.query('FOR empresa IN empresa FOR contrato IN contrato FILTER contrato._key == @id and contrato.idEmpresa == empresa._key RETURN empresa',{'id' : id})
+      db.query("FOR empresa IN empresa FOR contrato IN contrato FILTER contrato._key == @id and contrato.idEmpresa == empresa._key RETURN empresa",{'id' : id})
       .then(cursor => {
          cursor.next()
          .then(val => {
@@ -63,10 +86,10 @@ module.exports = function (app) {
       });
    };
 
-   contrato.listarTermo = function (req,res) {
+   contrato.listarTermos = function (req,res) {
       var id = req.params.id;
       var db = req.app.get("database");
-      db.query('FOR termo IN termos FOR contrato IN contrato FILTER contrato._key == @id and contrato.idTermo == termo._key RETURN termo',{'id' : id})
+      db.query("FOR termos IN termos FOR contrato IN contrato FILTER contrato._key == @id and contrato.idTermo == termos._key RETURN termos",{'id' : id})
       .then(cursor => {
          cursor.next()
          .then(val => {
@@ -78,7 +101,7 @@ module.exports = function (app) {
    contrato.listarRegiao = function (req,res) {
       var id = req.params.id;
       var db = req.app.get("database");
-      db.query('FOR regiao IN regiao FOR contrato IN contrato FILTER contrato._key == @id and contrato.idRegiao == regiao._key RETURN regiao',{'id' : id})
+      db.query("FOR regiao IN regiao FOR contrato IN contrato FILTER contrato._key == @id and contrato.idRegiao == regiao._key RETURN regiao",{'id' : id})
       .then(cursor => {
          cursor.next()
          .then(val => {
@@ -116,23 +139,6 @@ module.exports = function (app) {
          res.status(501).json(err).end()
       });
    };
-
-   function verificarRegiao(db,id) {
-     var resultado = 0;
-     db.query("LET cont = (FOR contrato IN contrato FILTER contrato.idRegiao == @id RETURN contrato) RETURN length(cont)",{'id' : id})
-     .then(cursor => {
-       cursor.next()
-       .then(val=> {
-         resultado=val
-         if (resultado!=0) {
-           return 1;
-         }
-         else {
-           return 0;
-         }
-       });
-     });
-   }
 
 
    return contrato;

@@ -14,7 +14,7 @@ module.exports = function (app) {
           var idioma = db.collection("idioma");
           idioma.save(dados)
           .then(val => {
-             res.status(200).json(val).end()
+             res.status(201).json(val).end()
           }, err => {
              res.status(501).json(err).end()
           });
@@ -45,7 +45,7 @@ module.exports = function (app) {
        }, err => {
           res.status(501).json(err).end()
        });
-    };    
+    };
 
     idioma.editar = function (req,res) {
        var id = req.params.id;

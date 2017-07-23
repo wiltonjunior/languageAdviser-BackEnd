@@ -14,7 +14,7 @@ module.exports = function (app) {
          var termo = db.collection("termos");
          termo.save(dados)
          .then(val => {
-            res.status(200).json(val).end()
+            res.status(201).json(val).end()
          }, err => {
             res.status(501).json(err).end()
          });
@@ -44,18 +44,6 @@ module.exports = function (app) {
         res.status(501).json(err).end()
      });
    };
-
-   termo.listarIdioma = function (req,res) {
-     var id = req.params.id;
-     var db = req.app.get("database");
-     db.query('FOR idioma IN idioma FOR termo IN termos FILTER termo._key == @id and termo.idIdioma == idioma._key RETURN idioma',{'id' : id})
-     .then(cursor => {
-        cursor.next()
-        .then(val => {
-          res.status(200).json(val).end()
-        });
-     });
-   }
 
    termo.editar = function (req,res) {
       var id = req.params.id;

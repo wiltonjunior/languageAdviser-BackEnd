@@ -5,8 +5,8 @@ module.exports = function (app) {
   app.get("/contrato", contrato.listar);
   app.get("/contrato/:id", contrato.listarContrato);
   app.get("/contrato/empresa/:id", contrato.listarEmpresa);
-  app.get("/contrato/termo/:id", contrato.listarTermo);
   app.get("/contrato/regiao/:id", contrato.listarRegiao);
+  app.get("/contrato/termos/:id", contrato.listarTermos);
   app.put("/contrato/:id", contrato.editar);
   app.delete("/contrato/:id", contrato.deletar);
 }

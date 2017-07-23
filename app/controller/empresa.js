@@ -14,8 +14,8 @@ module.exports = function (app) {
         var db = req.app.get("database");
         var empresa = db.collection("empresa");
         empresa.save(dados)
-        .then(val => {           
-           res.status(200).json(val).end();
+        .then(val => {
+           res.status(201).json(val).end();
         }, err => {
            res.status(501).json(err).end();
         });
