@@ -8,15 +8,19 @@ module.exports = function (app) {
        var dados = req.body;
        var result = Joi.validate(dados,model);
        if (result.error!=null) {
-          res.status(501).json(result.error);
+          res.status(500).json(result.error);
        } else {
           var db = req.app.get("database");
           var idioma = db.collection("idioma");
           idioma.save(dados)
           .then(val => {
-             res.status(201).json(val).end()
+            res.status(201).json(val,[
+              {rel : "procurar", method : "GET", href: "http://localhost:3000/idioma/" + val._key},
+              {rel : "atualizar", method : "PUT", href: "http://localhost:3000/idioma/" + val._key},
+              {rel : "excluir", method : "DELETE", href: "http://localhost:3000/idioma/" + val._key}
+            ]).end()
           }, err => {
-             res.status(501).json(err).end()
+             res.status(500).json(err).end()
           });
        }
     };
@@ -28,9 +32,9 @@ module.exports = function (app) {
        .then(cursor => {
           cursor.all()
           .then(val => {
-             res.status(200).json(val).end()
+            res.status(200).json(val).end()
           }, err => {
-             res.status(501).json(err).end()
+             res.status(500).json(err).end()
           });
        });
     };
@@ -41,9 +45,13 @@ module.exports = function (app) {
        var idioma = db.collection("idioma");
        idioma.document(id)
        .then(val => {
-          res.status(200).json(val).end()
+         res.status(200).json(val,[
+           {rel : "adicionar", method: "POST", href: "http://localhost:3000/idioma"},
+           {rel : "editar", method: "PUT", href: "http://localhost:3000/idioma/" + val._key},
+           {rel : "excluir", method: "DELETE", href: "http://localhost:3000/idioma/" + val._key}
+         ]).end()
        }, err => {
-          res.status(501).json(err).end()
+          res.status(500).json(err).end()
        });
     };
 
@@ -52,15 +60,20 @@ module.exports = function (app) {
        var dados = req.body;
        var result = Joi.validate(dados,model);
        if (result.error!=null) {
-          res.status(501).json(result.error);
+          res.status(500).json(result.error);
        } else {
           var db = req.app.get("database");
           var idioma = db.collection("idioma");
           idioma.update(id,dados)
           .then(val => {
-             res.status(200).json(val).end()
+            res.status(200).json(val,[
+              {rel : "adicionar", method: "POST", href: "http://localhost:3000/idioma"},
+              {rel : "listar", method: "GET", href: "http://localhost:3000/idioma"},
+              {rel : "procurar", method: "GET", href: "http://localhost:3000/idioma/" + id},
+              {rel : "excluir", method: "DELETE", href: "http://localhost:3000/idioma" + id}
+            ]).end()
           }, err => {
-             res.status(501).json(err).end()
+             res.status(500).json(err).end()
           });
        }
     };
@@ -71,9 +84,12 @@ module.exports = function (app) {
        var idioma = db.collection("idioma");
        idioma.remove(id)
        .then(val => {
-          res.status(200).json(val).end()
+         res.status(200).json(val,[
+           {rel : "adicionar", method: "POST", href: "http://localhost:3000/idioma"},
+           {rel : "listar", method: "GET", href: "http://localhost:3000/idioma"}
+         ]).end()
        }, err => {
-          res.status(501).json(err).end()
+          res.status(500).json(err).end()
        });
     }
 

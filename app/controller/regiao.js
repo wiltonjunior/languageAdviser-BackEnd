@@ -8,16 +8,20 @@ module.exports = function (app) {
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if (result.error!=null) {
-         res.status(501).json(result.error);
+         res.status(500).json(result.error);
       }
       else {
          var db = req.app.get("database");
          var regiao = db.collection("regiao");
          regiao.save(dados)
          .then(val => {
-            res.status(201).json(val).end()
+           res.status(201).json(val,[
+             {rel : "procurar", method : "GET", href: "http://localhost:3000/regiao/" + val._key},
+             {rel : "atualizar", method : "PUT", href: "http://localhost:3000/regiao/" + val._key},
+             {rel : "excluir", method : "DELETE", href: "http://localhost:3000/regiao/" + val._key}
+           ]).end()
          }, err => {
-            res.status(501).json(err).end()
+            res.status(500).json(err).end()
          });
       }
    };
@@ -29,7 +33,7 @@ module.exports = function (app) {
       .then(cursor => {
         cursor.all()
         .then(val => {
-           res.status(200).json(val).end()
+          res.status(200).json(val).end()
         });
       });
    };
@@ -40,9 +44,13 @@ module.exports = function (app) {
       var regiao = db.collection("regiao");
       regiao.document(id)
       .then(val => {
-         res.status(200).json(val).end()
+        res.status(200).json(val,[
+          {rel : "adicionar", method: "POST", href: "http://localhost:3000/regiao"},
+          {rel : "editar", method: "PUT", href: "http://localhost:3000/regiao/" + val._key},
+          {rel : "excluir", method: "DELETE", href: "http://localhost:3000/regiao/" + val._key}
+        ]).end()
       }, err=> {
-         res.status(501).json(err).end()
+         res.status(500).json(err).end()
       });
    };
 
@@ -51,16 +59,21 @@ module.exports = function (app) {
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if (result.error!=null) {
-         res.status(501).json(result.error);
+         res.status(500).json(result.error);
       }
       else {
          var db = req.app.get("database");
          var regiao = db.collection("regiao");
          regiao.update(id,dados)
          .then(val => {
-            res.status(200).json(val).end()
+           res.status(200).json(val,[
+             {rel : "adicionar", method: "POST", href: "http://localhost:3000/regiao"},
+             {rel : "listar", method: "GET", href: "http://localhost:3000/regiao"},
+             {rel : "procurar", method: "GET", href: "http://localhost:3000/regiao/" + id},
+             {rel : "excluir", method: "DELETE", href: "http://localhost:3000/regiao" + id}
+           ]).end()
          }, err=> {
-            res.status(501).json(err).end()
+            res.status(500).json(err).end()
          });
       }
    };
@@ -71,9 +84,12 @@ module.exports = function (app) {
       var regiao = db.collection("regiao");
       regiao.remove(id)
       .then(val => {
-         res.status(200).json(val).end()
+        res.status(200).json(val,[
+          {rel : "adicionar", method: "POST", href: "http://localhost:3000/regiao"},
+          {rel : "listar", method: "GET", href: "http://localhost:3000/regiao"}
+        ]).end()
       }, err => {
-         res.status(501).json(err).end()
+         res.status(500).json(err).end()
       });
    }
 

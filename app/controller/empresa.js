@@ -8,16 +8,20 @@ module.exports = function (app) {
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if(result.error!=null) {
-        res.status(501).json(result.error);
+        res.status(500).json(result.error);
       }
       else {
         var db = req.app.get("database");
         var empresa = db.collection("empresa");
         empresa.save(dados)
         .then(val => {
-           res.status(201).json(val).end();
+          res.status(201).json(val,[
+            {rel : "procurar", method : "GET", href: "http://localhost:3000/empresa/" + val._key},
+            {rel : "atualizar", method : "PUT", href: "http://localhost:3000/empresa/" + val._key},
+            {rel : "excluir", method : "DELETE", href: "http://localhost:3000/empresa/" + val._key}
+          ]).end()
         }, err => {
-           res.status(501).json(err).end();
+           res.status(500).json(err).end();
         });
       }
    };
@@ -29,20 +33,24 @@ module.exports = function (app) {
       .then(cursor => {
         cursor.all()
         .then(val => {
-          res.status(200).json(val).end();
+          res.status(200).json(val).end()
         });
       });
    };
 
-   empresa.listarContratante = function (req,res) {
+   empresa.listarEmpresa = function (req,res) {
       var id = req.params.id;
       var db = req.app.get("database");
       var empresa = db.collection("empresa");
       empresa.document(id)
       .then(val => {
-         res.status(200).json(val).end()
+        res.status(200).json(val,[
+          {rel : "adicionar", method: "POST", href: "http://localhost:3000/empresa"},
+          {rel : "editar", method: "PUT", href: "http://localhost:3000/empresa/" + val._key},
+          {rel : "excluir", method: "DELETE", href: "http://localhost:3000/empresa/" + val._key}
+        ]).end()
       }, err => {
-         res.status(501).json(err).end()
+         res.status(500).json(err).end()
       });
    };
 
@@ -51,16 +59,21 @@ module.exports = function (app) {
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if(result.error!=null) {
-         res.status(501).json(result.error);
+         res.status(500).json(result.error);
       }
       else {
         var db = req.app.get("database");
         var empresa = db.collection("empresa");
         empresa.update(id,dados)
         .then(val => {
-           res.status(200).json(val).end()
+          res.status(200).json(val,[
+            {rel : "adicionar", method: "POST", href: "http://localhost:3000/empresa"},
+            {rel : "listar", method: "GET", href: "http://localhost:3000/empresa"},
+            {rel : "procurar", method: "GET", href: "http://localhost:3000/empresa/" + id},
+            {rel : "excluir", method: "DELETE", href: "http://localhost:3000/empresa" + id}
+          ]).end()
         }, err => {
-           res.status(501).json(err).end()
+           res.status(500).json(err).end()
         });
       }
    };
@@ -71,9 +84,12 @@ module.exports = function (app) {
       var empresa = db.collection("empresa");
       empresa.remove(id)
       .then(val => {
-         res.status(200).json(val).end()
+        res.status(200).json(val,[
+          {rel : "adicionar", method: "POST", href: "http://localhost:3000/empresa"},
+          {rel : "listar", method: "GET", href: "http://localhost:3000/empresa"}
+        ]).end()
       }, err => {
-         res.status(501).json(err).end()
+         res.status(500).json(err).end()
       });
    }
 

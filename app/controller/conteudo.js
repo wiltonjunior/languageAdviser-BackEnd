@@ -14,9 +14,13 @@ module.exports = function (app) {
          var conteudo = db.collection("conteudo");
          conteudo.save(dados)
          .then(val => {
-            res.status(201).json(val).end()
+            res.status(201).json(val,[
+              {rel : "procurar", method : "GET", href: "http://localhost:3000/conteudo/" + val._key},
+              {rel : "atualizar", method : "PUT", href: "http://localhost:3000/conteudo/" + val._key},
+              {rel : "excluir", method : "DELETE", href: "http://localhost:3000/conteudo/" + val._key}
+            ]).end()
          }, err => {
-            res.status(501).json(err).end()
+            res.status(500).json(err).end()
          });
       }
    };
@@ -39,9 +43,14 @@ module.exports = function (app) {
       var conteudo = db.collection("conteudo");
       conteudo.document(id)
       .then(val => {
-         res.status(200).json(val).end()
+         res.status(200).json(val,[
+           {rel : "adicionar", method: "POST", href: "http://localhost:3000/conteudo"},
+           {rel : "idioma", method: "GET", href: "http://localhost:3000/conteudo/idioma/" + val._key},
+           {rel : "editar", method: "PUT", href: "http://localhost:3000/conteudo/" + val._key},
+           {rel : "excluir", method: "DELETE", href: "http://localhost:3000/conteudo/" + val._key}
+         ]).end()
       }, err => {
-         res.status(501).json(err).end()
+         res.status(500).json(err).end()
       });
    };
 
@@ -52,7 +61,12 @@ module.exports = function (app) {
       .then(cursor => {
          cursor.next()
          .then(val => {
-            res.status(200).json(val).end();
+            res.status(200).json(val,[
+              {rel : "adicionar", method: "POST", href: "http://localhost:3000/conteudo"},
+              {rel : "listar", method: "GET", href: "http://localhost:3000/conteudo"},
+              {rel : "editar", method: "PUT", href: "http://localhost:3000/conteudo/" + id},
+              {rel : "excluir", method: "DELETE", href: "http://localhost:3000/conteudo/" + id}
+            ]).end();
          });
       });
    };
@@ -69,9 +83,14 @@ module.exports = function (app) {
          var conteudo = db.collection("conteudo");
          conteudo.update(id,dados)
          .then(val => {
-            res.status(200).json(val).end()
+            res.status(200).json(val,[
+              {rel : "adicionar", method: "POST", href: "http://localhost:3000/conteudo"},
+              {rel : "listar", method: "GET", href: "http://localhost:3000/conteudo"},
+              {rel : "procurar", method: "GET", href: "http://localhost:3000/conteudo/" + id},
+              {rel : "excluir", method: "DELETE", href: "http://localhost:3000/conteudo" + id}
+            ]).end()
          }, err => {
-            res.status(501).json(err).end()
+            res.status(500).json(err).end()
          });
       }
    };
@@ -82,9 +101,12 @@ module.exports = function (app) {
        var conteudo = db.collection("conteudo");
        conteudo.remove(id)
        .then(val => {
-          res.status(200).json(val).end()
+          res.status(200).json(val,[
+            {rel : "adicionar", method: "POST", href: "http://localhost:3000/conteudo"},
+            {rel : "listar", method: "GET", href: "http://localhost:3000/conteudo"}
+          ]).end()
        }, err => {
-          res.status(501).json(err).end()
+          res.status(500).json(err).end()
        });
    };
 
