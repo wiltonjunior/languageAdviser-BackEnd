@@ -4,7 +4,7 @@ module.exports = function (app) {
    const idioma = {
       idioma : Joi.string().required(),
       descricao : Joi.string().required(),
-      nomeImagem : Joi.string()
+      caminhoImagem : Joi.string()
    };
 
    return idioma;

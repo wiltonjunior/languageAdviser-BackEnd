@@ -30,6 +30,7 @@ module.exports = function (app) {
       var fs = app.get("fs");
       var formidable = app.get("formidable");
       var hasha = app.get("hasha");
+      var path = app.get("path");
 
       var form = new formidable.IncomingForm();
       form.parse(req,function (err,fields,files) {
@@ -41,7 +42,8 @@ module.exports = function (app) {
          else {
            var oldpath = files.imagem.path;
            var hash = hasha.fromFileSync(oldpath,{algorithm : "md5"});
-           var imagem = hash + ".jpg";
+           var tipo = path.extname(file.imagem.name);
+           var imagem = hash + tipo;
            var newpath = "./public/imagem/idioma/" + imagem;
            fs.rename(oldpath,newpath,function (err) {
               if(err) {

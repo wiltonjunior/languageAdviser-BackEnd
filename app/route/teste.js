@@ -1,3 +1,5 @@
+var path = require("path");
+
 module.exports = function (app) {
    app.post("/teste", function (req,res) {
      var fs = app.get("fs");
@@ -5,7 +7,9 @@ module.exports = function (app) {
      var form = new formidable.IncomingForm();
      form.parse(req,function (err,fields,files) {
        var oldpath = files.imagem.path;
-       var newpath = "./imagem/idioma/" + files.imagem.name;
+       var tipo = path.extname(files.imagem.name);
+       console.log(tipo);
+       var newpath = "./public/imagem/idioma/" + files.imagem.name;
        fs.rename(oldpath,newpath, function (err) {
           if (err) {
              console.log(err);
@@ -19,7 +23,7 @@ module.exports = function (app) {
 
    app.get("/teste",function (req,res) {
       var fs = app.get("fs");
-      fs.readFile("./imagem/idioma/","base64",function (err,fotos) {
+      fs.readFile("./public/imagem/idioma/","base64",function (err,fotos) {
          if (fotos!=null) {
            res.json(fotos,[]);
          }

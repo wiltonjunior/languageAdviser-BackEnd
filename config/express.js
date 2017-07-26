@@ -7,6 +7,7 @@ var hateoas = require("express-hateoas-links");
 var fs = require("fs");
 var formidable = require("formidable");
 var hasha = require("hasha");
+var path = require("path");
 const database = require("./database")();
 
 module.exports = function () {
@@ -18,6 +19,7 @@ module.exports = function () {
   app.set("fs",fs);
   app.set("formidable",formidable);
   app.set("hasha",hasha);
+  app.set("path",path);
 
   app.use(bodyParser.urlencoded({extended:true}));
   app.use(bodyParser.json());
