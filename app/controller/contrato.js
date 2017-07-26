@@ -29,9 +29,9 @@ module.exports = function (app) {
                            contrato.save(dados)
                            .then(val => {
                              res.status(201).json(val,[
-                               {rel : "procurar", method : "GET", href: "http://localhost:3000/contrato/" + val._key},
-                               {rel : "atualizar", method : "PUT", href: "http://localhost:3000/contrato/" + val._key},
-                               {rel : "excluir", method : "DELETE", href: "http://localhost:3000/contrato/" + val._key}
+                               {rel : "procurar", method : "GET", href: "https://languageadviser.herokuapp.com/contrato/" + val._key},
+                               {rel : "atualizar", method : "PUT", href: "https://languageadviser.herokuapp.com/contrato/" + val._key},
+                               {rel : "excluir", method : "DELETE", href: "https://languageadviser.herokuapp.com/contrato/" + val._key}
                              ]).end()
                            }, err => {
                               res.status(500).json(err).end()
@@ -45,9 +45,9 @@ module.exports = function (app) {
                  contrato.save(dados)
                  .then(val => {
                    res.status(201).json(val,[
-                     {rel : "procurar", method : "GET", href: "http://localhost:3000/contrato/" + val._key},
-                     {rel : "atualizar", method : "PUT", href: "http://localhost:3000/contrato/" + val._key},
-                     {rel : "excluir", method : "DELETE", href: "http://localhost:3000/contrato/" + val._key}
+                     {rel : "procurar", method : "GET", href: "https://languageadviser.herokuapp.com/contrato/" + val._key},
+                     {rel : "atualizar", method : "PUT", href: "https://languageadviser.herokuapp.com/contrato/" + val._key},
+                     {rel : "excluir", method : "DELETE", href: "https://languageadviser.herokuapp.com/contrato/" + val._key}
                    ]).end()
                  }, err => {
                      res.status(500).json(err).end()
@@ -77,12 +77,12 @@ module.exports = function (app) {
       contrato.document(id)
       .then(val => {
         res.status(200).json(val,[
-          {rel : "adicionar", method: "POST", href: "http://localhost:3000/contrato"},
-          {rel : "empresa", method: "GET", href: "http://localhost:3000/contrato/empresa/" + val._key},
-          {rel : "termos", method: "GET", href: "http://localhost:3000/contrato/termos/" + val._key},
-          {rel : "regiao", method: "GET", href: "http://localhost:3000/contrato/regiao/" + val._key},
-          {rel : "editar", method: "PUT", href: "http://localhost:3000/contrato/" + val._key},
-          {rel : "excluir", method: "DELETE", href: "http://localhost:3000/contrato/" + val._key}
+          {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/contrato"},
+          {rel : "empresa", method: "GET", href: "https://languageadviser.herokuapp.com/contrato/empresa/" + val._key},
+          {rel : "termos", method: "GET", href: "https://languageadviser.herokuapp.com/contrato/termos/" + val._key},
+          {rel : "regiao", method: "GET", href: "https://languageadviser.herokuapp.com/contrato/regiao/" + val._key},
+          {rel : "editar", method: "PUT", href: "https://languageadviser.herokuapp.com/contrato/" + val._key},
+          {rel : "excluir", method: "DELETE", href: "https://languageadviser.herokuapp.com/contrato/" + val._key}
         ]).end()
       }, err => {
          res.status(500).json(err).end()
@@ -97,10 +97,10 @@ module.exports = function (app) {
          cursor.next()
          .then(val => {
            res.status(200).json(val,[
-             {rel : "adicionar", method: "POST", href: "http://localhost:3000/contrato"},
-             {rel : "listar", method: "GET", href: "http://localhost:3000/contrato"},
-             {rel : "editar", method: "PUT", href: "http://localhost:3000/contrato/" + id},
-             {rel : "excluir", method: "DELETE", href: "http://localhost:3000/contrato/" + id}
+             {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/contrato"},
+             {rel : "listar", method: "GET", href: "https://languageadviser.herokuapp.com/contrato"},
+             {rel : "editar", method: "PUT", href: "https://languageadviser.herokuapp.com/contrato/" + id},
+             {rel : "excluir", method: "DELETE", href: "https://languageadviser.herokuapp.com/contrato/" + id}
            ]).end();
          });
       });
@@ -114,10 +114,10 @@ module.exports = function (app) {
          cursor.next()
          .then(val => {
            res.status(200).json(val,[
-             {rel : "adicionar", method: "POST", href: "http://localhost:3000/contrato"},
-             {rel : "listar", method: "GET", href: "http://localhost:3000/contrato"},
-             {rel : "editar", method: "PUT", href: "http://localhost:3000/contrato/" + id},
-             {rel : "excluir", method: "DELETE", href: "http://localhost:3000/contrato/" + id}
+             {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/contrato"},
+             {rel : "listar", method: "GET", href: "https://languageadviser.herokuapp.com/contrato"},
+             {rel : "editar", method: "PUT", href: "https://languageadviser.herokuapp.com/contrato/" + id},
+             {rel : "excluir", method: "DELETE", href: "https://languageadviser.herokuapp.com/contrato/" + id}
            ]).end();
          });
       });
@@ -131,10 +131,10 @@ module.exports = function (app) {
          cursor.next()
          .then(val => {
            res.status(200).json(val,[
-             {rel : "adicionar", method: "POST", href: "http://localhost:3000/contrato"},
-             {rel : "listar", method: "GET", href: "http://localhost:3000/contrato"},
-             {rel : "editar", method: "PUT", href: "http://localhost:3000/contrato/" + id},
-             {rel : "excluir", method: "DELETE", href: "http://localhost:3000/contrato/" + id}
+             {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/contrato"},
+             {rel : "listar", method: "GET", href: "https://languageadviser.herokuapp.com/contrato"},
+             {rel : "editar", method: "PUT", href: "https://languageadviser.herokuapp.com/contrato/" + id},
+             {rel : "excluir", method: "DELETE", href: "https://languageadviser.herokuapp.com/contrato/" + id}
            ]).end();
          });
       });
@@ -152,10 +152,10 @@ module.exports = function (app) {
          contrato.update(id,dados)
          .then(val => {
            res.status(200).json(val,[
-             {rel : "adicionar", method: "POST", href: "http://localhost:3000/contrato"},
-             {rel : "listar", method: "GET", href: "http://localhost:3000/contrato"},
-             {rel : "procurar", method: "GET", href: "http://localhost:3000/contrato/" + id},
-             {rel : "excluir", method: "DELETE", href: "http://localhost:3000/contrato" + id}
+             {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/contrato"},
+             {rel : "listar", method: "GET", href: "https://languageadviser.herokuapp.com/contrato"},
+             {rel : "procurar", method: "GET", href: "https://languageadviser.herokuapp.com/contrato/" + id},
+             {rel : "excluir", method: "DELETE", href: "https://languageadviser.herokuapp.com/contrato" + id}
            ]).end()
          }, err => {
             res.status(500).json(err).end()
@@ -170,8 +170,8 @@ module.exports = function (app) {
       contrato.remove(id)
       .then(val => {
         res.status(200).json(val,[
-          {rel : "adicionar", method: "POST", href: "http://localhost:3000/contrato"},
-          {rel : "listar", method: "GET", href: "http://localhost:3000/contrato"}
+          {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/contrato"},
+          {rel : "listar", method: "GET", href: "https://languageadviser.herokuapp.com/contrato"}
         ]).end()
       }, err => {
          res.status(500).json(err).end()
