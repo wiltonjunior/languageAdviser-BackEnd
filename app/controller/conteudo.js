@@ -15,9 +15,9 @@ module.exports = function (app) {
          conteudo.save(dados)
          .then(val => {
             res.status(201).json(val,[
-              {rel : "procurar", method : "GET", href: "http://localhost:3000/conteudo/" + val._key},
-              {rel : "atualizar", method : "PUT", href: "http://localhost:3000/conteudo/" + val._key},
-              {rel : "excluir", method : "DELETE", href: "http://localhost:3000/conteudo/" + val._key}
+              {rel : "procurar", method : "GET", href: "https://languageadviser.herokuapp.com//conteudo/" + val._key},
+              {rel : "atualizar", method : "PUT", href: "https://languageadviser.herokuapp.com//conteudo/" + val._key},
+              {rel : "excluir", method : "DELETE", href: "https://languageadviser.herokuapp.com//conteudo/" + val._key}
             ]).end()
          }, err => {
             res.status(500).json(err).end()
@@ -44,10 +44,10 @@ module.exports = function (app) {
       conteudo.document(id)
       .then(val => {
          res.status(200).json(val,[
-           {rel : "adicionar", method: "POST", href: "http://localhost:3000/conteudo"},
-           {rel : "idioma", method: "GET", href: "http://localhost:3000/conteudo/idioma/" + val._key},
-           {rel : "editar", method: "PUT", href: "http://localhost:3000/conteudo/" + val._key},
-           {rel : "excluir", method: "DELETE", href: "http://localhost:3000/conteudo/" + val._key}
+           {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/conteudo"},
+           {rel : "idioma", method: "GET", href: "https://languageadviser.herokuapp.com/conteudo/idioma/" + val._key},
+           {rel : "editar", method: "PUT", href: "https://languageadviser.herokuapp.com/conteudo/" + val._key},
+           {rel : "excluir", method: "DELETE", href: "https://languageadviser.herokuapp.com/conteudo/" + val._key}
          ]).end()
       }, err => {
          res.status(500).json(err).end()
@@ -62,10 +62,10 @@ module.exports = function (app) {
          cursor.next()
          .then(val => {
             res.status(200).json(val,[
-              {rel : "adicionar", method: "POST", href: "http://localhost:3000/conteudo"},
-              {rel : "listar", method: "GET", href: "http://localhost:3000/conteudo"},
-              {rel : "editar", method: "PUT", href: "http://localhost:3000/conteudo/" + id},
-              {rel : "excluir", method: "DELETE", href: "http://localhost:3000/conteudo/" + id}
+              {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/conteudo"},
+              {rel : "listar", method: "GET", href: "https://languageadviser.herokuapp.com/conteudo"},
+              {rel : "editar", method: "PUT", href: "https://languageadviser.herokuapp.com/conteudo/" + id},
+              {rel : "excluir", method: "DELETE", href: "https://languageadviser.herokuapp.com/conteudo/" + id}
             ]).end();
          });
       });
@@ -84,10 +84,10 @@ module.exports = function (app) {
          conteudo.update(id,dados)
          .then(val => {
             res.status(200).json(val,[
-              {rel : "adicionar", method: "POST", href: "http://localhost:3000/conteudo"},
-              {rel : "listar", method: "GET", href: "http://localhost:3000/conteudo"},
-              {rel : "procurar", method: "GET", href: "http://localhost:3000/conteudo/" + id},
-              {rel : "excluir", method: "DELETE", href: "http://localhost:3000/conteudo" + id}
+              {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/conteudo"},
+              {rel : "listar", method: "GET", href: "https://languageadviser.herokuapp.com/conteudo"},
+              {rel : "procurar", method: "GET", href: "https://languageadviser.herokuapp.com/conteudo/" + id},
+              {rel : "excluir", method: "DELETE", href: "https://languageadviser.herokuapp.com/conteudo" + id}
             ]).end()
          }, err => {
             res.status(500).json(err).end()
@@ -102,8 +102,8 @@ module.exports = function (app) {
        conteudo.remove(id)
        .then(val => {
           res.status(200).json(val,[
-            {rel : "adicionar", method: "POST", href: "http://localhost:3000/conteudo"},
-            {rel : "listar", method: "GET", href: "http://localhost:3000/conteudo"}
+            {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/conteudo"},
+            {rel : "listar", method: "GET", href: "https://languageadviser.herokuapp.com/conteudo"}
           ]).end()
        }, err => {
           res.status(500).json(err).end()

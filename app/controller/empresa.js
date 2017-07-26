@@ -16,9 +16,9 @@ module.exports = function (app) {
         empresa.save(dados)
         .then(val => {
           res.status(201).json(val,[
-            {rel : "procurar", method : "GET", href: "http://localhost:3000/empresa/" + val._key},
-            {rel : "atualizar", method : "PUT", href: "http://localhost:3000/empresa/" + val._key},
-            {rel : "excluir", method : "DELETE", href: "http://localhost:3000/empresa/" + val._key}
+            {rel : "procurar", method : "GET", href: "https://languageadviser.herokuapp.com/empresa/" + val._key},
+            {rel : "atualizar", method : "PUT", href: "https://languageadviser.herokuapp.com/empresa/" + val._key},
+            {rel : "excluir", method : "DELETE", href: "https://languageadviser.herokuapp.com/empresa/" + val._key}
           ]).end()
         }, err => {
            res.status(500).json(err).end();
@@ -45,9 +45,9 @@ module.exports = function (app) {
       empresa.document(id)
       .then(val => {
         res.status(200).json(val,[
-          {rel : "adicionar", method: "POST", href: "http://localhost:3000/empresa"},
-          {rel : "editar", method: "PUT", href: "http://localhost:3000/empresa/" + val._key},
-          {rel : "excluir", method: "DELETE", href: "http://localhost:3000/empresa/" + val._key}
+          {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/empresa"},
+          {rel : "editar", method: "PUT", href: "https://languageadviser.herokuapp.com/empresa/" + val._key},
+          {rel : "excluir", method: "DELETE", href: "https://languageadviser.herokuapp.com/empresa/" + val._key}
         ]).end()
       }, err => {
          res.status(500).json(err).end()
@@ -67,10 +67,10 @@ module.exports = function (app) {
         empresa.update(id,dados)
         .then(val => {
           res.status(200).json(val,[
-            {rel : "adicionar", method: "POST", href: "http://localhost:3000/empresa"},
-            {rel : "listar", method: "GET", href: "http://localhost:3000/empresa"},
-            {rel : "procurar", method: "GET", href: "http://localhost:3000/empresa/" + id},
-            {rel : "excluir", method: "DELETE", href: "http://localhost:3000/empresa" + id}
+            {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/empresa"},
+            {rel : "listar", method: "GET", href: "https://languageadviser.herokuapp.com/empresa"},
+            {rel : "procurar", method: "GET", href: "https://languageadviser.herokuapp.com/empresa/" + id},
+            {rel : "excluir", method: "DELETE", href: "https://languageadviser.herokuapp.com/empresa" + id}
           ]).end()
         }, err => {
            res.status(500).json(err).end()
@@ -85,8 +85,8 @@ module.exports = function (app) {
       empresa.remove(id)
       .then(val => {
         res.status(200).json(val,[
-          {rel : "adicionar", method: "POST", href: "http://localhost:3000/empresa"},
-          {rel : "listar", method: "GET", href: "http://localhost:3000/empresa"}
+          {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/empresa"},
+          {rel : "listar", method: "GET", href: "https://languageadviser.herokuapp.com/empresa"}
         ]).end()
       }, err => {
          res.status(500).json(err).end()

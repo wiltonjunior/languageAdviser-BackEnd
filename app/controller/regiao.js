@@ -16,9 +16,9 @@ module.exports = function (app) {
          regiao.save(dados)
          .then(val => {
            res.status(201).json(val,[
-             {rel : "procurar", method : "GET", href: "http://localhost:3000/regiao/" + val._key},
-             {rel : "atualizar", method : "PUT", href: "http://localhost:3000/regiao/" + val._key},
-             {rel : "excluir", method : "DELETE", href: "http://localhost:3000/regiao/" + val._key}
+             {rel : "procurar", method : "GET", href: "https://languageadviser.herokuapp.com/regiao/" + val._key},
+             {rel : "atualizar", method : "PUT", href: "https://languageadviser.herokuapp.com/regiao/" + val._key},
+             {rel : "excluir", method : "DELETE", href: "https://languageadviser.herokuapp.com/regiao/" + val._key}
            ]).end()
          }, err => {
             res.status(500).json(err).end()
@@ -45,9 +45,9 @@ module.exports = function (app) {
       regiao.document(id)
       .then(val => {
         res.status(200).json(val,[
-          {rel : "adicionar", method: "POST", href: "http://localhost:3000/regiao"},
-          {rel : "editar", method: "PUT", href: "http://localhost:3000/regiao/" + val._key},
-          {rel : "excluir", method: "DELETE", href: "http://localhost:3000/regiao/" + val._key}
+          {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/regiao"},
+          {rel : "editar", method: "PUT", href: "https://languageadviser.herokuapp.com/regiao/" + val._key},
+          {rel : "excluir", method: "DELETE", href: "https://languageadviser.herokuapp.com/regiao/" + val._key}
         ]).end()
       }, err=> {
          res.status(500).json(err).end()
@@ -67,10 +67,10 @@ module.exports = function (app) {
          regiao.update(id,dados)
          .then(val => {
            res.status(200).json(val,[
-             {rel : "adicionar", method: "POST", href: "http://localhost:3000/regiao"},
-             {rel : "listar", method: "GET", href: "http://localhost:3000/regiao"},
-             {rel : "procurar", method: "GET", href: "http://localhost:3000/regiao/" + id},
-             {rel : "excluir", method: "DELETE", href: "http://localhost:3000/regiao" + id}
+             {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/regiao"},
+             {rel : "listar", method: "GET", href: "https://languageadviser.herokuapp.com/regiao"},
+             {rel : "procurar", method: "GET", href: "https://languageadviser.herokuapp.com/regiao/" + id},
+             {rel : "excluir", method: "DELETE", href: "https://languageadviser.herokuapp.com/regiao" + id}
            ]).end()
          }, err=> {
             res.status(500).json(err).end()
@@ -85,8 +85,8 @@ module.exports = function (app) {
       regiao.remove(id)
       .then(val => {
         res.status(200).json(val,[
-          {rel : "adicionar", method: "POST", href: "http://localhost:3000/regiao"},
-          {rel : "listar", method: "GET", href: "http://localhost:3000/regiao"}
+          {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/regiao"},
+          {rel : "listar", method: "GET", href: "https://languageadviser.herokuapp.com/regiao"}
         ]).end()
       }, err => {
          res.status(500).json(err).end()

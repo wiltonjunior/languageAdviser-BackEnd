@@ -3,7 +3,7 @@ module.exports = function (app) {
 
    const conteudo = {
       nomeConteudo : Joi.string().required(),
-      caracteristica : Joi.string().required(),
+      descricao : Joi.string().required(),
       idIdioma : Joi.string().required()
    };
 

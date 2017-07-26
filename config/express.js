@@ -6,6 +6,7 @@ var cors = require("cors");
 var hateoas = require("express-hateoas-links");
 var fs = require("fs");
 var formidable = require("formidable");
+var hasha = require("hasha");
 const database = require("./database")();
 
 module.exports = function () {
@@ -16,12 +17,14 @@ module.exports = function () {
   app.set("port", process.env.PORT||3000);
   app.set("fs",fs);
   app.set("formidable",formidable);
+  app.set("hasha",hasha);
 
   app.use(bodyParser.urlencoded({extended:true}));
   app.use(bodyParser.json());
   app.use(require("method-override")());
   app.use(cors());
   app.use(hateoas);
+  app.use(express.static("./public"));
 
   app.disable("x-powered-by");
 

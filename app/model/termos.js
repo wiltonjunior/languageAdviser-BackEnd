@@ -3,7 +3,7 @@ module.exports = function (app) {
 
    const termos = {
       termo : Joi.string().required(),
-      termoReferente : Joi.array().single()
+      termoTraducao : Joi.string().required()
    };
 
    return termos;
