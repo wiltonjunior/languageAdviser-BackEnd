@@ -13,7 +13,7 @@ module.exports = function (app) {
       else {
         var db = req.app.get("database");
         var idioma = db.collection("idioma");
-        idioma.save
+        idioma.save(dados)
         .then(val => {
            res.status(201).json(val,[
              {rel : "procurar", method : "GET", href: "https://languageadviser.herokuapp.com/idioma/" + val._key},
