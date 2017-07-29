@@ -2,6 +2,7 @@ module.exports = function (app) {
    var Joi = app.get("joi");
 
    const autor = {
+     key : Joi.string(),
      nomeAutor : Joi.string().required(),
      emailAutor : Joi.string().required(),
      senhaAutor : Joi.string().required(),

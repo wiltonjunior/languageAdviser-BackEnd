@@ -2,6 +2,7 @@ module.exports = function (app) {
    var Joi = app.get("joi");
 
    const contrato = {
+      key : Joi.string(),
       dataInicio : Joi.date().required(),
       dataTermino : Joi.date().required(),
       palavraChave : Joi.string().required(),
