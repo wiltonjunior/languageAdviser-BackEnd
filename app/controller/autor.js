@@ -66,7 +66,7 @@ module.exports = function (app) {
       } else {
          var db = req.app.get("database");
          var autor = db.collection("autor");
-         autor.update(dados)
+         autor.update(id,dados)
          .then(val => {
             res.status(200).json(val).end()
          }, err => {

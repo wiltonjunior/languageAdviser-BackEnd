@@ -54,7 +54,7 @@ module.exports = function (app) {
      } else {
        var db = req.app.get("database");
        var aluno = db.collection("aluno");
-       aluno.update(dados)
+       aluno.update(id,dados)
        .then(val => {
           res.status(200).json(val).end()
        }, err => {
