@@ -39,11 +39,39 @@ module.exports = function (app) {
       var licao = db.collection("licao");
       licao.document(id)
       .then(val => {
+         val._links = [
+           {rel : "adicionar Conteudo", method : "POST", href : ""},
+           {rel : "adicionar Autor", method: "POST", href : ""}
+         ]
          res.status(200).json(val).end()
       }, err => {
          res.status(500).json(err).end()
       })
    };
+
+   licao.listarAutor = function (req,res) {
+      var id = req.params.id;
+      var db = req.app.get("database");
+      db.query("FOR autor IN autor FOR licao IN licao FILTER licao._key == @id and licao.idAutor == autor._key RETURN autor",{'id' : id})
+      .then(cursor => {
+         cursor.next()
+         .then(val => {
+            res.status(200).json(val).end()
+         })
+      })
+   };
+
+   licao.listarConteudo = function (req,res) {
+      var id = req.params.id;
+      var db = req.app.get("database");
+      db.query("FOR conteudo IN conteudo FOR licao IN licao FILTER licao._key == @id and licao.idConteudo == conteudo._key RETURN conteudo",{'id' : id})
+      .then(cursor => {
+         cursor.next()
+         .then(val => {
+            res.status(200).json(val).end()
+         })
+      })
+   }
 
    licao.estudarLicao = function (req,res) {
       var idLicao = req.params.idLicao;
