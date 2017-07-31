@@ -22,7 +22,7 @@ module.exports = function (app) {
                      .then(val => {
                         if(val!=0) {
                            var resposta = {'mensagem' : 'Contrato com termos parecidos já existe'};
-                           res.status(501).json(resposta);
+                           res.status(409).json(resposta);
                         }
                         else {
                            var contrato = db.collection("contrato");
@@ -69,6 +69,40 @@ module.exports = function (app) {
          });
       });
    };
+
+   contrato.ativo = function (req,res) {
+       var today = new Date();
+       var data = dataAtual(today);
+       var db = req.app.get("database");
+       db.query("LET ANO = (FOR contrato IN contrato RETURN {'idContrato' : contrato._key,'dataTermino' : contrato.dataTermino, 'data' : DATE_DIFF(@data,contrato.dataTermino,'y',false)}) LET MES = (FOR a IN ANO FILTER a.data >= 0 RETURN {'idContrato' : a.idContrato, 'dataTermino' : a.dataTermino, 'data' : DATE_DIFF(@data,a.dataTermino,'m',false)}) LET DIA = (FOR m IN MES FILTER m.data >= 0 RETURN {'idContrato' : m.idContrato, 'dataTermino' : m.dataTermino, 'data' : DATE_DIFF(@data,m.dataTermino,'d',false)}) LET cont = (FOR contrato IN contrato FOR d IN DIA FILTER d.data >= 0 and d.idContrato == contrato._key RETURN contrato) RETURN cont",{'data' : data})
+       .then(cursor => {
+          cursor.next()
+          .then(val => {
+             res.status(200).json(val).end()
+          })
+       })
+   };
+
+   contrato.expirado = function (req,res) {
+      var today = new Date();
+      var data = dataAtual(today);
+      var db = req.app.get("database");
+      db.query("LET ANO = (FOR contrato IN contrato RETURN {'idContrato' : contrato._key,'dataTermino' : contrato.dataTermino, 'data' : DATE_DIFF(@data,contrato.dataTermino,'y',false)}) LET MES = (FOR a IN ANO FILTER a.data <= 0 RETURN {'idContrato' : a.idContrato, 'dataTermino' : a.dataTermino, 'data' : DATE_DIFF(@data,a.dataTermino,'m',false)}) LET DIA = (FOR m IN MES FILTER m.data <= 0 RETURN {'idContrato' : m.idContrato, 'dataTermino' : m.dataTermino, 'data' : DATE_DIFF(@data,m.dataTermino,'d',false)}) LET cont = (FOR contrato IN contrato FOR d IN DIA FILTER d.data < 0 and d.idContrato == contrato._key RETURN contrato) RETURN cont",{'data' : data})
+      .then(cursor => {
+         cursor.next()
+         .then(val => {
+            res.status(200).json(val).end()
+         })
+      })
+   }
+
+   function dataAtual(today) {
+      var dd = today.getDate();
+      var month = today.getMonth() + 1;
+      var year = today.getFullYear();
+      var data = month + "-" + dd + "-" + year;
+      return data;
+   }
 
    contrato.listarContrato = function (req,res) {
       var id = req.params.id;

@@ -8,7 +8,9 @@ module.exports = function (app) {
       email : Joi.string(),
       cidade : Joi.string().required(),
       estado : Joi.string().required(),
-      pais : Joi.string().required()
+      pais : Joi.string().required(),
+      latitude : Joi.string(),
+      longitude : Joi.string()
    };
 
    return empresa;

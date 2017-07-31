@@ -3,6 +3,8 @@ module.exports = function (app) {
 
   app.post("/contrato", contrato.salvar);
   app.get("/contrato", contrato.listar);
+  app.get("/contrato/ativo", contrato.ativo);
+  app.get("/contrato/expirado", contrato.expirado);
   app.get("/contrato/:id", contrato.listarContrato);
   app.get("/contrato/empresa/:id", contrato.listarEmpresa);
   app.get("/contrato/regiao/:id", contrato.listarRegiao);
