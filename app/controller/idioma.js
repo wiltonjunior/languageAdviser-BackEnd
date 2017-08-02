@@ -40,31 +40,31 @@ module.exports = function (app) {
            res.status(500).json(result.error);
          }
          else {
-           var oldpath = files.imagem.path;
-           var hash = hasha.fromFileSync(oldpath,{algorithm : "md5"});
-           var tipo = path.extname(file.imagem.name);
-           var imagem = hash + tipo;
-           var newpath = "./public/imagem/idioma/" + imagem;
-           fs.rename(oldpath,newpath,function (err) {
-              if(err) {
-                res.status(500).json(result.error);
-              }
-              else {
-                dados.nomeImagem = "/imagem/idioma/" + imagem;
-                var db = app.get("database");
-                var idioma = db.collection("idioma");
-                idioma.save(dados)
-                .then(val => {
-                  res.status(201).json(val,[
-                    {rel : "procurar", method : "GET", href: "https://languageadviser.herokuapp.com/idioma/" + val._key},
-                    {rel : "atualizar", method : "PUT", href: "https://languageadviser.herokuapp.com/idioma/" + val._key},
-                    {rel : "excluir", method : "DELETE", href: "https://languageadviser.herokuapp.com/idioma/" + val._key}
-                  ]).end()
-                }, err => {
-                  res.status(500).json(err).end()
-                })
-              }
-           });
+             var oldpath = files.imagem.path;
+             var hash = hasha.fromFileSync(oldpath,{algorithm : "md5"});
+             var tipo = path.extname(files.imagem.name);
+             var imagem = hash + tipo;
+             var newpath = "./public/imagem/idioma/" + imagem;
+             fs.rename(oldpath,newpath,function (err) {
+                if(err) {
+                  res.status(500).json(result.error);
+                }
+                else {
+                  dados.caminhoImagem = "/imagem/idioma/" + imagem;
+                  var db = app.get("database");
+                  var idioma = db.collection("idioma");
+                  idioma.save(dados)
+                  .then(val => {
+                    res.status(201).json(val,[
+                      {rel : "procurar", method : "GET", href: "https://languageadviser.herokuapp.com/idioma/" + val._key},
+                      {rel : "atualizar", method : "PUT", href: "https://languageadviser.herokuapp.com/idioma/" + val._key},
+                      {rel : "excluir", method : "DELETE", href: "https://languageadviser.herokuapp.com/idioma/" + val._key}
+                    ]).end()
+                  }, err => {
+                    res.status(500).json(err).end()
+                  })
+                }
+            });
          }
       });
     };
