@@ -15,7 +15,7 @@ module.exports = function () {
 
   app.set("database",database);
   app.set("joi",Joi);
-  app.set("port", process.env.PORT||3000);
+  app.set("port", process.env.PORT||80);
   app.set("fs",fs);
   app.set("formidable",formidable);
   app.set("hasha",hasha);
