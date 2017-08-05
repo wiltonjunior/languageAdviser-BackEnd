@@ -1,10 +1,9 @@
 module.exports = function (app) {
    var idioma = app.controller.idioma;
 
-   app.post("/idioma", idioma.salvar);
-   app.post("/idioma/teste", idioma.teste);
-   app.get("/idioma", idioma.listar);
-   app.get("/idioma/:id", idioma.listarIdioma);
-   app.put("/idioma/:id", idioma.editar);
-   app.delete("/idioma/:id", idioma.deletar);
+   app.post("/idiomas", idioma.salvar);
+   app.get("/idiomas", idioma.listar);
+   app.get("/idiomas/:id", idioma.listarIdioma);
+   app.put("/idiomas/:id", idioma.editar);
+   app.delete("/idiomas/:id", idioma.deletar);
 }

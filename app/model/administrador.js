@@ -6,8 +6,10 @@ module.exports = function (app) {
      nomeAdministrador : Joi.string().required(),
      emailAdministrador : Joi.string().required(),
      senhaAdministrador : Joi.string().required(),
+     dataNascimento : Joi.string().required(),
      telefone : Joi.string().required(),
      sexo : Joi.string().required(),
+     caminhoImagem : Joi.string()
    }
 
    return administrador;

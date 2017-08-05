@@ -8,18 +8,19 @@ module.exports = function (app) {
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if(result.error!=null) {
-        res.status(500).json(result.error);
+        res.status(400).json(result.error);
       }
       else {
         var db = req.app.get("database");
         var empresa = db.collection("empresa");
         empresa.save(dados)
         .then(val => {
-          res.status(201).json(val,[
-            {rel : "procurar", method : "GET", href: "https://languageadviser.herokuapp.com/empresa/" + val._key},
-            {rel : "atualizar", method : "PUT", href: "https://languageadviser.herokuapp.com/empresa/" + val._key},
-            {rel : "excluir", method : "DELETE", href: "https://languageadviser.herokuapp.com/empresa/" + val._key}
-          ]).end()
+          val._links = [
+            {rel : "procurar", method : "GET", href: "http://191.252.109.164/empresas/" + val._key},
+            {rel : "atualizar", method : "PUT", href: "http://191.252.109.164/empresas/" + val._key},
+            {rel : "excluir", method : "DELETE", href: "http://191.252.109.164/empresas/" + val._key}
+          ]
+          res.status(201).json(val).end()
         }, err => {
            res.status(500).json(err).end();
         });
@@ -33,7 +34,7 @@ module.exports = function (app) {
       .then(cursor => {
         cursor.all()
         .then(val => {
-          res.status(200).json(val).end()
+          res.status(200).json(val).end();
         });
       });
    };
@@ -44,11 +45,12 @@ module.exports = function (app) {
       var empresa = db.collection("empresa");
       empresa.document(id)
       .then(val => {
-        res.status(200).json(val,[
-          {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/empresa"},
-          {rel : "editar", method: "PUT", href: "https://languageadviser.herokuapp.com/empresa/" + val._key},
-          {rel : "excluir", method: "DELETE", href: "https://languageadviser.herokuapp.com/empresa/" + val._key}
-        ]).end()
+        val._links = [
+          {rel : "adicionar", method: "POST", href: "http://191.252.109.164/empresas"},
+          {rel : "editar", method: "PUT", href: "http://191.252.109.164/empresas/" + val._key},
+          {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/empresas/" + val._key}
+        ]
+        res.status(200).json(val).end()
       }, err => {
          res.status(500).json(err).end()
       });
@@ -59,19 +61,20 @@ module.exports = function (app) {
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if(result.error!=null) {
-         res.status(500).json(result.error);
+         res.status(400).json(result.error);
       }
       else {
         var db = req.app.get("database");
         var empresa = db.collection("empresa");
         empresa.update(id,dados)
         .then(val => {
-          res.status(200).json(val,[
-            {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/empresa"},
-            {rel : "listar", method: "GET", href: "https://languageadviser.herokuapp.com/empresa"},
-            {rel : "procurar", method: "GET", href: "https://languageadviser.herokuapp.com/empresa/" + id},
-            {rel : "excluir", method: "DELETE", href: "https://languageadviser.herokuapp.com/empresa" + id}
-          ]).end()
+          val._links = [
+            {rel : "adicionar", method: "POST", href: "http://191.252.109.164/empresas"},
+            {rel : "listar", method: "GET", href: "http://191.252.109.164/empresas"},
+            {rel : "procurar", method: "GET", href: "http://191.252.109.164/empresas/" + id},
+            {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/empresas/" + id}
+          ]
+          res.status(200).json(val).end()
         }, err => {
            res.status(500).json(err).end()
         });
@@ -84,10 +87,11 @@ module.exports = function (app) {
       var empresa = db.collection("empresa");
       empresa.remove(id)
       .then(val => {
-        res.status(200).json(val,[
-          {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/empresa"},
-          {rel : "listar", method: "GET", href: "https://languageadviser.herokuapp.com/empresa"}
-        ]).end()
+        val._links = [
+          {rel : "adicionar", method: "POST", href: "http://191.252.109.164/empresas"},
+          {rel : "listar", method: "GET", href: "http://191.252.109.164/empresas"}
+        ]
+        res.status(200).json(val).end()
       }, err => {
          res.status(500).json(err).end()
       });

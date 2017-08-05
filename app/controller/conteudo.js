@@ -8,17 +8,18 @@ module.exports = function (app) {
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if (result.error!=null) {
-         res.status(501).json(result.error);
+         res.status(400).json(result.error);
       } else {
          var db = req.app.get("database");
          var conteudo = db.collection("conteudo");
          conteudo.save(dados)
          .then(val => {
-            res.status(201).json(val,[
-              {rel : "procurar", method : "GET", href: "https://languageadviser.herokuapp.com//conteudo/" + val._key},
-              {rel : "atualizar", method : "PUT", href: "https://languageadviser.herokuapp.com//conteudo/" + val._key},
-              {rel : "excluir", method : "DELETE", href: "https://languageadviser.herokuapp.com//conteudo/" + val._key}
-            ]).end()
+            val.links = [
+              {rel : "procurar", method : "GET", href: "http://191.252.109.164/conteudos/" + val._key},
+              {rel : "atualizar", method : "PUT", href: "http://191.252.109.164/conteudos/" + val._key},
+              {rel : "excluir", method : "DELETE", href: "http://191.252.109.164/conteudos/" + val._key}
+            ]
+            res.status(201).json(val).end()
          }, err => {
             res.status(500).json(err).end()
          });
@@ -43,12 +44,13 @@ module.exports = function (app) {
       var conteudo = db.collection("conteudo");
       conteudo.document(id)
       .then(val => {
-         res.status(200).json(val,[
-           {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/conteudo"},
-           {rel : "idioma", method: "GET", href: "https://languageadviser.herokuapp.com/conteudo/idioma/" + val._key},
-           {rel : "editar", method: "PUT", href: "https://languageadviser.herokuapp.com/conteudo/" + val._key},
-           {rel : "excluir", method: "DELETE", href: "https://languageadviser.herokuapp.com/conteudo/" + val._key}
-         ]).end()
+         val._links = [
+           {rel : "adicionar", method: "POST", href: "http://191.252.109.164/conteudos"},
+           {rel : "idioma", method: "GET", href: "http://191.252.109.164/conteudos/idioma/" + val._key},
+           {rel : "editar", method: "PUT", href: "http://191.252.109.164/conteudos/" + val._key},
+           {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/conteudos/" + val._key}
+         ]
+         res.status(200).json(val).end()
       }, err => {
          res.status(500).json(err).end()
       });
@@ -61,12 +63,13 @@ module.exports = function (app) {
       .then(cursor => {
          cursor.next()
          .then(val => {
-            res.status(200).json(val,[
-              {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/conteudo"},
-              {rel : "listar", method: "GET", href: "https://languageadviser.herokuapp.com/conteudo"},
-              {rel : "editar", method: "PUT", href: "https://languageadviser.herokuapp.com/conteudo/" + id},
-              {rel : "excluir", method: "DELETE", href: "https://languageadviser.herokuapp.com/conteudo/" + id}
-            ]).end();
+            val._links = [
+              {rel : "adicionar", method: "POST", href: "http://191.252.109.164/conteudos"},
+              {rel : "listar", method: "GET", href: "http://191.252.109.164/conteudos"},
+              {rel : "editar", method: "PUT", href: "http://191.252.109.164/conteudos/" + id},
+              {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/conteudos/" + id}
+            ]
+            res.status(200).json(val).end();
          });
       });
    };
@@ -77,18 +80,19 @@ module.exports = function (app) {
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if (result.error!=null) {
-         res.status(501).json(result.error);
+         res.status(400).json(result.error);
       } else {
          var db = req.app.get("database");
          var conteudo = db.collection("conteudo");
          conteudo.update(id,dados)
          .then(val => {
-            res.status(200).json(val,[
-              {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/conteudo"},
-              {rel : "listar", method: "GET", href: "https://languageadviser.herokuapp.com/conteudo"},
-              {rel : "procurar", method: "GET", href: "https://languageadviser.herokuapp.com/conteudo/" + id},
-              {rel : "excluir", method: "DELETE", href: "https://languageadviser.herokuapp.com/conteudo" + id}
-            ]).end()
+            val._links = [
+              {rel : "adicionar", method: "POST", href: "http://191.252.109.164/conteudos"},
+              {rel : "listar", method: "GET", href: "http://191.252.109.164/conteudos"},
+              {rel : "procurar", method: "GET", href: "http://191.252.109.164/conteudos/" + id},
+              {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/conteudos/" + id}
+            ]
+            res.status(200).json(val).end()
          }, err => {
             res.status(500).json(err).end()
          });
@@ -101,10 +105,11 @@ module.exports = function (app) {
        var conteudo = db.collection("conteudo");
        conteudo.remove(id)
        .then(val => {
-          res.status(200).json(val,[
-            {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/conteudo"},
-            {rel : "listar", method: "GET", href: "https://languageadviser.herokuapp.com/conteudo"}
-          ]).end()
+          val._links = [
+            {rel : "adicionar", method: "POST", href: "http://191.252.109.164/conteudos"},
+            {rel : "listar", method: "GET", href: "http://191.252.109.164/conteudos"}
+          ]
+          res.status(200).json(val).end()
        }, err => {
           res.status(500).json(err).end()
        });

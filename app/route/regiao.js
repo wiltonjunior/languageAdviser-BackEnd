@@ -1,9 +1,9 @@
 module.exports = function (app) {
    var regiao = app.controller.regiao;
 
-   app.post("/regiao", regiao.salvar);
-   app.get("/regiao", regiao.listar);
-   app.get("/regiao/:id", regiao.listarRegiao);
-   app.put("/regiao/:id", regiao.editar);
-   app.delete("/regiao/:id", regiao.deletar);
+   app.post("/regioes", regiao.salvar);
+   app.get("/regioes", regiao.listar);
+   app.get("/regioes/:id", regiao.listarRegiao);
+   app.put("/regioes/:id", regiao.editar);
+   app.delete("/regioes/:id", regiao.deletar);
 }

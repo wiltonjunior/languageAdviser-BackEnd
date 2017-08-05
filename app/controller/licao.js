@@ -8,12 +8,17 @@ module.exports = function (app) {
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if (result.error!=null) {
-         res.status(500).json(result.error);
+         res.status(400).json(result.error);
       } else {
           var db = req.app.get("database");
           var licao = db.collection("licao");
           licao.save(dados)
           .then(val => {
+             val._links = [
+               {rel : "procurar", method : "GET", href: "http://191.252.109.164/licoes/" + val._key},
+               {rel : "atualizar", method : "PUT", href: "http://191.252.109.164/licoes/" + val._key},
+               {rel : "excluir", method : "DELETE", href: "http://191.252.109.164/licoes/" + val._key}
+             ]
              res.status(201).json(val).end()
           }, err => {
              res.status(500).json(err).end()
@@ -40,8 +45,8 @@ module.exports = function (app) {
       licao.document(id)
       .then(val => {
          val._links = [
-           {rel : "adicionar Conteudo", method : "POST", href : ""},
-           {rel : "adicionar Autor", method: "POST", href : ""}
+           {rel : "adicionar Conteudo", method : "POST", href : "http://191.252.109.164/licoes/conteudos"},
+           {rel : "adicionar Autor", method: "POST", href : "http://191.252.109.164/licoes/autores"}
          ]
          res.status(200).json(val).end()
       }, err => {
@@ -56,6 +61,10 @@ module.exports = function (app) {
       .then(cursor => {
          cursor.next()
          .then(val => {
+           val._links = [
+              {rel : "adicionar" ,method: "POST", href: "http://191.252.109.164/licoes"},
+              {rel : "listar" ,method: "GET", href: "http://191.252.109.164/licoes"}
+           ]
             res.status(200).json(val).end()
          })
       })
@@ -68,6 +77,10 @@ module.exports = function (app) {
       .then(cursor => {
          cursor.next()
          .then(val => {
+            val._links = [
+               {rel : "adicionar" ,method: "POST", href: "http://191.252.109.164/licoes"},
+               {rel : "listar" ,method: "GET", href: "http://191.252.109.164/licoes"}
+            ]
             res.status(200).json(val).end()
          })
       })
@@ -116,12 +129,18 @@ module.exports = function (app) {
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if (result.error!=null) {
-         res.status(500).json(result.error).end()
+         res.status(400).json(result.error).end()
       } else {
          var db = req.app.get("database");
          var licao = db.collection("licao");
          licao.update(id,dados)
          .then(val => {
+            val._links = [
+              {rel : "adicionar", method: "POST", href: "http://191.252.109.164/licoes"},
+              {rel : "listar", method: "GET", href: "http://191.252.109.164/licoes"},
+              {rel : "procurar", method: "GET", href: "http://191.252.109.164/licoes/" + id},
+              {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/licoes/" + id}
+            ]
             res.status(200).json(val).end()
          }, err => {
             res.status(500).json(err).end()
@@ -135,6 +154,10 @@ module.exports = function (app) {
       var licao = db.collection("licao");
       licao.remove(id)
       .then(val => {
+         val._links = [
+           {rel : "adicionar", method: "POST", href: "http://191.252.109.164/licoes"},
+           {rel : "listar", method: "GET", href: "http://191.252.109.164/licoes"}
+         ]
          res.status(200).json(val).end()
       }, err => {
          res.status(500).json(err).end()

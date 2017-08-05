@@ -4,7 +4,8 @@ module.exports = function (app) {
    const licao = {
      _key : Joi.string(),
      nomeLicao : Joi.string().required(),
-     texto : Joi.string().required(),
+     descricao : Joi.string().required(),
+     data : Joi.string(),
      idAutor : Joi.string().required(),
      idConteudo : Joi.string().required()
    }

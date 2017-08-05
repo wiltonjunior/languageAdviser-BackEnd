@@ -1,12 +1,12 @@
 module.exports = function (app) {
     var licao = app.controller.licao;
 
-    app.post("/licao",licao.salvar);
-    app.get("/licao",licao.listar);
-    app.get("/licao/:id",licao.listarLicao);
-    app.get("/licao/autor/:id",licao.listarAutor);
-    app.get("/licao/conteudo/:id",licao.listarConteudo);
-    app.get("/licao/estudar/:idLicao&:idUsuario",licao.estudarLicao);
-    app.put("/licao/:id",licao.editar);
-    app.delete("/licao/:id",licao.deletar);
+    app.post("/licoes",licao.salvar);
+    app.get("/licoes",licao.listar);
+    app.get("/licoes/:id",licao.listarLicao);
+    app.get("/licoes/autor/:id",licao.listarAutor);
+    app.get("/licoes/conteudo/:id",licao.listarConteudo);
+    app.get("/licoes/estudar/:idLicao&:idUsuario",licao.estudarLicao);
+    app.put("/licoes/:id",licao.editar);
+    app.delete("/licoes/:id",licao.deletar);
 }

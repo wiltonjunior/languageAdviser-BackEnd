@@ -8,18 +8,19 @@ module.exports = function (app) {
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if (result.error!=null) {
-         res.status(500).json(result.error);
+         res.status(400).json(result.error);
       }
       else {
          var db = req.app.get("database");
          var regiao = db.collection("regiao");
          regiao.save(dados)
          .then(val => {
-           res.status(201).json(val,[
-             {rel : "procurar", method : "GET", href: "https://languageadviser.herokuapp.com/regiao/" + val._key},
-             {rel : "atualizar", method : "PUT", href: "https://languageadviser.herokuapp.com/regiao/" + val._key},
-             {rel : "excluir", method : "DELETE", href: "https://languageadviser.herokuapp.com/regiao/" + val._key}
-           ]).end()
+           val._links = [
+             {rel : "procurar", method : "GET", href: "http://191.252.109.164/regioes/" + val._key},
+             {rel : "atualizar", method : "PUT", href: "http://191.252.109.164/regioes/" + val._key},
+             {rel : "excluir", method : "DELETE", href: "http://191.252.109.164/regioes/" + val._key}
+           ]
+           res.status(201).json(val).end()
          }, err => {
             res.status(500).json(err).end()
          });
@@ -44,11 +45,12 @@ module.exports = function (app) {
       var regiao = db.collection("regiao");
       regiao.document(id)
       .then(val => {
-        res.status(200).json(val,[
-          {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/regiao"},
-          {rel : "editar", method: "PUT", href: "https://languageadviser.herokuapp.com/regiao/" + val._key},
-          {rel : "excluir", method: "DELETE", href: "https://languageadviser.herokuapp.com/regiao/" + val._key}
-        ]).end()
+        val._links = [
+          {rel : "adicionar", method: "POST", href: "http://191.252.109.164/regioes"},
+          {rel : "editar", method: "PUT", href: "http://191.252.109.164/regioes/" + val._key},
+          {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/regioes/" + val._key}
+        ]
+        res.status(200).json(val).end()
       }, err=> {
          res.status(500).json(err).end()
       });
@@ -59,19 +61,20 @@ module.exports = function (app) {
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if (result.error!=null) {
-         res.status(500).json(result.error);
+         res.status(400).json(result.error);
       }
       else {
          var db = req.app.get("database");
          var regiao = db.collection("regiao");
          regiao.update(id,dados)
          .then(val => {
-           res.status(200).json(val,[
-             {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/regiao"},
-             {rel : "listar", method: "GET", href: "https://languageadviser.herokuapp.com/regiao"},
-             {rel : "procurar", method: "GET", href: "https://languageadviser.herokuapp.com/regiao/" + id},
-             {rel : "excluir", method: "DELETE", href: "https://languageadviser.herokuapp.com/regiao" + id}
-           ]).end()
+           val._links = [
+             {rel : "adicionar", method: "POST", href: "http://191.252.109.164/regioes"},
+             {rel : "listar", method: "GET", href: "http://191.252.109.164/regioes"},
+             {rel : "procurar", method: "GET", href: "http://191.252.109.164/regioes/" + id},
+             {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/regioes/" + id}
+           ]
+           res.status(200).json(val).end()
          }, err=> {
             res.status(500).json(err).end()
          });
@@ -84,10 +87,11 @@ module.exports = function (app) {
       var regiao = db.collection("regiao");
       regiao.remove(id)
       .then(val => {
-        res.status(200).json(val,[
-          {rel : "adicionar", method: "POST", href: "https://languageadviser.herokuapp.com/regiao"},
-          {rel : "listar", method: "GET", href: "https://languageadviser.herokuapp.com/regiao"}
-        ]).end()
+        val._links = [
+          {rel : "adicionar", method: "POST", href: "http://191.252.109.164/regioes"},
+          {rel : "listar", method: "GET", href: "http://191.252.109.164/regioes"}
+        ]
+        res.status(200).json(val).end()
       }, err => {
          res.status(500).json(err).end()
       });

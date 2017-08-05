@@ -1,10 +1,10 @@
 module.exports = function (app) {
    var autor = app.controller.autor;
 
-   app.post("/autor",autor.salvar);
-   app.get("/autor",autor.listar);
-   app.get("/autor/:id",autor.listarAutor);
-   app.get("/autor/idioma/:id",autor.listarIdioma);
-   app.put("/autor/:id",autor.editar);
-   app.delete("/autor/:id",autor.deletar);
+   app.post("/autores",autor.salvar);
+   app.get("/autores",autor.listar);
+   app.get("/autores/:id",autor.listarAutor);
+   app.get("/autores/idioma/:id",autor.listarIdioma);
+   app.put("/autores/:id",autor.editar);
+   app.delete("/autores/:id",autor.deletar);
 }
