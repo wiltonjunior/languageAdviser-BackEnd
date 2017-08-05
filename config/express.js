@@ -3,7 +3,6 @@ var bodyParser = require("body-parser");
 var load = require("express-load");
 var Joi = require("joi");
 var cors = require("cors");
-var hateoas = require("express-hateoas-links");
 var fs = require("fs");
 var formidable = require("formidable");
 var hasha = require("hasha");
@@ -25,7 +24,6 @@ module.exports = function () {
   app.use(bodyParser.json());
   app.use(require("method-override")());
   app.use(cors());
-  app.use(hateoas);
   app.use(express.static("./public"));
 
   app.disable("x-powered-by");
