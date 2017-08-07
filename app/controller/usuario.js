@@ -56,12 +56,12 @@ module.exports = function (app) {
    usuario.login = function (req,res) {
       var dados = req.body;
       var db = req.app.get("database");
-      db.query("FOR usuario IN usuario FOR aluno IN aluno FILTER aluno._key == usuario._key and aluno.emailAluno == @email and aluno.senhaAluno == @senha RETURN {'_key' : aluno._key, 'nomeAluno' : aluno.nomeAluno,'emailAluno' : aluno.emailAluno,'senhaAluno' : aluno.senhaAluno,'sexo' : aluno.sexo,'telefone' : aluno.telefone,'pais' : aluno.pais,'estado' : aluno.estado,'cidade' : aluno.cidade,'caminhoImagem' : aluno.caminhoImagem,'Idioma' : usuario.idIdioma}",{'email' : dados.email,'senha' : dados.senha})
+      db.query("FOR aluno IN aluno FILTER aluno.emailAluno == @email and aluno.senhaAluno == @senha RETURN aluno",{'email' : dados.email,'senha' : dados.senha})
       .then(cursor => {
          cursor.next()
          .then(val => {
             if(val==null) {
-              db.query("FOR autor IN autor FILTER autor.emailAutor == @email and autor.senhaAutor == @senha RETURN {'_key' : autor._key,'nomeAutor' : autor.nomeAutor,'emailAutor' : autor.emailAutor,'senhaAutor' : autor.senhaAutor,'sexo' : autor.sexo,'telefone' : autor.telefone,'pais' : autor.pais,'estado': autor.estado,'cidade' : autor.cidade,'idIdioma' : autor.idIdioma,'caminhoImagem' : autor.caminhoImagem,'Idioma' : usuario.idIdioma}",{'email' : dados.email,'senha' : dados.senha})
+              db.query("FOR autor IN autor FILTER autor.emailAutor == @email and autor.senhaAutor == @senha RETURN autor",{'email' : dados.email,'senha' : dados.senha})
               .then(curosr => {
                  cursor.next()
                  .then(val => {

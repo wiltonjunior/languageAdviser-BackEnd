@@ -75,6 +75,7 @@ module.exports = function (app) {
      var idDialogo = req.params.idDialogo;
      var idUsuario = req.params.idUsuario;
      var db = req.app.get("database");
+
      db.query("FOR dialogo IN dialogo FILTER dialogo._key == @id RETURN dialogo",{'id' : idDialogo})
      .then(cursor => {
         cursor.next()
@@ -91,7 +92,7 @@ module.exports = function (app) {
                     .then(val => {
                        if (val!=null) {
                          for(var i = 0; i < val.length; i++) {
-                            var palavra = val[i].termo;
+                            var palavra = val[i].termoTraducao;
                             var resultado = dialogo.texto.search(palavra);
                             if(resultado>0) {
                                var re = new RegExp(palavra,"g");
@@ -108,7 +109,7 @@ module.exports = function (app) {
         });
      });
    };
-
+   
    dialogo.editar = function (req,res) {
       var id = req.params.id;
       var dados = req.body;

@@ -5,7 +5,7 @@ module.exports = function (app) {
       _key : Joi.string(),
       nomeEmpresa : Joi.string().required(),
       telefone : Joi.string().required(),
-      email : Joi.string(),
+      email : Joi.string().required(),
       cidade : Joi.string().required(),
       estado : Joi.string().required(),
       pais : Joi.string().required(),
