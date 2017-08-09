@@ -11,6 +11,7 @@ module.exports = function (app) {
          res.status(400).json(result.error);
       } else {
          dados.caminhoImagem = "/imagem/usuario.jpg";
+         dados.status = 1;
          var db = req.app.get("database");
          var aluno = db.collection("aluno");
          aluno.save(dados)

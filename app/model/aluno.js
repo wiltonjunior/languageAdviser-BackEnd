@@ -11,7 +11,8 @@ module.exports = function (app) {
      pais : Joi.string(),
      estado : Joi.string(),
      cidade : Joi.string(),
-     caminhoImagem : Joi.string()
+     caminhoImagem : Joi.string(),
+     status : Joi.number().integer()
    }
 
    return aluno;

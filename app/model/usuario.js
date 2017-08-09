@@ -3,7 +3,7 @@ module.exports = function (app) {
 
    const usuario = {
       _key : Joi.string().required(),
-      idIdioma : Joi.array().single()
+      idIdioma : Joi.array().single().required()
    }
 
    return usuario;

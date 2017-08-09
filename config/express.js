@@ -8,6 +8,7 @@ var formidable = require("formidable");
 var hasha = require("hasha");
 var path = require("path");
 const database = require("./database")();
+const googleMaps = require("./googleMaps")();
 
 module.exports = function () {
   var app = express();
@@ -19,6 +20,7 @@ module.exports = function () {
   app.set("formidable",formidable);
   app.set("hasha",hasha);
   app.set("path",path);
+  app.set("googleMaps",googleMaps);
 
   app.use(bodyParser.urlencoded({extended:true}));
   app.use(bodyParser.json());

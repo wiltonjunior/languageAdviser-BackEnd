@@ -9,7 +9,8 @@ module.exports = function (app) {
      dataNascimento : Joi.string().required(),
      telefone : Joi.string().required(),
      sexo : Joi.string().required(),
-     caminhoImagem : Joi.string()
+     caminhoImagem : Joi.string(),
+     status : Joi.number().integer()
    }
 
    return administrador;

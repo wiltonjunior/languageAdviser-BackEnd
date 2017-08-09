@@ -12,7 +12,8 @@ module.exports = function (app) {
      estado : Joi.string(),
      cidade : Joi.string(),
      idIdioma : Joi.string().required(),
-     caminhoImagem : Joi.string()
+     caminhoImagem : Joi.string(),
+     status : Joi.number().integer()
    }
 
    return autor;
