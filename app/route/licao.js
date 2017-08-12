@@ -7,6 +7,7 @@ module.exports = function (app) {
     app.get("/licoes/autor/:id",licao.listarAutor);
     app.get("/licoes/conteudo/:id",licao.listarConteudo);
     app.get("/licoes/estudar/:idLicao&:idUsuario",licao.estudarLicao);
+    app.get("/licoes/avaliacao/:idLicao&:avaliacao",licao.editarVotos);
     app.put("/licoes/:id",licao.editar);
     app.delete("/licoes/:id",licao.deletar);
 }

@@ -10,6 +10,8 @@ module.exports = function (app) {
       if (result.error!=null) {
          res.status(400).json(result.error);
       } else {
+          dados.avaliacao = 0;
+          dados.quantidadeVotos = 0;
           var db = req.app.get("database");
           var licao = db.collection("licao");
           licao.save(dados)
@@ -84,7 +86,7 @@ module.exports = function (app) {
             res.status(200).json(val).end()
          })
       })
-   }
+   };
 
    licao.estudarLicao = function (req,res) {
       var idLicao = req.params.idLicao;
@@ -146,6 +148,36 @@ module.exports = function (app) {
             res.status(500).json(err).end()
          })
       }
+   };
+
+   licao.editarVotos = function (req,res) {
+      var idLicao = req.params.idLicao;
+      var avaliacao = req.params.avaliacao;
+      var aval = parseInt(avaliacao);
+      var db = req.app.get("database");
+      db.query("FOR licao IN licao FILTER licao._key == @id RETURN licao",{'id' : idLicao})
+      .then(cursor => {
+         cursor.next()
+         .then(val => {
+            var quantidade = val.quantidadeVotos + 1;
+            var media = ((val.avaliacao * val.quantidadeVotos) + aval)/quantidade;
+            val.avaliacao = media;
+            val.quantidadeVotos = quantidade;
+            var licao = db.collection("licao");
+            licao.update(idLicao,{'avaliacao' : val.avaliacao,'quantidadeVotos' : val.quantidadeVotos})
+            .then(val => {
+              val._links = [
+                {rel : "adicionar", method: "POST", href: "http://191.252.109.164/licoes"},
+                {rel : "listar", method: "GET", href: "http://191.252.109.164/licoes"},
+                {rel : "procurar", method: "GET", href: "http://191.252.109.164/licoes/" + idLicao},
+                {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/licoes/" + idLicao}
+              ]
+              res.status(200).json(val).end()
+            }, err => {
+              res.status(500).json(err).end()
+            })
+         })
+      })
    };
 
    licao.deletar = function (req,res) {

@@ -71,45 +71,52 @@ module.exports = function (app) {
      })
    };
 
-   dialogo.estudar = function (req,res) {
-     var idDialogo = req.params.idDialogo;
-     var idUsuario = req.params.idUsuario;
-     var db = req.app.get("database");
-
-     db.query("FOR dialogo IN dialogo FILTER dialogo._key == @id RETURN dialogo",{'id' : idDialogo})
-     .then(cursor => {
-        cursor.next()
-        .then(val => {
-           var dialogo = val;
-           db.query("FOR aluno IN aluno FILTER aluno._key == @id RETURN aluno",{'id' : idUsuario})
-           .then(cursor => {
-              cursor.next()
-              .then(val => {
-                 var aluno = val;
-                 db.query("LET reg = (FOR regiao IN regiao FILTER regiao.localizacao == @pais or regiao.localizacao == @estado or regiao.localizacao == @cidade RETURN regiao._key) LET cont = (FOR contrato IN contrato FOR r IN reg FILTER contrato.idRegiao == r RETURN contrato) LET term = (FOR termo IN termos FOR c IN cont FILTER termo._key == c.idTermo or termo._key IN c.idTermo RETURN {'_key' : termo._key,'termo' : termo.termo,'termoTraducao' : termo.termoTraducao,'palavraChave' : c.palavraChave}) RETURN term",{'pais':aluno.pais,'estado':aluno.estado,'cidade':aluno.cidade})
-                 .then(cursor => {
-                    cursor.next()
-                    .then(val => {
-                       if (val!=null) {
-                         for(var i = 0; i < val.length; i++) {
-                            var palavra = val[i].termoTraducao;
-                            var resultado = dialogo.texto.search(palavra);
-                            if(resultado>0) {
-                               var re = new RegExp(palavra,"g");
-                               var textoFinal = dialogo.texto.replace(re,palavra + " " + val[i].palavraChave);
-                               dialogo.texto = textoFinal;
-                            }
-                         }
+   dialogo.estudar = async function (req,res) {
+      var dados = req.body;
+      var db = req.app.get("database");
+      db.query("FOR dialogo IN dialogo FILTER dialogo._key == @id RETURN dialogo",{'id' : dados.idDialogo})
+      .then(cursor => {
+         cursor.next()
+         .then(async val => {
+            var dialogo = val;
+            var contrato = await contratoAtivo(db);
+            db.query("LET reg = (FOR regiao IN regiao FILTER regiao.localizacao == @pais or regiao.localizacao == @estado or regiao.localizacao == @cidade RETURN regiao._key) LET cont = (FOR c IN @contrato FOR r IN reg FILTER c.idRegiao == r RETURN c) LET term = (FOR termo IN termos FOR c IN cont FILTER termo._key == c.idTermo or termo._key IN c.idTermo RETURN {'_key' : termo._key,'termo' : termo.termo,'termoTraducao' : termo.termoTraducao,'palavraChave' : c.palavraChave}) RETURN term",{'pais' : dados.pais,'estado' : dados.estado,'cidade' : dados.cidade,'contrato' : contrato})
+            .then(cursor => {
+               cursor.next()
+               .then(val => {
+                  if (val!=null) {
+                    for(var i = 0; i < val.length; i++) {
+                       var palavra = val[i].termoTraducao;
+                       var resultado = dialogo.texto.search(palavra);
+                       if(resultado>0) {
+                         var re = new RegExp(palavra,"g");
+                         var textoFinal = dialogo.texto.replace(re,palavra + " " + val[i].palavraChave);
+                         dialogo.texto = textoFinal;
                        }
-                       res.status(200).json(dialogo);
-                    });
-                 });
-              });
-           });
-        });
-     });
+                    }
+                  }
+                  res.status(200).json(dialogo).end()
+               })
+            })
+         })
+      })
    };
-   
+
+   async function contratoAtivo(db) {
+     var today = new Date();
+     var data = dataAtual(today);
+     var resultado = await db.query("LET ANO = (FOR contrato IN contrato RETURN {'idContrato' : contrato._key,'dataTermino' : contrato.dataTermino, 'data' : DATE_DIFF(@data,contrato.dataTermino,'y',false)}) LET MES = (FOR a IN ANO FILTER a.data >= 0 RETURN {'idContrato' : a.idContrato, 'dataTermino' : a.dataTermino, 'data' : DATE_DIFF(@data,a.dataTermino,'m',false)}) LET DIA = (FOR m IN MES FILTER m.data >= 0 RETURN {'idContrato' : m.idContrato, 'dataTermino' : m.dataTermino, 'data' : DATE_DIFF(@data,m.dataTermino,'d',false)}) LET cont = (FOR contrato IN contrato FOR d IN DIA FILTER d.data >= 0 and d.idContrato == contrato._key RETURN contrato) RETURN cont",{'data' : data});
+     return resultado._result[0];
+   };
+
+   function dataAtual(today) {
+     var dd = today.getDate();
+     var month = today.getMonth() + 1;
+     var year = today.getFullYear();
+     var data = month + "-" + dd + "-" + year;
+     return data;
+   };
+
    dialogo.editar = function (req,res) {
       var id = req.params.id;
       var dados = req.body;
