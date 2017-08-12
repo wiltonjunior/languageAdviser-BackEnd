@@ -173,9 +173,9 @@ module.exports = function (app) {
    contrato.listarRegiao = function (req,res) {
       var id = req.params.id;
       var db = req.app.get("database");
-      db.query("FOR regiao IN regiao FOR contrato IN contrato FILTER contrato._key == @id and contrato.idRegiao == regiao._key RETURN regiao",{'id' : id})
+      db.query("FOR regiao IN regiao FOR contrato IN contrato FILTER contrato._key == @id and contrato.idRegiao == regiao._key or regiao._key IN contrato.idRegiao RETURN regiao",{'id' : id})
       .then(cursor => {
-         cursor.next()
+         cursor.all()
          .then(val => {
            val._links = [
              {rel : "adicionar", method: "POST", href: "http://191.252.109.164/contratos"},

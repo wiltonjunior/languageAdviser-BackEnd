@@ -1,7 +1,3 @@
-var googleMaps = require("@google/maps").createClient({
-  key : "AIzaSyDIn5FpORLFp0zTqs1vyj4dpDEj04JFoXY"
-});
-
 module.exports = function (app) {
    var model = app.model.usuario;
    var Joi = app.get("joi");
@@ -54,146 +50,135 @@ module.exports = function (app) {
      })
    };
 
-   usuario.login = function (req,res) {
+   usuario.login = async function(req,res) {
       var dados = req.body;
       var db = req.app.get("database");
-      db.query("FOR aluno IN aluno FOR usuario IN usuario FILTER aluno.emailAluno == @email and aluno.senhaAluno == @senha and aluno._key == usuario._key RETURN {aluno,usuario}",{'email' : dados.email,'senha' : dados.senha})
-      .then(cursor => {
-         cursor.next()
-         .then(val => {
-            if(val==null) {
-              db.query("FOR autor IN autor FOR usuario IN usuario FILTER autor.emailAutor == @email and autor.senhaAutor == @senha and autor._key == usuario._key RETURN {autor,usuario}",{'email' : dados.email,'senha' : dados.senha})
-              .then(curosr => {
-                 cursor.next()
-                 .then(val => {
-                    if (val==null) {
-                      db.query("FOR administrador IN administrador FILTER administrador.emailAdministrador == @email and administrador.senhaAdministrador == @senha RETURN administrador",{'email' : dados.email,'senha' : dados.senha})
-                      .then(cursor => {
-                        cursor.next()
-                        .then(val => {
-                          if (val==null) {
-                            var resposta = {'mensagem' : 'Usuário não encontrado'};
-                             resposta._links = [
-                               {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
-                               {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
-                               {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"}
-                             ]
-                             res.status(404).json(resposta);
-                          } else {
-                            val._links = [
-                              {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
-                              {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
-                              {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"}
-                            ]
-                            res.status(200).json(val).end()
-                          }
-                        })
-                      })
-                    }
-                    else {
-                      val._links = [
-                        {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
-                        {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
-                        {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"}
-                      ]
-                      res.status(200).json(val).end()
-                    }
-                 })
-              })
-            }
-            else {
-              if(dados.latitude==0&dados.longitude==0) {
-                val._links = [
-                  {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
-                  {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
-                  {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"}
-                ]
-                res.status(200).json(val).end()
-              }
-              else {
-                var latitude = parseFloat(dados.latitude);
-                var longitude = parseFloat(dados.longitude);
-                googleMaps.reverseGeocode({
-                  latlng : {lat: latidude, lng: longitude}
-                }, function (err,res) {
-                   if (err) {
-                     val._links = [
-                       {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
-                       {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
-                       {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"}
-                     ]
-                     res.status(200).json(val).end()
-                   }
-                   else {
-                     var cidade;
-                     var estado;
-                     var pais;
-                     for(var i = 0; i < res.json.results[0].address_components.length; i++) {
-                        if (res.json.results[0].address_components[i].types[0] == "administrative_area_level_2") {
-                           cidade = res.json.results[0].address_components[i].long_name;
-                        }
-                        if (res.json.results[0].address_components[i].types[0] == "administrative_area_level_1") {
-                           estado = res.json.results[0].address_components[i].long_name;
-                        }
-                        if (res.json.results[0].address_components[i].types[0] == "country") {
-                           pais = res.json.results[0].address_components[i].long_name;
-                        }
-                     }
-                     val.aluno.pais = pais;
-                     val.aluno.estado = estado;
-                     val.aluno.cidade = cidade;
-                     val._links = [
-                       {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
-                       {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
-                       {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"}
-                     ]
-                     res.stauts(200).json(val).end()
-                   }
-                });
-              }
+      var aluno =  await alunoLogin(db,dados).then(cursor => cursor.next().then(val => {return val}));
+      if (aluno==null) {
+         var autor = await autorLogin(db,dados).then(cursor => cursor.next().then(val => {return val}));
+         if(autor==null) {
+           var administrador = await administradorLogin(db,dados).then(cursor => cursor.next().then(val => {return val}));
+           if (administrador==null) {
+              var resposta = {"mensagem" : "Usuario não encontrado"};
+              resposta._links = [
+                {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
+                {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
+                {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"}
+              ]
+              res.status(404).json(resposta).end()
            }
-         })
-      })
-   };
-
-   function google(latidude,longitude,val,res) {
-     googleMaps.reverseGeocode({
-       latlng : {lat: latidude, lng: longitude}
-     }, function (err,res) {
-        if (err) {
-          val._links = [
+           else {
+             administrador._links = [
+               {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
+               {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
+               {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"}
+             ]
+             res.status(200).json(administrador).end()
+           }
+         }
+         else {
+           var googleMaps = req.app.get("googleMaps");
+           if(dados.latitude==0&&dados.longitude==0) {
+             autor._links = [
+               {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
+               {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
+               {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"}
+             ]
+             res.status(200).json(autor).end()
+           }
+           else {
+             googleMaps.reverseGeocode({
+               latlng : {lat: dados.latitude, lng: dados.longitude}
+             }, function (err,result) {
+                if (err) {
+                   res.status(200).json(autor).end()
+                }
+                else {
+                  var pais;
+                  var estado;
+                  var cidade;
+                  for(var i = 0; i < result.json.results[0].address_components.length; i++) {
+                     if (result.json.results[0].address_components[i].types[0] == "administrative_area_level_2") {
+                        cidade = result.json.results[0].address_components[i].long_name;
+                     }
+                     if (result.json.results[0].address_components[i].types[0] == "administrative_area_level_1") {
+                        estado = result.json.results[0].address_components[i].long_name;
+                     }
+                     if (result.json.results[0].address_components[i].types[0] == "country") {
+                        pais = result.json.results[0].address_components[i].long_name;
+                     }
+                  }
+                  autor.pais = pais;
+                  autor.estado = estado;
+                  autor.cidade = cidade;
+                  autor._links = [
+                    {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
+                    {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
+                    {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"}
+                  ]
+                  res.status(200).json(autor).end()
+                }
+             })
+           }
+         }
+      }
+      else {
+        var googleMaps = req.app.get("googleMaps");
+        if (dados.latitude==0&&dados.longitude==0) {
+          aluno._links = [
             {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
             {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
             {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"}
           ]
-          res.status(200).json(val).end()
+          res.status(200).json(aluno).end()
         }
         else {
-          var cidade;
-          var estado;
-          var pais;
-          for(var i = 0; i < res.json.results[0].address_components.length; i++) {
-             if (res.json.results[0].address_components[i].types[0] == "administrative_area_level_2") {
-                cidade = res.json.results[0].address_components[i].long_name;
+          googleMaps.reverseGeocode({
+            latlng : {lat: dados.latitude, lng: dados.longitude}
+          }, function (err,result) {
+             if (err) {
+               res.status(200).json(aluno).end()
              }
-             if (res.json.results[0].address_components[i].types[0] == "administrative_area_level_1") {
-                estado = res.json.results[0].address_components[i].long_name;
+             else {
+               var pais;
+               var estado;
+               var cidade;
+               for(var i = 0; i < result.json.results[0].address_components.length; i++) {
+                  if (result.json.results[0].address_components[i].types[0] == "administrative_area_level_2") {
+                     cidade = result.json.results[0].address_components[i].long_name;
+                  }
+                  if (result.json.results[0].address_components[i].types[0] == "administrative_area_level_1") {
+                     estado = result.json.results[0].address_components[i].long_name;
+                  }
+                  if (result.json.results[0].address_components[i].types[0] == "country") {
+                     pais = result.json.results[0].address_components[i].long_name;
+                  }
+               }
+               aluno.pais = pais;
+               aluno.estado = estado;
+               aluno.cidade = cidade;
+               aluno._links = [
+                 {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
+                 {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
+                 {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"}
+               ]
+               res.status(200).json(aluno).end()
              }
-             if (res.json.results[0].address_components[i].types[0] == "country") {
-                pais = res.json.results[0].address_components[i].long_name;
-             }
-          }
-          val.aluno.pais = pais;
-          val.aluno.estado = estado;
-          val.aluno.cidade = cidade;
-          val._links = [
-            {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
-            {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
-            {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"}
-          ]
-          res.stauts(200).json(val).end()
+          })
         }
-     })
+      }
+   };
+
+   function alunoLogin(db,dados) {
+      return db.query("FOR aluno IN aluno FOR usuario IN usuario FILTER aluno.emailAluno == @email and aluno.senhaAluno == @senha RETURN aluno",{'email' : dados.email,'senha' : dados.senha});
+   };
+
+   function autorLogin(db,dados) {
+     return db.query("FOR autor IN autor FOR usuario IN usuario FILTER autor.emailAutor == @email and autor.senhaAutor == @senha RETURN autor",{'email' : dados.email,'senha' : dados.senha});
+   };
+
+   function administradorLogin(db,dados) {
+     return db.query("FOR administrador IN administrador FILTER administrador.emailAdministrador == @email and administrador.senhaAdministrador == @senha RETURN administrador",{'email' : dados.email,'senha' : dados.senha});
    };
 
   usuario.listar = function (req,res) {
