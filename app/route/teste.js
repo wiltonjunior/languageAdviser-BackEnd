@@ -6,16 +6,15 @@ module.exports = function (app) {
      var formidable = app.get("formidable");
      var form = new formidable.IncomingForm();
      form.parse(req,function (err,fields,files) {
-       var oldpath = files.imagem.path;
-       var tipo = path.extname(files.imagem.name);
-       console.log(tipo);
-       var newpath = "./public/imagem/idioma/" + files.imagem.name;
+       var oldpath = files.photo.path;
+       var tipo = path.extname(files.photo.name);
+       var newpath = "./public/imagem/idioma/" + files.photo.name;
        fs.rename(oldpath,newpath, function (err) {
           if (err) {
-             console.log(err);
+             res.send("<html><head></head><body>Erro</body></html>");
           }
           else {
-             console.log("OK");
+             res.send("<html><head></head><body>OK</body></html>");
           }
        });
      });

@@ -53,11 +53,11 @@ module.exports = function (app) {
    usuario.login = async function(req,res) {
       var dados = req.body;
       var db = req.app.get("database");
-      var aluno =  await alunoLogin(db,dados).then(cursor => cursor.next().then(val => {return val}));
+      var aluno =  await alunoLogin(db,dados);
       if (aluno==null) {
-         var autor = await autorLogin(db,dados).then(cursor => cursor.next().then(val => {return val}));
+         var autor = await autorLogin(db,dados);
          if(autor==null) {
-           var administrador = await administradorLogin(db,dados).then(cursor => cursor.next().then(val => {return val}));
+           var administrador = await administradorLogin(db,dados);
            if (administrador==null) {
               var resposta = {"mensagem" : "Usuario não encontrado"};
               resposta._links = [
@@ -137,7 +137,7 @@ module.exports = function (app) {
             latlng : {lat: dados.latitude, lng: dados.longitude}
           }, function (err,result) {
              if (err) {
-               res.status(200).json(aluno).end()
+                res.status(200).json(autor).end()
              }
              else {
                var pais;
@@ -169,16 +169,31 @@ module.exports = function (app) {
       }
    };
 
-   function alunoLogin(db,dados) {
-      return db.query("FOR aluno IN aluno FOR usuario IN usuario FILTER aluno.emailAluno == @email and aluno.senhaAluno == @senha RETURN aluno",{'email' : dados.email,'senha' : dados.senha});
+   async function alunoLogin(db,dados) {
+       var resultado = await db.query("FOR aluno IN aluno FOR usuario IN usuario FILTER aluno.emailAluno == @email and aluno.senhaAluno == @senha and aluno._key == usuario._key RETURN {aluno,usuario}",{'email' : dados.email,'senha' : dados.senha});
+       if(resultado._result[0]==null) {
+          resultado = await db.query("FOR aluno IN aluno FILTER aluno.emailAluno == @email and aluno.senhaAluno == @senha RETURN aluno",{'email' : dados.email,'senha' : dados.senha});
+          return resultado._result[0];
+       }
+       else {
+          return resultado._result[0];
+       }
    };
 
-   function autorLogin(db,dados) {
-     return db.query("FOR autor IN autor FOR usuario IN usuario FILTER autor.emailAutor == @email and autor.senhaAutor == @senha RETURN autor",{'email' : dados.email,'senha' : dados.senha});
+   async function autorLogin(db,dados) {
+      var resultado = await db.query("FOR autor IN autor FOR usuario IN usuario FILTER autor.emailAutor == @email and autor.senhaAutor == @senha and autor._key == usuario._key RETURN {autor,usuario}",{'email' : dados.email,'senha' : dados.senha});
+      if (resultado._result[0]==null) {
+         resultado = await db.query("FOR autor IN autor FILTER autor.emailAutor == @email and autor.senhaAutor == @senha RETURN autor",{'email' : dados.email,'senha' : dados.senha});
+         return resultado._result[0];
+      }
+      else {
+         return resultado._result[0];
+      }
    };
 
-   function administradorLogin(db,dados) {
-     return db.query("FOR administrador IN administrador FILTER administrador.emailAdministrador == @email and administrador.senhaAdministrador == @senha RETURN administrador",{'email' : dados.email,'senha' : dados.senha});
+   async function administradorLogin(db,dados) {
+     var resultado = await db.query("FOR administrador IN administrador FILTER administrador.emailAdministrador == @email and administrador.senhaAdministrador == @senha RETURN administrador",{'email' : dados.email,'senha' : dados.senha});
+     return resultado._result[0];
    };
 
   usuario.listar = function (req,res) {

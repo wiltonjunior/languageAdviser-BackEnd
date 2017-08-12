@@ -87,9 +87,9 @@ module.exports = function (app) {
        if (result.error!=null) {
          res.status(400).json(result.error);
        } else {
-         var oldpath = files.imagem.path;
+         var oldpath = files.photo.path;
          var hash = hasha.fromFileSync(oldpath,{algorithm : "md5"});
-         var tipo = path.extname(files.imagem.name);
+         var tipo = path.extname(files.photo.name);
          var imagem = hash + tipo;
          var newpath = "./public/imagem/autor/" + imagem;
          fs.rename(oldpath,newpath,function (err) {
