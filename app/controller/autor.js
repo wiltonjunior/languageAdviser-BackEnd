@@ -28,6 +28,44 @@ module.exports = function (app) {
       }
    };
 
+   autor.imagem = function (req,res) {
+     var id = req.params.id;
+     var fs = app.get("fs");
+     var formidable = app.get("formidable");
+     var hasha = app.get("hasha");
+     var path = app.get("path");
+
+     var form = new formidable.IncomingForm();
+     form.parse(req,function (err,fields,files) {
+         var oldpath = files.photo.path;
+         var hash = hasha.fromFileSync(oldpath,{algorithm : "md5"});
+         var tipo = path.extname(files.photo.name);
+         var imagem = hash + tipo;
+         var newpath = "./public/imagem/autor/" + imagem;
+         fs.rename(oldpath,newpath,function (err) {
+            if (err) {
+              res.status(500).json(err);
+            } else {
+              var caminhoImagem = "/imagem/autor/" + imagem;
+              var db = req.app.get("database");
+              var autor = db.collection("autor");
+              autor.update(id,{"caminhoImagem" : caminhoImagem})
+              .then(val => {
+                 val._links = [
+                   {rel : "adicionar", method: "POST", href: "http://191.252.109.164/autores"},
+                   {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
+                   {rel : "procurar", method: "GET", href: "http://191.252.109.164/autores/" + id},
+                   {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/autores/" + id}
+                 ]
+                 res.status(200).json(val).end()
+              }, err => {
+                 res.status(500).json(err).end()
+              })
+            }
+         });
+     });
+   };
+
    autor.listar = function (req,res) {
       var db = req.app.get("database");
       var autor = db.collection("autor");
@@ -75,46 +113,26 @@ module.exports = function (app) {
 
    autor.editar = function (req,res) {
      var id = req.params.id;
-     var fs = app.get("fs");
-     var formidable = app.get("formidable");
-     var hasha = app.get("hasha");
-     var path = app.get("path");
-
-     var form = new formidable.IncomingForm();
-     form.parse(req,function (err,fields,files) {
-       var dados = fields;
-       var result = Joi.validate(dados,model);
-       if (result.error!=null) {
-         res.status(400).json(result.error);
-       } else {
-         var oldpath = files.photo.path;
-         var hash = hasha.fromFileSync(oldpath,{algorithm : "md5"});
-         var tipo = path.extname(files.photo.name);
-         var imagem = hash + tipo;
-         var newpath = "./public/imagem/autor/" + imagem;
-         fs.rename(oldpath,newpath,function (err) {
-            if (err) {
-              res.status(500).json(err);
-            } else {
-              dados.caminhoImagem = "/imagem/autor/" + imagem;
-              var db = req.app.get("database");
-              var autor = db.collection("autor");
-              autor.update(id,dados)
-              .then(val => {
-                 val._links = [
-                   {rel : "adicionar", method: "POST", href: "http://191.252.109.164/autores"},
-                   {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
-                   {rel : "procurar", method: "GET", href: "http://191.252.109.164/autores/" + id},
-                   {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/autores/" + id}
-                 ]
-                 res.status(200).json(val).end()
-              }, err => {
-                 res.status(500).json(err).end()
-              })
-            }
-         });
-       }
-     });
+     var dados = req.body;
+     var result = Joi.validate(dados,model);
+     if(result.error!=null) {
+        res.status(400).json(result.error);
+     } else {
+        var db = req.app.get("database");
+        var autor = db.collection("autor");
+        autor.update(id,dados)
+        .then(val => {
+           val._links = [
+             {rel : "adicionar", method: "POST", href: "http://191.252.109.164/autor"},
+             {rel : "listar", method: "GET", href: "http://191.252.109.164/autor"},
+             {rel : "procurar", method: "GET", href: "http://191.252.109.164/autor/" + id},
+             {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/autor/" + id}
+           ]
+           res.status(200).json(val).end()
+        }, err => {
+           res.status(500).json(err).end()
+        })
+     }
    };
 
    autor.deletar = function (req,res) {

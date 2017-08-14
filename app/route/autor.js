@@ -2,6 +2,7 @@ module.exports = function (app) {
    var autor = app.controller.autor;
 
    app.post("/autores",autor.salvar);
+   app.post("/autores/imagem/:id",autor.imagem);
    app.get("/autores",autor.listar);
    app.get("/autores/:id",autor.listarAutor);
    app.get("/autores/idioma/:id",autor.listarIdioma);

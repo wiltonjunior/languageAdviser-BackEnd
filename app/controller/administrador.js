@@ -28,31 +28,43 @@ module.exports = function (app) {
       }
    };
 
-   administrador.login = function (req,res) {
-      var dados = req.body;
-      var db = req.app.get("database");
-      db.query("FOR administrador IN administrador FILTER administrador.emailAdministrador == @email and administrador.senhaAdministrador == @senha RETURN administrador",{'email' : dados.email,'senha' : dados.senha})
-      .then(cursor => {
-         cursor.next()
-         .then(val => {
-            if(val==null) {
-               var resposta = {'mensagem' : 'Usuário não encontrado'};
-               resposta._links = [
-                 {rel: "adicionar", method: "POST", href: "http://191.252.109.164/administradores"},
-                 {rel: "listar", method: "GET", href: "http://191.252.109.164/administradores"}
-               ]
-               res.status(404).json(resposta);
+   administrador.imagem = function (req,res) {
+     var id = req.params.id;
+     var fs = app.get("fs");
+     var formidable = app.get("formidable");
+     var hasha = app.get("hasha");
+     var path = app.get("path");
+
+     var form = new formidable.IncomingForm();
+     form.parse(req,function (err,fields,files) {
+         var oldpath = files.photo.path;
+         var hash = hasha.fromFileSync(oldpath,{algorithm : "md5"});
+         var tipo = path.extname(files.photo.name);
+         var imagem = hash + tipo;
+         var newpath = "./public/imagem/administrador/" + imagem;
+         fs.rename(oldpath,newpath,function (err) {
+            if (err) {
+              res.status(500).json(err);
+            } else {
+              var caminhoImagem = "/imagem/administrador/" + imagem;
+              var db = req.app.get("database");
+              var administrador = db.collection("administrador");
+              administrador.update(id,{'caminhoImagem' : caminhoImagem})
+              .then(val => {
+                 val._links = [
+                   {rel : "adicionar", method: "POST", href: "http://191.252.109.164/administradores"},
+                   {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"},
+                   {rel : "procurar", method: "GET", href: "http://191.252.109.164/administradores/" + id},
+                   {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/administradores/" + id}
+                 ]
+                 res.status(200).json(val).end()
+              }, err => {
+                 res.status(500).json(err).end()
+              })
             }
-            else {
-               val._links = [
-                 {rel: "adicionar", method: "POST", href: "http://191.252.109.164/administradores"},
-                 {rel: "listar", method: "GET", href: "http://191.252.109.164/administradores"}
-               ]
-               res.status(200).json(val).end()
-            }
-         })
-      })
-   }
+         });
+     });
+   };
 
    administrador.listar = function (req,res) {
       var db = req.app.get("database");
@@ -85,47 +97,27 @@ module.exports = function (app) {
 
    administrador.editar = function (req,res) {
      var id = req.params.id;
-     var fs = app.get("fs");
-     var formidable = app.get("formidable");
-     var hasha = app.get("hasha");
-     var path = app.get("path");
-
-     var form = new formidable.IncomingForm();
-     form.parse(req,function (err,fields,files) {
-       var dados = fields;
-       var result = Joi.validate(dados,model);
-       if (result.error!=null) {
-         res.status(400).json(result.error);
-       } else {
-         var oldpath = files.photo.path;
-         var hash = hasha.fromFileSync(oldpath,{algorithm : "md5"});
-         var tipo = path.extname(files.photo.name);
-         var imagem = hash + tipo;
-         var newpath = "./public/imagem/administrador/" + imagem;
-         fs.rename(oldpath,newpath,function (err) {
-            if (err) {
-              res.status(500).json(err);
-            } else {
-              dados.caminhoImagem = "/imagem/administrador/" + imagem;
-              var db = req.app.get("database");
-              var administrador = db.collection("administrador");
-              administrador.update(id,dados)
-              .then(val => {
-                 val._links = [
-                   {rel : "adicionar", method: "POST", href: "http://191.252.109.164/administradores"},
-                   {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"},
-                   {rel : "procurar", method: "GET", href: "http://191.252.109.164/administradores/" + id},
-                   {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/administradores/" + id}
-                 ]
-                 res.status(200).json(val).end()
-              }, err => {
-                 res.status(500).json(err).end()
-              })
-            }
-         });
-       }
-     });
-   };
+     var dados = req.body;
+     var result = Joi.validate(dados,model);
+     if (result.error!=null) {
+       res.status(400).json(result.error);
+     } else {
+        var db = req.app.get("database");
+        var administrador = db.collection("administrador");
+        administrador.update(id,dados)
+        .then(val => {
+           val._links = [
+             {rel : "adicionar", method: "POST", href: "http://191.252.109.164/administradores"},
+             {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"},
+             {rel : "procurar", method: "GET", href: "http://191.252.109.164/administradores/" + id},
+             {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/administradores/" + id}
+           ]
+           res.status(200).json(val).end()
+        }, err => {
+           res.status(500).json(err).end()
+        })
+     }
+  };
 
    administrador.deletar = function (req,res) {
       var id = req.params.id;
