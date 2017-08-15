@@ -35,41 +35,34 @@ module.exports = function (app) {
 
       var form = new formidable.IncomingForm();
       form.parse(req,function (err,fields,files) {
-         var result = Joi.validate(dados,model);
-         if(result.error!=null) {
-           res.status(400).json(result.error);
-         }
-         else {
-             var oldpath = files.photo.path;
-             var hash = hasha.fromFileSync(oldpath,{algorithm : "md5"});
-             var tipo = path.extname(files.photo.name);
-             var imagem = hash + tipo;
-             var newpath = "./public/imagem/idioma/" + imagem;
-             fs.rename(oldpath,newpath,function (err) {
-                if(err) {
-                  res.status(500).json(result.error);
-                }
-                else {
-                  var caminhoImagem = "/imagem/idioma/" + imagem;
-                  var db = app.get("database");
-                  var idioma = db.collection("idioma");
-                  idioma.update(id,{"caminhoImagem" : caminhoImagem})
-                  .then(val => {
-                     val._links = [
-                       {rel : "procurar", method : "GET", href: "http://191.252.109.164/idiomas/" + val._key},
-                       {rel : "atualizar", method : "PUT", href: "http://191.252.109.164/idiomas/" + val._key},
-                       {rel : "excluir", method : "DELETE", href: "http://191.252.109.164/idiomas/" + val._key}
-                     ]
-                    res.status(200).json(val).end()
-                  }, err => {
-                    res.status(500).json(err).end()
-                  })
-                }
-            });
-         }
+         var oldpath = files.photo.path;
+         var hash = hasha.fromFileSync(oldpath,{algorithm : "md5"});
+         var tipo = path.extname(files.photo.name);
+         var imagem = hash + tipo;
+         var newpath = "./public/imagem/idioma/" + imagem;
+         fs.rename(oldpath,newpath,function (err) {
+            if (err) {
+               res.status(500).json(result.error);
+            } else {
+               var caminhoImagem = "/imagem/idioma/" + imagem;
+               var db = app.get("database");
+               var idioma = db.collection("idioma");
+               idioma.update(id,{"caminhoImagem" : caminhoImagem})
+               .then(val => {
+                 val._links = [
+                    {rel : "procurar", method : "GET", href: "http://191.252.109.164/idiomas/" + val._key},
+                    {rel : "atualizar", method : "PUT", href: "http://191.252.109.164/idiomas/" + val._key},
+                    {rel : "excluir", method : "DELETE", href: "http://191.252.109.164/idiomas/" + val._key}
+                  ]
+                  res.status(200).json(val).end()
+               }, err => {
+                  res.status(500).json(err).end()
+               })
+            }
+         })
       });
     };
-
+    
     idioma.listar = function (req,res) {
        var db = req.app.get("database");
        var idioma = db.collection("idioma");
