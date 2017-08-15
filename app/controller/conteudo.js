@@ -57,17 +57,15 @@ module.exports = function (app) {
    };
 
    conteudo.listarIdioma = function (req,res) {
-      var id = req.params.id;
+      var idIdioma = req.params.idIdioma;
       var db = req.app.get("database");
-      db.query('FOR idioma IN idioma FOR conteudo IN conteudo FILTER conteudo._key == @id and conteudo.idIdioma == idioma._key RETURN idioma',{'id' : id})
+      db.query('FOR conteudo IN conteudo FOR idioma IN idioma FILTER idioma._key == @id and conteudo.idIdioma == idioma._key RETURN conteudo',{'id' : idIdioma})
       .then(cursor => {
-         cursor.next()
+         cursor.all()
          .then(val => {
             val._links = [
               {rel : "adicionar", method: "POST", href: "http://191.252.109.164/conteudos"},
-              {rel : "listar", method: "GET", href: "http://191.252.109.164/conteudos"},
-              {rel : "editar", method: "PUT", href: "http://191.252.109.164/conteudos/" + id},
-              {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/conteudos/" + id}
+              {rel : "listar", method: "GET", href: "http://191.252.109.164/conteudos"}            
             ]
             res.status(200).json(val).end();
          });

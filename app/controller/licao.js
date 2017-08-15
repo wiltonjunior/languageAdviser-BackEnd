@@ -73,11 +73,11 @@ module.exports = function (app) {
    };
 
    licao.listarConteudo = function (req,res) {
-      var id = req.params.id;
+      var idConteudo = req.params.idConteudo;
       var db = req.app.get("database");
-      db.query("FOR conteudo IN conteudo FOR licao IN licao FILTER licao._key == @id and licao.idConteudo == conteudo._key RETURN conteudo",{'id' : id})
+      db.query("FOR licao IN licao FOR conteudo IN conteudo FILTER conteudo._key == @id and licao.idConteudo == conteudo._key RETURN licao",{'id' : idConteudo})
       .then(cursor => {
-         cursor.next()
+         cursor.all()
          .then(val => {
             val._links = [
                {rel : "adicionar" ,method: "POST", href: "http://191.252.109.164/licoes"},

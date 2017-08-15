@@ -56,11 +56,11 @@ module.exports = function (app) {
    };
 
    dialogo.listarLicao = function (req,res) {
-     var id = req.params.id;
+     var idLicao = req.params.idLicao;
      var db = req.app.get("database");
-     db.query("FOR licao IN licao FOR dialogo IN dialogo FILTER dialogo._key == @id and dialogo.idLicao == licao._key RETURN licao",{'id' : id})
+     db.query("FOR dialogo IN dialogo FOR licao IN licao FILTER licao._key == @id and dialogo.idLicao == licao._key RETURN licao",{'id' : idLicao})
      .then(cursor => {
-        cursor.next()
+        cursor.all()
         .then(val => {
            val._links = [
              {rel : "adicionar" ,method: "POST", href: "http://191.252.109.164/dialogos"},

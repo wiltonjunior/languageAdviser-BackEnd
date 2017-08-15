@@ -4,7 +4,7 @@ module.exports = function (app) {
     app.post("/conteudos", conteudo.salvar);
     app.get("/conteudos", conteudo.listar);
     app.get("/conteudos/:id", conteudo.listarConteudo);
-    app.get("/conteudos/idioma/:id", conteudo.listarIdioma);
+    app.get("/conteudos/idioma/:idIdioma", conteudo.listarIdioma);
     app.put("/conteudos/:id", conteudo.editar);
     app.delete("/conteudos/:id", conteudo.deletar);
 }
