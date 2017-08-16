@@ -108,9 +108,16 @@ module.exports = function (app) {
                         pais = result.json.results[0].address_components[i].long_name;
                      }
                   }
-                  autor.pais = pais;
-                  autor.estado = estado;
-                  autor.cidade = cidade;
+                  if(autor.usuario!=null) {
+                     autor.autor.pais = pais;
+                     autor.autor.estado = estado;
+                     autor.autor.cidade = cidade;
+                  }
+                  else {
+                    autor.pais = pais;
+                    autor.estado = estado;
+                    autor.cidade = cidade;
+                  }
                   autor._links = [
                     {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
                     {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
@@ -154,9 +161,16 @@ module.exports = function (app) {
                      pais = result.json.results[0].address_components[i].long_name;
                   }
                }
-               aluno.pais = pais;
-               aluno.estado = estado;
-               aluno.cidade = cidade;
+               if(aluno.usuario!=null) {
+                 aluno.aluno.pais = pais;
+                 aluno.aluno.estado = estado;
+                 aluno.aluno.cidade = cidade;
+               }
+               else {
+                 aluno.pais = pais;
+                 aluno.estado = estado;
+                 aluno.cidade = cidade;
+               }
                aluno._links = [
                  {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
                  {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
