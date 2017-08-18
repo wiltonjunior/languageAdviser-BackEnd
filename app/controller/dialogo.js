@@ -43,28 +43,27 @@ module.exports = function (app) {
       var db = req.app.get("database");
       var dialogo = db.collection("dialogo");
       dialogo.document(id)
-      .then(cursor => {
-         cursor.next()
-         .then(val => {
-            val._links = [
-              {rel : "adicionar" ,method: "POST", href: "http://191.252.109.164/dialogos"},
-              {rel : "listar" ,method: "GET", href: "http://191.252.109.164/dialogos"}
-            ]
-            res.status(200).json(val).end()
-         })
+      .then(val => {
+        val._links = [
+          {rel : "adicionar" ,method: "POST", href: "http://191.252.109.164/dialogos"},
+          {rel : "listar" ,method: "GET", href: "http://191.252.109.164/dialogos"}
+        ]
+        res.status(200).json(val).end()
+      }, err => {
+        res.status(500).json(err).end()
       })
    };
 
    dialogo.listarLicao = function (req,res) {
      var idLicao = req.params.idLicao;
      var db = req.app.get("database");
-     db.query("FOR dialogo IN dialogo FOR licao IN licao FILTER licao._key == @id and dialogo.idLicao == licao._key RETURN licao",{'id' : idLicao})
+     db.query("FOR licao IN licao FOR dialogo IN dialogo FILTER licao._key == @id and dialogo.idLicao == licao._key RETURN licao",{'id' : idLicao})
      .then(cursor => {
-        cursor.all()
+        cursor.next()
         .then(val => {
            val._links = [
-             {rel : "adicionar" ,method: "POST", href: "http://191.252.109.164/dialogos"},
-             {rel : "listar" ,method: "GET", href: "http://191.252.109.164/dialogos"}
+            {rel : "adicionar" ,method: "POST", href: "http://191.252.109.164/dialogos"},
+            {rel : "listar" ,method: "GET", href: "http://191.252.109.164/dialogos"}
            ]
            res.status(200).json(val).end()
         })
