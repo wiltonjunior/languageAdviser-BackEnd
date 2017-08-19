@@ -57,9 +57,9 @@ module.exports = function (app) {
    dialogo.listarLicao = function (req,res) {
      var idLicao = req.params.idLicao;
      var db = req.app.get("database");
-     db.query("FOR licao IN licao FOR dialogo IN dialogo FILTER licao._key == @id and dialogo.idLicao == licao._key RETURN licao",{'id' : idLicao})
+     db.query("FOR licao IN licao FOR dialogo IN dialogo FILTER licao._key == @id and dialogo.idLicao == licao._key RETURN dialogo",{'id' : idLicao})
      .then(cursor => {
-        cursor.next()
+        cursor.all()
         .then(val => {
            val._links = [
             {rel : "adicionar" ,method: "POST", href: "http://191.252.109.164/dialogos"},
