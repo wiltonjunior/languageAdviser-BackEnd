@@ -17,9 +17,9 @@ module.exports = function (app) {
           licao.save(dados)
           .then(val => {
              val._links = [
-               {rel : "procurar", method : "GET", href: "http://191.252.109.164/licoes/" + val._key},
-               {rel : "atualizar", method : "PUT", href: "http://191.252.109.164/licoes/" + val._key},
-               {rel : "excluir", method : "DELETE", href: "http://191.252.109.164/licoes/" + val._key}
+               {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/licoes/" + val._key},
+               {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/licoes/" + val._key},
+               {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/licoes/" + val._key}
              ]
              res.status(201).json(val).end()
           }, err => {
@@ -47,8 +47,8 @@ module.exports = function (app) {
       licao.document(id)
       .then(val => {
          val._links = [
-           {rel : "adicionar Conteudo", method : "POST", href : "http://191.252.109.164/licoes/conteudos"},
-           {rel : "adicionar Autor", method: "POST", href : "http://191.252.109.164/licoes/autores"}
+           {rel : "adicionar Conteudo", method : "POST", href : "http://" + req.headers.host + "/licoes/conteudos"},
+           {rel : "adicionar Autor", method: "POST", href : "http://" + req.headers.host + "/licoes/autores"}
          ]
          res.status(200).json(val).end()
       }, err => {
@@ -64,8 +64,8 @@ module.exports = function (app) {
          cursor.next()
          .then(val => {
            val._links = [
-              {rel : "adicionar" ,method: "POST", href: "http://191.252.109.164/licoes"},
-              {rel : "listar" ,method: "GET", href: "http://191.252.109.164/licoes"}
+              {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/licoes"},
+              {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/licoes"}
            ]
             res.status(200).json(val).end()
          })
@@ -80,8 +80,8 @@ module.exports = function (app) {
          cursor.all()
          .then(val => {
             val._links = [
-               {rel : "adicionar" ,method: "POST", href: "http://191.252.109.164/licoes"},
-               {rel : "listar" ,method: "GET", href: "http://191.252.109.164/licoes"}
+               {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/licoes"},
+               {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/licoes"}
             ]
             res.status(200).json(val).end()
          })
@@ -138,10 +138,10 @@ module.exports = function (app) {
          licao.update(id,dados)
          .then(val => {
             val._links = [
-              {rel : "adicionar", method: "POST", href: "http://191.252.109.164/licoes"},
-              {rel : "listar", method: "GET", href: "http://191.252.109.164/licoes"},
-              {rel : "procurar", method: "GET", href: "http://191.252.109.164/licoes/" + id},
-              {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/licoes/" + id}
+              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/licoes"},
+              {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/licoes"},
+              {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/licoes/" + id},
+              {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/licoes/" + id}
             ]
             res.status(200).json(val).end()
          }, err => {
@@ -167,10 +167,10 @@ module.exports = function (app) {
             licao.update(idLicao,{'avaliacao' : val.avaliacao,'quantidadeVotos' : val.quantidadeVotos})
             .then(val => {
               val._links = [
-                {rel : "adicionar", method: "POST", href: "http://191.252.109.164/licoes"},
-                {rel : "listar", method: "GET", href: "http://191.252.109.164/licoes"},
-                {rel : "procurar", method: "GET", href: "http://191.252.109.164/licoes/" + idLicao},
-                {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/licoes/" + idLicao}
+                {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/licoes"},
+                {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/licoes"},
+                {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/licoes/" + idLicao},
+                {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/licoes/" + idLicao}
               ]
               res.status(200).json(val).end()
             }, err => {
@@ -187,8 +187,8 @@ module.exports = function (app) {
       licao.remove(id)
       .then(val => {
          val._links = [
-           {rel : "adicionar", method: "POST", href: "http://191.252.109.164/licoes"},
-           {rel : "listar", method: "GET", href: "http://191.252.109.164/licoes"}
+           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/licoes"},
+           {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/licoes"}
          ]
          res.status(200).json(val).end()
       }, err => {

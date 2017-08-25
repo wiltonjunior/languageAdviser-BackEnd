@@ -17,9 +17,9 @@ module.exports = function (app) {
          administrador.save(dados)
          .then(val => {
             val._links = [
-              {rel : "procurar", method : "GET", href: "http://191.252.109.164/administradores/" + val._key},
-              {rel : "atualizar", method : "PUT", href: "http://191.252.109.164/administradores/" + val._key},
-              {rel : "excluir", method : "DELETE", href: "http://191.252.109.164/administradores/" + val._key}
+              {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/administradores/" + val._key},
+              {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/administradores/" + val._key},
+              {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/administradores/" + val._key}
             ]
             res.status(201).json(val).end()
          }, err => {
@@ -52,10 +52,10 @@ module.exports = function (app) {
               administrador.update(id,{'caminhoImagem' : caminhoImagem})
               .then(val => {
                  val._links = [
-                   {rel : "adicionar", method: "POST", href: "http://191.252.109.164/administradores"},
-                   {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"},
-                   {rel : "procurar", method: "GET", href: "http://191.252.109.164/administradores/" + id},
-                   {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/administradores/" + id}
+                   {rel : "adicionar", method: "POST", href:"http://" + req.headers.host + "/administradores"},
+                   {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/administradores"},
+                   {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/administradores/" + id},
+                   {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/administradores/" + id}
                  ]
                  res.status(200).json(val).end()
               }, err => {
@@ -85,9 +85,9 @@ module.exports = function (app) {
      administrador.document(id)
      .then(val => {
         val._links = [
-          {rel : "adicionar", method: "POST", href: "http://191.252.109.164/administradores"},
-          {rel : "editar", method: "PUT", href: "http://191.252.109.164/administradores/" + val._key},
-          {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/administradores/" + val._key}
+          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/administradores"},
+          {rel : "editar", method: "PUT", href: "http://" + req.headers.host + "/administradores/" + val._key},
+          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/administradores/" + val._key}
         ]
         res.status(200).json(val).end()
      }, err => {
@@ -107,10 +107,10 @@ module.exports = function (app) {
         administrador.update(id,dados)
         .then(val => {
            val._links = [
-             {rel : "adicionar", method: "POST", href: "http://191.252.109.164/administradores"},
-             {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"},
-             {rel : "procurar", method: "GET", href: "http://191.252.109.164/administradores/" + id},
-             {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/administradores/" + id}
+             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/administradores"},
+             {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/administradores"},
+             {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/administradores/" + id},
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/administradores/" + id}
            ]
            res.status(200).json(val).end()
         }, err => {
@@ -126,8 +126,8 @@ module.exports = function (app) {
       administrador.remove(id)
       .then(val => {
          val._links = [
-           {rel : "adicionar", method: "POST", href: "http://191.252.109.164/administradores"},
-           {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"}
+           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/administradores"},
+           {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/administradores"}
          ]
          res.status(200).json(val).end()
       }, err => {

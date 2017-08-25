@@ -20,8 +20,8 @@ module.exports = function (app) {
                  usuario.save(dados)
                  .then(val => {
                     val._links = [
-                      {rel : "listar", method : "GET", href: "http://191.252.109.164/usuarios"},
-                      {rel : "excluir", method : "DELETE", href: "http://191.252.109.164/usuarios/" + val._key}
+                      {rel : "listar", method : "GET", href: "http://" + req.headers.host + "/usuarios"},
+                      {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/usuarios/" + val._key}
                     ]
                     res.status(200).json(val).end()
                  }, err => {
@@ -38,8 +38,8 @@ module.exports = function (app) {
              usuario.update(dados._key,dados)
              .then(val => {
                 val._links = [
-                  {rel : "listar", method : "GET", href: "http://191.252.109.164/usuarios"},
-                  {rel : "excluir", method : "DELETE", href: "http://191.252.109.164/usuarios/" + val._key}
+                  {rel : "listar", method : "GET", href: "http://" + req.headers.host + "/usuarios"},
+                  {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/usuarios/" + val._key}
                 ]
                 res.status(200).json(val).end()
              }, err => {
@@ -61,17 +61,17 @@ module.exports = function (app) {
            if (administrador==null) {
               var resposta = {"mensagem" : "Usuario não encontrado"};
               resposta._links = [
-                {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
-                {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
-                {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"}
+                {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/alunos"},
+                {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/autores"},
+                {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/administradores"}
               ]
               res.status(404).json(resposta).end()
            }
            else {
              administrador._links = [
-               {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
-               {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
-               {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"}
+               {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/alunos"},
+               {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/autores"},
+               {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/administradores"}
              ]
              res.status(200).json(administrador).end()
            }
@@ -80,9 +80,9 @@ module.exports = function (app) {
            var googleMaps = req.app.get("googleMaps");
            if(dados.latitude==0&&dados.longitude==0) {
              autor._links = [
-               {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
-               {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
-               {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"}
+               {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/alunos"},
+               {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/autores"},
+               {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/administradores"}
              ]
              res.status(200).json(autor).end()
            }
@@ -119,9 +119,9 @@ module.exports = function (app) {
                     autor.cidade = cidade;
                   }
                   autor._links = [
-                    {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
-                    {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
-                    {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"}
+                    {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/alunos"},
+                    {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/autores"},
+                    {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/administradores"}
                   ]
                   res.status(200).json(autor).end()
                 }
@@ -133,9 +133,9 @@ module.exports = function (app) {
         var googleMaps = req.app.get("googleMaps");
         if (dados.latitude==0&&dados.longitude==0) {
           aluno._links = [
-            {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
-            {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
-            {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"}
+            {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/alunos"},
+            {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/autores"},
+            {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/administradores"}
           ]
           res.status(200).json(aluno).end()
         }
@@ -172,9 +172,9 @@ module.exports = function (app) {
                  aluno.cidade = cidade;
                }
                aluno._links = [
-                 {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
-                 {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
-                 {rel : "listar", method: "GET", href: "http://191.252.109.164/administradores"}
+                 {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/alunos"},
+                 {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/autores"},
+                 {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/administradores"}
                ]
                res.status(200).json(aluno).end()
              }
@@ -237,14 +237,14 @@ module.exports = function (app) {
                    if (val==null) {
                       var resposta = {'mensagem' : 'Usuário não encontrado'};
                       resposta._links = [
-                        {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
-                        {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"}
+                        {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/alunos"},
+                        {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/autores"}
                       ]
                       res.status(404).json(resposta);
                    } else {
                       val._links = [
-                        {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
-                        {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"}
+                        {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/alunos"},
+                        {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/autores"}
                       ]
                       res.status(200).json(val).end()
                    }
@@ -252,8 +252,8 @@ module.exports = function (app) {
              })
            } else {
              val._links = [
-               {rel : "listar", method: "GET", href: "http://191.252.109.164/alunos"},
-               {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"}
+               {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/alunos"},
+               {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/autores"}
              ]
              res.status(200).json(val).end()
            }
@@ -270,8 +270,8 @@ module.exports = function (app) {
          cursor.all()
          .then(val => {
             val._links = [
-               {rel : "adicionar" ,method: "POST", href: "http://191.252.109.164/usuarios"},
-               {rel : "listar" ,method: "GET", href: "http://191.252.109.164/usuarios"}
+               {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/usuarios"},
+               {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/usuarios"}
             ]
             res.status(200).json(val).end()
          })
@@ -285,8 +285,8 @@ module.exports = function (app) {
       usuario.remove(id)
       .then(val => {
          val._links = [
-           {rel : "adicionar", method: "POST", href: "http://191.252.109.164/usuarios"},
-           {rel : "listar", method: "GET", href: "http://191.252.109.164/usuarios"}
+           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/usuarios"},
+           {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/usuarios"}
          ]
          res.status(200).json(val).end()
       }, err => {

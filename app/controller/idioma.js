@@ -15,9 +15,9 @@ module.exports = function (app) {
         idioma.save(dados)
         .then(val => {
            val._links = [
-             {rel : "procurar", method : "GET", href: "http://191.252.109.164/idiomas/" + val._key},
-             {rel : "atualizar", method : "PUT", href: "http://191.252.109.164/idiomas/" + val._key},
-             {rel : "excluir", method : "DELETE", href: "http://191.252.109.164/idiomas/" + val._key}
+             {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/idiomas/" + val._key},
+             {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/idiomas/" + val._key},
+             {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/idiomas/" + val._key}
            ]
            res.status(201).json(val).end()
         }, err => {
@@ -50,9 +50,9 @@ module.exports = function (app) {
                idioma.update(id,{"caminhoImagem" : caminhoImagem})
                .then(val => {
                  val._links = [
-                    {rel : "procurar", method : "GET", href: "http://191.252.109.164/idiomas/" + val._key},
-                    {rel : "atualizar", method : "PUT", href: "http://191.252.109.164/idiomas/" + val._key},
-                    {rel : "excluir", method : "DELETE", href: "http://191.252.109.164/idiomas/" + val._key}
+                    {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/idiomas/" + val._key},
+                    {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/idiomas/" + val._key},
+                    {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/idiomas/" + val._key}
                   ]
                   res.status(200).json(val).end()
                }, err => {
@@ -62,7 +62,7 @@ module.exports = function (app) {
          })
       });
     };
-    
+
     idioma.listar = function (req,res) {
        var db = req.app.get("database");
        var idioma = db.collection("idioma");
@@ -84,9 +84,9 @@ module.exports = function (app) {
        idioma.document(id)
        .then(val => {
          val._links = [
-           {rel : "adicionar", method: "POST", href: "http://191.252.109.164/idiomas"},
-           {rel : "editar", method: "PUT", href: "http://191.252.109.164/idiomas/" + val._key},
-           {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/idiomas/" + val._key}
+           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/idiomas"},
+           {rel : "editar", method: "PUT", href: "http://" + req.headers.host + "/idiomas/" + val._key},
+           {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/idiomas/" + val._key}
          ]
          res.status(200).json(val).end()
        }, err => {
@@ -106,9 +106,9 @@ module.exports = function (app) {
         idioma.update(id,dados)
         .then(val => {
           val._links = [
-            {rel : "procurar", method : "GET", href: "http://191.252.109.164/idiomas/" + val._key},
-            {rel : "atualizar", method : "PUT", href: "http://191.252.109.164/idiomas/" + val._key},
-            {rel : "excluir", method : "DELETE", href: "http://191.252.109.164/idiomas/" + val._key}
+            {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/idiomas/" + val._key},
+            {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/idiomas/" + val._key},
+            {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/idiomas/" + val._key}
           ]
           res.status(200).json(val).end()
         }, err => {
@@ -124,8 +124,8 @@ module.exports = function (app) {
        idioma.remove(id)
        .then(val => {
          val._links = [
-           {rel : "adicionar", method: "POST", href: "http://191.252.109.164/idiomas"},
-           {rel : "listar", method: "GET", href: "http://191.252.109.164/idiomas"}
+           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/idiomas"},
+           {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/idiomas"}
          ]
          res.status(200).json(val).end()
        }, err => {

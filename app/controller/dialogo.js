@@ -15,9 +15,9 @@ module.exports = function (app) {
          dialogo.save(dados)
          .then(val => {
             val._links = [
-              {rel : "procurar", method : "GET", href: "http://191.252.109.164/dialogos/" + val._key},
-              {rel : "atualizar", method : "PUT", href: "http://191.252.109.164/dialogos/" + val._key},
-              {rel : "excluir", method : "DELETE", href: "http://191.252.109.164/dialogos/" + val._key}
+              {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/dialogos/" + val._key},
+              {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/dialogos/" + val._key},
+              {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/dialogos/" + val._key}
             ]
             res.status(200).json(val).end()
          }, err => {
@@ -45,8 +45,8 @@ module.exports = function (app) {
       dialogo.document(id)
       .then(val => {
         val._links = [
-          {rel : "adicionar" ,method: "POST", href: "http://191.252.109.164/dialogos"},
-          {rel : "listar" ,method: "GET", href: "http://191.252.109.164/dialogos"}
+          {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/dialogos"},
+          {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/dialogos"}
         ]
         res.status(200).json(val).end()
       }, err => {
@@ -62,8 +62,8 @@ module.exports = function (app) {
         cursor.all()
         .then(val => {
            val._links = [
-            {rel : "adicionar" ,method: "POST", href: "http://191.252.109.164/dialogos"},
-            {rel : "listar" ,method: "GET", href: "http://191.252.109.164/dialogos"}
+            {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/dialogos"},
+            {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/dialogos"}
            ]
            res.status(200).json(val).end()
         })
@@ -128,10 +128,10 @@ module.exports = function (app) {
         dialogo.update(id,dados)
         .then(val => {
            val._links = [
-             {rel : "adicionar", method: "POST", href: "http://191.252.109.164/dialogos"},
-             {rel : "listar", method: "GET", href: "http://191.252.109.164/dialogos"},
-             {rel : "procurar", method: "GET", href: "http://191.252.109.164/dialogos/" + id},
-             {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/dialogos/" + id}
+             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/dialogos"},
+             {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/dialogos"},
+             {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/dialogos/" + id},
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/dialogos/" + id}
            ]
            res.status(200).json(val).end()
         }, err => {
@@ -147,8 +147,8 @@ module.exports = function (app) {
      dialogo.remove(id)
      .then(val => {
         val._links = [
-          {rel : "adicionar", method: "POST", href: "http://191.252.109.164/dialogos"},
-          {rel : "listar", method: "GET", href: "http://191.252.109.164/dialogos"}
+          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/dialogos"},
+          {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/dialogos"}
         ]
         res.status(200).json(val).end()
      }, err => {

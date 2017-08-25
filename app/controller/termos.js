@@ -15,9 +15,9 @@ module.exports = function (app) {
          termo.save(dados)
          .then(val => {
            val._links = [
-             {rel : "procurar", method : "GET", href: "http://191.252.109.164/termos/" + val._key},
-             {rel : "atualizar", method : "PUT", href: "http://191.252.109.164/termos/" + val._key},
-             {rel : "excluir", method : "DELETE", href: "http://191.252.109.164/termos/" + val._key}
+             {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/termos/" + val._key},
+             {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/termos/" + val._key},
+             {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/termos/" + val._key}
            ]
            res.status(201).json(val).end()
          }, err => {
@@ -45,9 +45,9 @@ module.exports = function (app) {
      termo.document(id)
      .then(val => {
        val._links = [
-         {rel : "adicionar", method: "POST", href: "http://191.252.109.164/termos"},
-         {rel : "editar", method: "PUT", href: "http://191.252.109.164/termos/" + val._key},
-         {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/termos/" + val._key}
+         {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/termos"},
+         {rel : "editar", method: "PUT", href: "http://" + req.headers.host + "/termos/" + val._key},
+         {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/termos/" + val._key}
        ]
        res.status(200).json(val).end()
      }, err => {
@@ -67,10 +67,10 @@ module.exports = function (app) {
          termo.update(id,dados)
          .then(val => {
            val._links = [
-             {rel : "adicionar", method: "POST", href: "http://191.252.109.164/termos"},
-             {rel : "listar", method: "GET", href: "http://191.252.109.164/termos"},
-             {rel : "procurar", method: "GET", href: "http://191.252.109.164/termos/" + id},
-             {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/termos/" + id}
+             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/termos"},
+             {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/termos"},
+             {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/termos/" + id},
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/termos/" + id}
            ]
            res.status(200).json(val).end()
          }, err => {
@@ -86,8 +86,8 @@ module.exports = function (app) {
      termo.remove(id)
      .then(val => {
        val.links = [
-         {rel : "adicionar", method: "POST", href: "http://191.252.109.164/termos"},
-         {rel : "listar", method: "GET", href: "http://191.252.109.164/termos"}
+         {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/termos"},
+         {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/termos"}
        ]
        res.status(200).json(val).end()
      }, err => {

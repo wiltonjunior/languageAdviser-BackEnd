@@ -15,9 +15,9 @@ module.exports = function (app) {
          conteudo.save(dados)
          .then(val => {
             val.links = [
-              {rel : "procurar", method : "GET", href: "http://191.252.109.164/conteudos/" + val._key},
-              {rel : "atualizar", method : "PUT", href: "http://191.252.109.164/conteudos/" + val._key},
-              {rel : "excluir", method : "DELETE", href: "http://191.252.109.164/conteudos/" + val._key}
+              {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/conteudos/" + val._key},
+              {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/conteudos/" + val._key},
+              {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/conteudos/" + val._key}
             ]
             res.status(201).json(val).end()
          }, err => {
@@ -45,10 +45,10 @@ module.exports = function (app) {
       conteudo.document(id)
       .then(val => {
          val._links = [
-           {rel : "adicionar", method: "POST", href: "http://191.252.109.164/conteudos"},
-           {rel : "idioma", method: "GET", href: "http://191.252.109.164/conteudos/idioma/" + val._key},
-           {rel : "editar", method: "PUT", href: "http://191.252.109.164/conteudos/" + val._key},
-           {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/conteudos/" + val._key}
+           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/conteudos"},
+           {rel : "idioma", method: "GET", href: "http://" + req.headers.host + "/conteudos/idioma/" + val._key},
+           {rel : "editar", method: "PUT", href: "http://" + req.headers.host + "/conteudos/" + val._key},
+           {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/conteudos/" + val._key}
          ]
          res.status(200).json(val).end()
       }, err => {
@@ -64,8 +64,8 @@ module.exports = function (app) {
          cursor.all()
          .then(val => {
             val._links = [
-              {rel : "adicionar", method: "POST", href: "http://191.252.109.164/conteudos"},
-              {rel : "listar", method: "GET", href: "http://191.252.109.164/conteudos"}            
+              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/conteudos"},
+              {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/conteudos"}
             ]
             res.status(200).json(val).end();
          });
@@ -85,10 +85,10 @@ module.exports = function (app) {
          conteudo.update(id,dados)
          .then(val => {
             val._links = [
-              {rel : "adicionar", method: "POST", href: "http://191.252.109.164/conteudos"},
-              {rel : "listar", method: "GET", href: "http://191.252.109.164/conteudos"},
-              {rel : "procurar", method: "GET", href: "http://191.252.109.164/conteudos/" + id},
-              {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/conteudos/" + id}
+              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/conteudos"},
+              {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/conteudos"},
+              {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/conteudos/" + id},
+              {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/conteudos/" + id}
             ]
             res.status(200).json(val).end()
          }, err => {
@@ -104,8 +104,8 @@ module.exports = function (app) {
        conteudo.remove(id)
        .then(val => {
           val._links = [
-            {rel : "adicionar", method: "POST", href: "http://191.252.109.164/conteudos"},
-            {rel : "listar", method: "GET", href: "http://191.252.109.164/conteudos"}
+            {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/conteudos"},
+            {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/conteudos"}
           ]
           res.status(200).json(val).end()
        }, err => {

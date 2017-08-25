@@ -29,9 +29,9 @@ module.exports = function (app) {
                            contrato.save(dados)
                            .then(val => {
                              val._links = [
-                               {rel : "procurar", method : "GET", href: "http://191.252.109.164/contratos/" + val._key},
-                               {rel : "atualizar", method : "PUT", href: "http://191.252.109.164/contratos/" + val._key},
-                               {rel : "excluir", method : "DELETE", href: "http://191.252.109.164/contratos/" + val._key}
+                               {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/contratos/" + val._key},
+                               {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/contratos/" + val._key},
+                               {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/contratos/" + val._key}
                              ]
                              res.status(201).json(val).end()
                            }, err => {
@@ -46,9 +46,9 @@ module.exports = function (app) {
                  contrato.save(dados)
                  .then(val => {
                    val._links = [
-                     {rel : "procurar", method : "GET", href: "http://191.252.109.164/contratos/" + val._key},
-                     {rel : "atualizar", method : "PUT", href: "http://191.252.109.164/contratos/" + val._key},
-                     {rel : "excluir", method : "DELETE", href: "http://191.252.109.164/contratos/" + val._key}
+                     {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/contratos/" + val._key},
+                     {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/contratos/" + val._key},
+                     {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/contratos/" + val._key}
                    ]
                    res.status(201).json(val).end()
                  }, err => {
@@ -81,8 +81,8 @@ module.exports = function (app) {
           cursor.next()
           .then(val => {
               val._links = [
-                {rel : "adicionar", method: "POST", href: "http://191.252.109.164/contratos"},
-                {rel : "listar", method: "GET", href: "http://191.252.109.164/contratos"}
+                {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/contratos"},
+                {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/contratos"}
               ]
              res.status(200).json(val).end()
           })
@@ -98,8 +98,8 @@ module.exports = function (app) {
          cursor.next()
          .then(val => {
             val._links = [
-              {rel: "adicionar", method: "POST", href: "http://191.252.109.164/contratos"},
-              {rel: "listar", method: "GET", href: "http://191.252.109.164/contratos"}
+              {rel: "adicionar", method: "POST", href: "http://" + req.headers.host + "/contratos"},
+              {rel: "listar", method: "GET", href: "http://" + req.headers.host + "/contratos"}
             ]
             res.status(200).json(val).end()
          })
@@ -121,12 +121,12 @@ module.exports = function (app) {
       contrato.document(id)
       .then(val => {
         val._links = [
-          {rel : "adicionar", method: "POST", href: "http://191.252.109.164/contratos"},
-          {rel : "empresa", method: "GET", href: "http://191.252.109.164/contratos/empresa/" + val._key},
-          {rel : "termos", method: "GET", href: "http://191.252.109.164/contratos/termos/" + val._key},
-          {rel : "regiao", method: "GET", href: "http://191.252.109.164/contratos/regiao/" + val._key},
-          {rel : "editar", method: "PUT", href: "http://191.252.109.164/contratos/" + val._key},
-          {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/contratos/" + val._key}
+          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/contratos"},
+          {rel : "empresa", method: "GET", href: "http://" + req.headers.host + "/contratos/empresa/" + val._key},
+          {rel : "termos", method: "GET", href: "http://" + req.headers.host + "/contratos/termos/" + val._key},
+          {rel : "regiao", method: "GET", href: "http://" + req.headers.host + "/contratos/regiao/" + val._key},
+          {rel : "editar", method: "PUT", href: "http://" + req.headers.host + "/contratos/" + val._key},
+          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/contratos/" + val._key}
         ]
         res.status(200).json(val).end()
       }, err => {
@@ -142,10 +142,10 @@ module.exports = function (app) {
          cursor.next()
          .then(val => {
            val.links = [
-             {rel : "adicionar", method: "POST", href: "http://191.252.109.164/contratos"},
-             {rel : "listar", method: "GET", href: "http://191.252.109.164/contratos"},
-             {rel : "editar", method: "PUT", href: "http://191.252.109.164/contratos/" + id},
-             {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/contratos/" + id}
+             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/contratos"},
+             {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/contratos"},
+             {rel : "editar", method: "PUT", href: "http://" + req.headers.host + "/contratos/" + id},
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/contratos/" + id}
            ]
            res.status(200).json(val).end();
          });
@@ -160,10 +160,10 @@ module.exports = function (app) {
          cursor.next()
          .then(val => {
            val.links = [
-             {rel : "adicionar", method: "POST", href: "http://191.252.109.164/contratos"},
-             {rel : "listar", method: "GET", href: "http://191.252.109.164/contratos"},
-             {rel : "editar", method: "PUT", href: "http://191.252.109.164/contratos/" + id},
-             {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/contratos/" + id}
+             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/contratos"},
+             {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/contratos"},
+             {rel : "editar", method: "PUT", href: "http://" + req.headers.host + "/contratos/" + id},
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/contratos/" + id}
            ]
            res.status(200).json(val).end();
          });
@@ -178,10 +178,10 @@ module.exports = function (app) {
          cursor.all()
          .then(val => {
            val._links = [
-             {rel : "adicionar", method: "POST", href: "http://191.252.109.164/contratos"},
-             {rel : "listar", method: "GET", href: "http://191.252.109.164/contratos"},
-             {rel : "editar", method: "PUT", href: "http://191.252.109.164/contratos/" + id},
-             {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/contratos/" + id}
+             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/contratos"},
+             {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/contratos"},
+             {rel : "editar", method: "PUT", href: "http://" + req.headers.host + "/contratos/" + id},
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/contratos/" + id}
            ]
            res.status(200).json(val).end();
          });
@@ -200,10 +200,10 @@ module.exports = function (app) {
          contrato.update(id,dados)
          .then(val => {
            val._links = [
-             {rel : "adicionar", method: "POST", href: "http://191.252.109.164/contratos"},
-             {rel : "listar", method: "GET", href: "http://191.252.109.164/contratos"},
-             {rel : "procurar", method: "GET", href: "http://191.252.109.164/contratos/" + id},
-             {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/contratos" + id}
+             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/contratos"},
+             {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/contratos"},
+             {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/contratos/" + id},
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/contratos" + id}
            ]
            res.status(200).json(val).end()
          }, err => {
@@ -219,8 +219,8 @@ module.exports = function (app) {
       contrato.remove(id)
       .then(val => {
         val._links = [
-          {rel : "adicionar", method: "POST", href: "http://191.252.109.164/contratos"},
-          {rel : "listar", method: "GET", href: "http://191.252.109.164/contratos"}
+          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/contratos"},
+          {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/contratos"}
         ]
         res.status(200).json(val).end()
       }, err => {

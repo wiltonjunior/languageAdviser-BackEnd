@@ -16,9 +16,9 @@ module.exports = function (app) {
         empresa.save(dados)
         .then(val => {
           val._links = [
-            {rel : "procurar", method : "GET", href: "http://191.252.109.164/empresas/" + val._key},
-            {rel : "atualizar", method : "PUT", href: "http://191.252.109.164/empresas/" + val._key},
-            {rel : "excluir", method : "DELETE", href: "http://191.252.109.164/empresas/" + val._key}
+            {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/empresas/" + val._key},
+            {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/empresas/" + val._key},
+            {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/empresas/" + val._key}
           ]
           res.status(201).json(val).end()
         }, err => {
@@ -46,9 +46,9 @@ module.exports = function (app) {
       empresa.document(id)
       .then(val => {
         val._links = [
-          {rel : "adicionar", method: "POST", href: "http://191.252.109.164/empresas"},
-          {rel : "editar", method: "PUT", href: "http://191.252.109.164/empresas/" + val._key},
-          {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/empresas/" + val._key}
+          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/empresas"},
+          {rel : "editar", method: "PUT", href: "http://" + req.headers.host + "/empresas/" + val._key},
+          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/empresas/" + val._key}
         ]
         res.status(200).json(val).end()
       }, err => {
@@ -69,10 +69,10 @@ module.exports = function (app) {
         empresa.update(id,dados)
         .then(val => {
           val._links = [
-            {rel : "adicionar", method: "POST", href: "http://191.252.109.164/empresas"},
-            {rel : "listar", method: "GET", href: "http://191.252.109.164/empresas"},
-            {rel : "procurar", method: "GET", href: "http://191.252.109.164/empresas/" + id},
-            {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/empresas/" + id}
+            {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/empresas"},
+            {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/empresas"},
+            {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/empresas/" + id},
+            {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/empresas/" + id}
           ]
           res.status(200).json(val).end()
         }, err => {
@@ -88,8 +88,8 @@ module.exports = function (app) {
       empresa.remove(id)
       .then(val => {
         val._links = [
-          {rel : "adicionar", method: "POST", href: "http://191.252.109.164/empresas"},
-          {rel : "listar", method: "GET", href: "http://191.252.109.164/empresas"}
+          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/empresas"},
+          {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/empresas"}
         ]
         res.status(200).json(val).end()
       }, err => {

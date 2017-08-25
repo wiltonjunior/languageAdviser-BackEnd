@@ -17,9 +17,9 @@ module.exports = function (app) {
         autor.save(dados)
         .then(val => {
            val._links = [
-            {rel : "procurar", method : "GET", href: "http://191.252.109.164/autores/" + val._key},
-            {rel : "atualizar", method : "PUT", href: "http://191.252.109.164/autores/" + val._key},
-            {rel : "excluir", method : "DELETE", href: "http://191.252.109.164/autores/" + val._key}
+            {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/autores/" + val._key},
+            {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/autores/" + val._key},
+            {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/autores/" + val._key}
            ]
            res.status(201).json(val).end()
         }, err => {
@@ -52,10 +52,10 @@ module.exports = function (app) {
               autor.update(id,{"caminhoImagem" : caminhoImagem})
               .then(val => {
                  val._links = [
-                   {rel : "adicionar", method: "POST", href: "http://191.252.109.164/autores"},
-                   {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"},
-                   {rel : "procurar", method: "GET", href: "http://191.252.109.164/autores/" + id},
-                   {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/autores/" + id}
+                   {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/autores"},
+                   {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/autores"},
+                   {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/autores/" + id},
+                   {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/autores/" + id}
                  ]
                  res.status(200).json(val).end()
               }, err => {
@@ -85,9 +85,9 @@ module.exports = function (app) {
       autor.document(id)
       .then(val => {
          val._links = [
-           {rel : "adicionar", method: "POST", href: "http://191.252.109.164/autores"},
-           {rel : "editar", method: "PUT", href: "http://191.252.109.164/autores/" + val._key},
-           {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/autores/" + val._key}
+           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/autores"},
+           {rel : "editar", method: "PUT", href: "http://" + req.headers.host + "/autores/" + val._key},
+           {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/autores/" + val._key}
          ]
          res.status(200).json(val).end()
       }, err => {
@@ -103,8 +103,8 @@ module.exports = function (app) {
          cursor.next()
          .then(val => {
             val._links = [
-               {rel : "adicionar" ,method: "POST", href: "http://191.252.109.164/autores"},
-               {rel : "listar" ,method: "GET", href: "http://191.252.109.164/autores"}
+               {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/autores"},
+               {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/autores"}
             ]
             res.status(200).json(val).end()
          })
@@ -123,10 +123,10 @@ module.exports = function (app) {
         autor.update(id,dados)
         .then(val => {
            val._links = [
-             {rel : "adicionar", method: "POST", href: "http://191.252.109.164/autor"},
-             {rel : "listar", method: "GET", href: "http://191.252.109.164/autor"},
-             {rel : "procurar", method: "GET", href: "http://191.252.109.164/autor/" + id},
-             {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/autor/" + id}
+             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/autor"},
+             {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/autor"},
+             {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/autor/" + id},
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/autor/" + id}
            ]
            res.status(200).json(val).end()
         }, err => {
@@ -142,8 +142,8 @@ module.exports = function (app) {
       autor.remove(id)
       .then(val => {
          val._links = [
-           {rel : "adicionar", method: "POST", href: "http://191.252.109.164/autores"},
-           {rel : "listar", method: "GET", href: "http://191.252.109.164/autores"}
+           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/autores"},
+           {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/autores"}
          ]
          res.status(200).json(val).end()
       }, err => {

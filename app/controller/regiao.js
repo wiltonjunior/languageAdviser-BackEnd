@@ -16,9 +16,9 @@ module.exports = function (app) {
          regiao.save(dados)
          .then(val => {
            val._links = [
-             {rel : "procurar", method : "GET", href: "http://191.252.109.164/regioes/" + val._key},
-             {rel : "atualizar", method : "PUT", href: "http://191.252.109.164/regioes/" + val._key},
-             {rel : "excluir", method : "DELETE", href: "http://191.252.109.164/regioes/" + val._key}
+             {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/regioes/" + val._key},
+             {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/regioes/" + val._key},
+             {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/regioes/" + val._key}
            ]
            res.status(201).json(val).end()
          }, err => {
@@ -46,9 +46,9 @@ module.exports = function (app) {
       regiao.document(id)
       .then(val => {
         val._links = [
-          {rel : "adicionar", method: "POST", href: "http://191.252.109.164/regioes"},
-          {rel : "editar", method: "PUT", href: "http://191.252.109.164/regioes/" + val._key},
-          {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/regioes/" + val._key}
+          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/regioes"},
+          {rel : "editar", method: "PUT", href: "http://" + req.headers.host + "/regioes/" + val._key},
+          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/regioes/" + val._key}
         ]
         res.status(200).json(val).end()
       }, err=> {
@@ -69,10 +69,10 @@ module.exports = function (app) {
          regiao.update(id,dados)
          .then(val => {
            val._links = [
-             {rel : "adicionar", method: "POST", href: "http://191.252.109.164/regioes"},
-             {rel : "listar", method: "GET", href: "http://191.252.109.164/regioes"},
-             {rel : "procurar", method: "GET", href: "http://191.252.109.164/regioes/" + id},
-             {rel : "excluir", method: "DELETE", href: "http://191.252.109.164/regioes/" + id}
+             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/regioes"},
+             {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/regioes"},
+             {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/regioes/" + id},
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/regioes/" + id}
            ]
            res.status(200).json(val).end()
          }, err=> {
@@ -88,8 +88,8 @@ module.exports = function (app) {
       regiao.remove(id)
       .then(val => {
         val._links = [
-          {rel : "adicionar", method: "POST", href: "http://191.252.109.164/regioes"},
-          {rel : "listar", method: "GET", href: "http://191.252.109.164/regioes"}
+          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/regioes"},
+          {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/regioes"}
         ]
         res.status(200).json(val).end()
       }, err => {
