@@ -9,7 +9,9 @@ module.exports = function (app) {
      avaliacao : Joi.number().integer(),
      quantidadeVotos : Joi.number().integer(),
      idAutor : Joi.string().required(),
-     idConteudo : Joi.string().required()
+     idIdioma : Joi.string().required(),
+     idNivel : Joi.string().required(),
+     idSituacao : Joi.string().required()
    }
 
    return licao;

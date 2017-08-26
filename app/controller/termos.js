@@ -1,6 +1,8 @@
 module.exports = function (app) {
    var model = app.model.termos;
    var Joi = app.get("joi");
+   var db = app.get("database");
+   var dbTermo = db.collection("termos");
 
    var termo = {};
 
@@ -10,9 +12,7 @@ module.exports = function (app) {
       if (result.error!=null) {
          res.status(400).json(result.error);
       } else {
-         var db = req.app.get("database");
-         var termo = db.collection("termos");
-         termo.save(dados)
+         dbTermo.save(dados)
          .then(val => {
            val._links = [
              {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/termos/" + val._key},
@@ -27,9 +27,7 @@ module.exports = function (app) {
    };
 
    termo.listar = function (req,res) {
-      var db = req.app.get("database");
-      var termo = db.collection("termos");
-      termo.all()
+      dbTermo.all()
       .then(cursor => {
          cursor.all()
          .then(val => {
@@ -40,9 +38,7 @@ module.exports = function (app) {
 
    termo.listarTermo = function (req,res) {
      var id = req.params.id;
-     var db = req.app.get("database");
-     var termo = db.collection("termos");
-     termo.document(id)
+     dbTermo.document(id)
      .then(val => {
        val._links = [
          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/termos"},
@@ -62,9 +58,7 @@ module.exports = function (app) {
       if (result.error!=null) {
          res.status(400).json(result.error);
       } else {
-         var db = req.app.get("database");
-         var termo = db.collection("termos");
-         termo.update(id,dados)
+         dbTermo.update(id,dados)
          .then(val => {
            val._links = [
              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/termos"},
@@ -81,9 +75,7 @@ module.exports = function (app) {
 
    termo.deletar = function (req,res) {
      var id = req.params.id;
-     var db = req.app.get("database");
-     var termo = db.collection("termos");
-     termo.remove(id)
+     dbTermo.remove(id)
      .then(val => {
        val.links = [
          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/termos"},

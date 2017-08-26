@@ -1,6 +1,8 @@
 module.exports = function (app) {
     var model = app.model.idioma;
     var Joi = app.get("joi");
+    var db = app.get("database");
+    var dbIdioma = db.collection("idioma");
 
     var idioma = {};
 
@@ -10,9 +12,7 @@ module.exports = function (app) {
       if (result.error!=null) {
         res.status(400).json(result.error);
       } else {
-        var db = req.app.get("database");
-        var idioma = db.collection("idioma");
-        idioma.save(dados)
+        dbIdioma.save(dados)
         .then(val => {
            val._links = [
              {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/idiomas/" + val._key},
@@ -45,9 +45,7 @@ module.exports = function (app) {
                res.status(500).json(result.error);
             } else {
                var caminhoImagem = "/imagem/idioma/" + imagem;
-               var db = app.get("database");
-               var idioma = db.collection("idioma");
-               idioma.update(id,{"caminhoImagem" : caminhoImagem})
+               dbIdioma.update(id,{"caminhoImagem" : caminhoImagem})
                .then(val => {
                  val._links = [
                     {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/idiomas/" + val._key},
@@ -64,9 +62,7 @@ module.exports = function (app) {
     };
 
     idioma.listar = function (req,res) {
-       var db = req.app.get("database");
-       var idioma = db.collection("idioma");
-       idioma.all()
+       dbIdioma.all()
        .then(cursor => {
           cursor.all()
           .then(val => {
@@ -79,9 +75,7 @@ module.exports = function (app) {
 
     idioma.listarIdioma = function (req,res) {
        var id = req.params.id;
-       var db = req.app.get("database");
-       var idioma = db.collection("idioma");
-       idioma.document(id)
+       dbIdioma.document(id)
        .then(val => {
          val._links = [
            {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/idiomas"},
@@ -101,9 +95,7 @@ module.exports = function (app) {
       if (result.error!=null) {
         res.status(400).json(result.error);
       } else {
-        var db = req.app.get("database");
-        var idioma = db.collection("idioma");
-        idioma.update(id,dados)
+        dbIdioma.update(id,dados)
         .then(val => {
           val._links = [
             {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/idiomas/" + val._key},
@@ -119,9 +111,7 @@ module.exports = function (app) {
 
     idioma.deletar = function (req,res) {
        var id = req.params.id;
-       var db = req.app.get("database");
-       var idioma = db.collection("idioma");
-       idioma.remove(id)
+       dbIdioma.remove(id)
        .then(val => {
          val._links = [
            {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/idiomas"},

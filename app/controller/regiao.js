@@ -1,6 +1,8 @@
 module.exports = function (app) {
    var model = app.model.regiao;
    var Joi = app.get("joi");
+   var db = app.get("database");
+   var dbRegiao = db.collection("regiao");
 
    var regiao = {};
 
@@ -11,9 +13,7 @@ module.exports = function (app) {
          res.status(400).json(result.error);
       }
       else {
-         var db = req.app.get("database");
-         var regiao = db.collection("regiao");
-         regiao.save(dados)
+         dbRegiao.save(dados)
          .then(val => {
            val._links = [
              {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/regioes/" + val._key},
@@ -28,9 +28,7 @@ module.exports = function (app) {
    };
 
    regiao.listar = function (req,res) {
-      var db = req.app.get("database");
-      var regiao = db.collection("regiao");
-      regiao.all()
+      dbRegiao.all()
       .then(cursor => {
         cursor.all()
         .then(val => {
@@ -41,9 +39,7 @@ module.exports = function (app) {
 
    regiao.listarRegiao = function (req,res) {
       var id = req.params.id;
-      var db = req.app.get("database");
-      var regiao = db.collection("regiao");
-      regiao.document(id)
+      dbRegiao.document(id)
       .then(val => {
         val._links = [
           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/regioes"},
@@ -64,9 +60,7 @@ module.exports = function (app) {
          res.status(400).json(result.error);
       }
       else {
-         var db = req.app.get("database");
-         var regiao = db.collection("regiao");
-         regiao.update(id,dados)
+         dbRegiao.update(id,dados)
          .then(val => {
            val._links = [
              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/regioes"},
@@ -83,9 +77,7 @@ module.exports = function (app) {
 
    regiao.deletar = function (req,res) {
       var id = req.params.id;
-      var db = req.app.get("database");
-      var regiao = db.collection("regiao");
-      regiao.remove(id)
+      dbRegiao.remove(id)
       .then(val => {
         val._links = [
           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/regioes"},

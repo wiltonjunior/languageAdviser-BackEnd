@@ -1,6 +1,8 @@
 module.exports = function (app) {
    var model = app.model.empresa;
    var Joi = app.get("joi");
+   var db = app.get("database");
+   var dbEmpresa = db.collection("empresa");
 
    var empresa = {};
 
@@ -11,9 +13,7 @@ module.exports = function (app) {
         res.status(400).json(result.error);
       }
       else {
-        var db = req.app.get("database");
-        var empresa = db.collection("empresa");
-        empresa.save(dados)
+        dbEmpresa.save(dados)
         .then(val => {
           val._links = [
             {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/empresas/" + val._key},
@@ -28,9 +28,7 @@ module.exports = function (app) {
    };
 
    empresa.listar = function (req,res) {
-      var db = req.app.get("database");
-      var empresa = db.collection("empresa");
-      empresa.all()
+      dbEmpresa.all()
       .then(cursor => {
         cursor.all()
         .then(val => {
@@ -41,9 +39,7 @@ module.exports = function (app) {
 
    empresa.listarEmpresa = function (req,res) {
       var id = req.params.id;
-      var db = req.app.get("database");
-      var empresa = db.collection("empresa");
-      empresa.document(id)
+      dbEmpresa.document(id)
       .then(val => {
         val._links = [
           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/empresas"},
@@ -64,9 +60,7 @@ module.exports = function (app) {
          res.status(400).json(result.error);
       }
       else {
-        var db = req.app.get("database");
-        var empresa = db.collection("empresa");
-        empresa.update(id,dados)
+        dbEmpresa.update(id,dados)
         .then(val => {
           val._links = [
             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/empresas"},
@@ -83,9 +77,7 @@ module.exports = function (app) {
 
    empresa.deletar = function (req,res) {
       var id = req.params.id;
-      var db = req.app.get("database");
-      var empresa = db.collection("empresa");
-      empresa.remove(id)
+      dbEmpresa.remove(id)
       .then(val => {
         val._links = [
           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/empresas"},

@@ -1,6 +1,8 @@
 module.exports = function (app) {
    var model = app.model.dialogo;
    var Joi = app.get("joi");
+   var db = app.get("database");
+   var dbDialogo = db.collection("dialogo");
 
    var dialogo = {};
 
@@ -10,9 +12,7 @@ module.exports = function (app) {
       if (result.error!=null) {
          res.status(400).json(result.error)
       } else {
-         var db = req.app.get("database");
-         var dialogo = db.collection("dialogo");
-         dialogo.save(dados)
+         dbDialogo.save(dados)
          .then(val => {
             val._links = [
               {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/dialogos/" + val._key},
@@ -27,9 +27,7 @@ module.exports = function (app) {
    };
 
    dialogo.listar = function (req,res) {
-      var db = req.app.get("database");
-      var dialogo = db.collection("dialogo");
-      dialogo.all()
+      dbDialogo.all()
       .then(cursor => {
          cursor.all()
          .then(val => {
@@ -40,9 +38,7 @@ module.exports = function (app) {
 
    dialogo.listarDialogo = function (req,res) {
       var id = req.params.id;
-      var db = req.app.get("database");
-      var dialogo = db.collection("dialogo");
-      dialogo.document(id)
+      dbDialogo.document(id)
       .then(val => {
         val._links = [
           {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/dialogos"},
@@ -56,7 +52,6 @@ module.exports = function (app) {
 
    dialogo.listarLicao = function (req,res) {
      var idLicao = req.params.idLicao;
-     var db = req.app.get("database");
      db.query("FOR licao IN licao FOR dialogo IN dialogo FILTER licao._key == @id and dialogo.idLicao == licao._key RETURN dialogo",{'id' : idLicao})
      .then(cursor => {
         cursor.all()
@@ -72,7 +67,6 @@ module.exports = function (app) {
 
    dialogo.estudar = async function (req,res) {
       var dados = req.body;
-      var db = req.app.get("database");
       db.query("FOR dialogo IN dialogo FILTER dialogo._key == @id RETURN dialogo",{'id' : dados.idDialogo})
       .then(cursor => {
          cursor.next()
@@ -123,9 +117,7 @@ module.exports = function (app) {
       if (result.error) {
         res.status(400).json(result.error);
       } else {
-        var db = req.app.get("database");
-        var dialogo = db.collection("dialogo");
-        dialogo.update(id,dados)
+        dbDialogo.update(id,dados)
         .then(val => {
            val._links = [
              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/dialogos"},
@@ -142,9 +134,7 @@ module.exports = function (app) {
 
    dialogo.deletar = function (req,res) {
      var id = req.params.id;
-     var db = req.app.get("database");
-     var dialogo = db.collection("dialogo");
-     dialogo.remove(id)
+     dbDialogo.remove(id)
      .then(val => {
         val._links = [
           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/dialogos"},

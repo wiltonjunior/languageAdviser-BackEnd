@@ -1,6 +1,8 @@
 module.exports = function (app) {
    var model = app.model.autor;
    var Joi = app.get("joi");
+   var db = app.get("database");
+   var dbAutor = db.collection("autor");
 
    var autor = {};
 
@@ -12,9 +14,7 @@ module.exports = function (app) {
       } else {
         dados.caminhoImagem = "/imagem/usuario.jpg";
         dados.status = 2;
-        var db = req.app.get("database");
-        var autor = db.collection("autor");
-        autor.save(dados)
+        dbAutor.save(dados)
         .then(val => {
            val._links = [
             {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/autores/" + val._key},
@@ -47,9 +47,7 @@ module.exports = function (app) {
               res.status(500).json(err);
             } else {
               var caminhoImagem = "/imagem/autor/" + imagem;
-              var db = req.app.get("database");
-              var autor = db.collection("autor");
-              autor.update(id,{"caminhoImagem" : caminhoImagem})
+              dbAutor.update(id,{"caminhoImagem" : caminhoImagem})
               .then(val => {
                  val._links = [
                    {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/autores"},
@@ -67,9 +65,7 @@ module.exports = function (app) {
    };
 
    autor.listar = function (req,res) {
-      var db = req.app.get("database");
-      var autor = db.collection("autor");
-      autor.all()
+      dbAutor.all()
       .then(cursor => {
         cursor.all()
         .then(val => {
@@ -80,9 +76,7 @@ module.exports = function (app) {
 
    autor.listarAutor = function (req,res) {
       var id = req.params.id;
-      var db = req.app.get("database");
-      var autor = db.collection("autor");
-      autor.document(id)
+      dbAutor.document(id)
       .then(val => {
          val._links = [
            {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/autores"},
@@ -97,7 +91,6 @@ module.exports = function (app) {
 
    autor.listarIdioma = function (req,res) {
       var id = req.params.id;
-      var db = req.app.get("database");
       db.query("FOR idioma IN idioma FOR autor IN autor FILTER autor._key == @id and autor.idIdioma == alunos._key RETURN idioma",{'id' : id})
       .then(cursor => {
          cursor.next()
@@ -118,9 +111,7 @@ module.exports = function (app) {
      if(result.error!=null) {
         res.status(400).json(result.error);
      } else {
-        var db = req.app.get("database");
-        var autor = db.collection("autor");
-        autor.update(id,dados)
+        dbAutor.update(id,dados)
         .then(val => {
            val._links = [
              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/autor"},
@@ -137,9 +128,7 @@ module.exports = function (app) {
 
    autor.deletar = function (req,res) {
       var id = req.params.id;
-      var db = req.app.get("database");
-      var autor = db.collection("autor");
-      autor.remove(id)
+      dbAutor.remove(id)
       .then(val => {
          val._links = [
            {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/autores"},

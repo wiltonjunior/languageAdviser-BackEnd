@@ -1,6 +1,8 @@
 module.exports = function (app) {
    var model = app.model.contrato;
    var Joi = app.get("joi");
+   var db = app.get("database");
+   var dbContrato = db.collection("contrato");
 
    var contrato = {};
 
@@ -10,7 +12,6 @@ module.exports = function (app) {
       if (result.error!=null) {
          res.status(400).json(result.error);
       } else {
-         var db = req.app.get("database");
          db.query("LET cont = (FOR contrato IN contrato FILTER contrato.idRegiao == @id RETURN contrato) RETURN length(cont)",{'id' : dados.idRegiao})
          .then(cursor => {
             cursor.next()
@@ -25,8 +26,7 @@ module.exports = function (app) {
                            res.status(409).json(resposta);
                         }
                         else {
-                           var contrato = db.collection("contrato");
-                           contrato.save(dados)
+                           dbContrato.save(dados)
                            .then(val => {
                              val._links = [
                                {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/contratos/" + val._key},
@@ -42,8 +42,7 @@ module.exports = function (app) {
                   })
                }
                else {
-                 var contrato = db.collection("contrato");
-                 contrato.save(dados)
+                 dbContrato.save(dados)
                  .then(val => {
                    val._links = [
                      {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/contratos/" + val._key},
@@ -61,9 +60,7 @@ module.exports = function (app) {
    };
 
    contrato.listar = function (req,res) {
-      var db = req.app.get("database");
-      var contrato = db.collection("contrato");
-      contrato.all()
+      dbContrato.all()
       .then(cursor => {
          cursor.all()
          .then(val => {
@@ -75,7 +72,6 @@ module.exports = function (app) {
    contrato.ativo = function (req,res) {
        var today = new Date();
        var data = dataAtual(today);
-       var db = req.app.get("database");
        db.query("LET ANO = (FOR contrato IN contrato RETURN {'idContrato' : contrato._key,'dataTermino' : contrato.dataTermino, 'data' : DATE_DIFF(@data,contrato.dataTermino,'y',false)}) LET MES = (FOR a IN ANO FILTER a.data >= 0 RETURN {'idContrato' : a.idContrato, 'dataTermino' : a.dataTermino, 'data' : DATE_DIFF(@data,a.dataTermino,'m',false)}) LET DIA = (FOR m IN MES FILTER m.data >= 0 RETURN {'idContrato' : m.idContrato, 'dataTermino' : m.dataTermino, 'data' : DATE_DIFF(@data,m.dataTermino,'d',false)}) LET cont = (FOR contrato IN contrato FOR d IN DIA FILTER d.data >= 0 and d.idContrato == contrato._key RETURN contrato) RETURN cont",{'data' : data})
        .then(cursor => {
           cursor.next()
@@ -92,7 +88,6 @@ module.exports = function (app) {
    contrato.expirado = function (req,res) {
       var today = new Date();
       var data = dataAtual(today);
-      var db = req.app.get("database");
       db.query("LET ANO = (FOR contrato IN contrato RETURN {'idContrato' : contrato._key,'dataTermino' : contrato.dataTermino, 'data' : DATE_DIFF(@data,contrato.dataTermino,'y',false)}) LET MES = (FOR a IN ANO FILTER a.data <= 0 RETURN {'idContrato' : a.idContrato, 'dataTermino' : a.dataTermino, 'data' : DATE_DIFF(@data,a.dataTermino,'m',false)}) LET DIA = (FOR m IN MES FILTER m.data <= 0 RETURN {'idContrato' : m.idContrato, 'dataTermino' : m.dataTermino, 'data' : DATE_DIFF(@data,m.dataTermino,'d',false)}) LET cont = (FOR contrato IN contrato FOR d IN DIA FILTER d.data < 0 and d.idContrato == contrato._key RETURN contrato) RETURN cont",{'data' : data})
       .then(cursor => {
          cursor.next()
@@ -116,9 +111,7 @@ module.exports = function (app) {
 
    contrato.listarContrato = function (req,res) {
       var id = req.params.id;
-      var db = req.app.get("database");
-      var contrato = db.collection("contrato");
-      contrato.document(id)
+      dbContrato.document(id)
       .then(val => {
         val._links = [
           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/contratos"},
@@ -136,7 +129,6 @@ module.exports = function (app) {
 
    contrato.listarEmpresa = function (req,res) {
       var id = req.params.id;
-      var db = req.app.get("database");
       db.query("FOR empresa IN empresa FOR contrato IN contrato FILTER contrato._key == @id and contrato.idEmpresa == empresa._key RETURN empresa",{'id' : id})
       .then(cursor => {
          cursor.next()
@@ -154,7 +146,6 @@ module.exports = function (app) {
 
    contrato.listarTermos = function (req,res) {
       var id = req.params.id;
-      var db = req.app.get("database");
       db.query("FOR termos IN termos FOR contrato IN contrato FILTER contrato._key == @id and contrato.idTermo == termos._key RETURN termos",{'id' : id})
       .then(cursor => {
          cursor.next()
@@ -172,7 +163,6 @@ module.exports = function (app) {
 
    contrato.listarRegiao = function (req,res) {
       var id = req.params.id;
-      var db = req.app.get("database");
       db.query("FOR regiao IN regiao FOR contrato IN contrato FILTER contrato._key == @id and contrato.idRegiao == regiao._key or regiao._key IN contrato.idRegiao RETURN regiao",{'id' : id})
       .then(cursor => {
          cursor.all()
@@ -195,9 +185,7 @@ module.exports = function (app) {
       if (result.error!=null) {
          res.status(400).json(result.error);
       } else {
-         var db = req.app.get("database");
-         var contrato = db.collection("contrato");
-         contrato.update(id,dados)
+         dbContrato.update(id,dados)
          .then(val => {
            val._links = [
              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/contratos"},
@@ -214,9 +202,7 @@ module.exports = function (app) {
 
    contrato.deletar = function (req,res) {
       var id = req.params.id;
-      var db = req.app.get("database");
-      var contrato = db.collection("contrato");
-      contrato.remove(id)
+      dbContrato.remove(id)
       .then(val => {
         val._links = [
           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/contratos"},

@@ -1,6 +1,8 @@
 module.exports = function (app) {
    var model = app.model.licao;
    var Joi = app.get("joi");
+   var db = app.get("database");
+   var dbLicao = db.collection("licao");
 
    var licao = {};
 
@@ -12,9 +14,7 @@ module.exports = function (app) {
       } else {
           dados.avaliacao = 0;
           dados.quantidadeVotos = 0;
-          var db = req.app.get("database");
-          var licao = db.collection("licao");
-          licao.save(dados)
+          dbLicao.save(dados)
           .then(val => {
              val._links = [
                {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/licoes/" + val._key},
@@ -28,10 +28,23 @@ module.exports = function (app) {
       }
    };
 
+   licao.selecionar = function (req,res) {
+      var dados = req.body;
+      db.query("FOR licao IN licao FILTER licao.idIdioma == @idIdioma and licao.idNivel == @idNivel and licao.idSituacao == @idSituacao RETURN licao",{'idAutor' : dados.idAutor,'idNivel' : dados.idNivel, 'idSituacao' : dados.idSituacao})
+      .then(cursor => {
+         cursor.all()
+         .then(val => {
+           val._links = [
+              {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/licoes"},
+              {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/licoes"}
+           ]
+           res.status(200).json(val).end()
+         })
+      })
+   };
+
    licao.listar = function (req,res) {
-      var db = req.app.get("database");
-      var licao = db.collection("licao");
-      licao.all()
+      dbLicao.all()
       .then(cursor => {
          cursor.all()
          .then(val => {
@@ -42,14 +55,13 @@ module.exports = function (app) {
 
    licao.listarLicao = function (req,res) {
       var id = req.params.id;
-      var db = req.app.get("database");
-      var licao = db.collection("licao");
-      licao.document(id)
+      dbLicao.document(id)
       .then(val => {
-         val._links = [
-           {rel : "adicionar Conteudo", method : "POST", href : "http://" + req.headers.host + "/licoes/conteudos"},
-           {rel : "adicionar Autor", method: "POST", href : "http://" + req.headers.host + "/licoes/autores"}
-         ]
+        val._links = [
+          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/licoes"},
+          {rel : "editar", method: "PUT", href: "http://" + req.headers.host + "/licoes/" + val._key},
+          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/licoes/" + val._key}
+        ]
          res.status(200).json(val).end()
       }, err => {
          res.status(500).json(err).end()
@@ -58,7 +70,6 @@ module.exports = function (app) {
 
    licao.listarAutor = function (req,res) {
       var id = req.params.id;
-      var db = req.app.get("database");
       db.query("FOR autor IN autor FOR licao IN licao FILTER licao._key == @id and licao.idAutor == autor._key RETURN autor",{'id' : id})
       .then(cursor => {
          cursor.next()
@@ -72,12 +83,26 @@ module.exports = function (app) {
       })
    };
 
-   licao.listarConteudo = function (req,res) {
-      var idConteudo = req.params.idConteudo;
-      var db = req.app.get("database");
-      db.query("FOR licao IN licao FOR conteudo IN conteudo FILTER conteudo._key == @id and licao.idConteudo == conteudo._key RETURN licao",{'id' : idConteudo})
+   licao.listarIdioma = function (req,res) {
+      var id = req.params.id;
+      db.query("FOR idioma IN idioma FOR licao IN licao FILTER licao._key == @id and licao.idIdioma == idioma._key RETURN idioma",{'id' : id})
       .then(cursor => {
-         cursor.all()
+         cursor.next()
+         .then(val => {
+           val._links = [
+              {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/licoes"},
+              {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/licoes"}
+           ]
+           res.status(200).json(val).end()
+         })
+      })
+   };
+
+   licao.listarNivel = function (req,res) {
+      var id = req.params.id;
+      db.query("FOR nivel IN nivel FOR licao IN licao FILTER licao._key == @id and licao.idNivel == nivel._key RETURN nivel",{'id' : id})
+      .then(cursor => {
+         cursor.next()
          .then(val => {
             val._links = [
                {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/licoes"},
@@ -88,10 +113,84 @@ module.exports = function (app) {
       })
    };
 
+   licao.listarSituacao = function (req,res) {
+     var id = req.params.id;
+     db.query("FOR situacao IN situacao FOR licao IN licao FILTER licao._key == @id and licao.idSituacao == situacao._key RETURN situacao",{'id' : id})
+     .then(cursor => {
+        cursor.next()
+        .then(val => {
+          val._links = [
+             {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/licoes"},
+             {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/licoes"}
+          ]
+          res.status(200).json(val).end()
+        })
+     })
+   };
+
+   licao.autores = function (req,res) {
+      var idAutor = req.params.idAutor;
+      db.query("FOR licao IN licao FOR autor IN autor FILTER autor._key == @id and licao.idAutor == autor._key RETURN licao",{'id' : idAutor})
+      .then(cursor => {
+         cursor.all()
+         .then(val => {
+           val._links = [
+              {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/licoes"},
+              {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/licoes"}
+           ]
+           res.status(200).json(val).end()
+         })
+      })
+   };
+
+   licao.idiomas = function (req,res) {
+     var idIdioma = req.params.idIdioma;
+     db.query("FOR licao IN licao FOR idioma IN idioma FILTER idioma._key == @id and licao.idIdioma == idioma._key RETURN licao",{'id' : idIdioma})
+     .then(cursor => {
+       cursor.all()
+       .then(val => {
+         val._links = [
+            {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/licoes"},
+            {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/licoes"}
+         ]
+         res.status(200).json(val).end()
+       })
+     })
+   };
+
+   licao.niveis = function (req,res) {
+     var idNivel = req.params.idNivel;
+     db.query("FOR licao IN licao FOR nivel IN nivel FILTER nivel._key == @id and licao.idNivel == nivel._key RETURN licao",{'id' : idNivel})
+     .then(cursor => {
+        cursor.all()
+        .then(val => {
+          val._links = [
+             {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/licoes"},
+             {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/licoes"}
+          ]
+          res.status(200).json(val).end()
+        })
+     })
+   };
+
+   licao.situacoes = function (req,res) {
+     var idSituacao = req.params.idSituacao;
+     db.query("FOR licao IN licao FOR situacao IN situacao FILTER situacao._key == @id and licao.idSituacao == situacao._key RETURN licao",{'id' : idSituacao})
+     .then(cursor => {
+        cursor.all()
+        .then(val => {
+          val._links = [
+             {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/licoes"},
+             {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/licoes"}
+          ]
+          res.status(200).json(val).end()
+        })
+     })
+   };
+
    licao.estudarLicao = function (req,res) {
       var idLicao = req.params.idLicao;
       var idUsuario = req.params.idUsuario;
-      var db = req.app.get("database");
       db.query("FOR licao IN licao FILTER licao._key == @id RETURN licao",{'id' : idLicao})
       .then(cursor => {
          cursor.next()
@@ -133,9 +232,7 @@ module.exports = function (app) {
       if (result.error!=null) {
          res.status(400).json(result.error).end()
       } else {
-         var db = req.app.get("database");
-         var licao = db.collection("licao");
-         licao.update(id,dados)
+         dbLicao.update(id,dados)
          .then(val => {
             val._links = [
               {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/licoes"},
@@ -154,7 +251,6 @@ module.exports = function (app) {
       var idLicao = req.params.idLicao;
       var avaliacao = req.params.avaliacao;
       var aval = parseInt(avaliacao);
-      var db = req.app.get("database");
       db.query("FOR licao IN licao FILTER licao._key == @id RETURN licao",{'id' : idLicao})
       .then(cursor => {
          cursor.next()
@@ -182,9 +278,7 @@ module.exports = function (app) {
 
    licao.deletar = function (req,res) {
       var id = req.params.id;
-      var db = req.app.get("database");
-      var licao = db.collection("licao");
-      licao.remove(id)
+      dbLicao.remove(id)
       .then(val => {
          val._links = [
            {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/licoes"},

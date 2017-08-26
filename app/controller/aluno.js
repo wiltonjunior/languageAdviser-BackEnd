@@ -1,6 +1,8 @@
 module.exports = function (app) {
    var model = app.model.aluno;
    var Joi = app.get("joi");
+   var db = app.get("database");
+   var dbAluno = db.collection("aluno");
 
    var aluno = {};
 
@@ -12,9 +14,7 @@ module.exports = function (app) {
       } else {
          dados.caminhoImagem = "/imagem/usuario.jpg";
          dados.status = 1;
-         var db = req.app.get("database");
-         var aluno = db.collection("aluno");
-         aluno.save(dados)
+         dbAluno.save(dados)
          .then(val => {
            val._links = [
              {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/alunos/" + val._key},
@@ -47,9 +47,7 @@ module.exports = function (app) {
               res.status(500).json(err);
             } else {
               var caminhoImagem = "/imagem/aluno/" + imagem;
-              var db = req.app.get("database");
-              var aluno = db.collection("aluno");
-              aluno.update(id,{"caminhoImagem" : caminhoImagem})
+              dbAluno.update(id,{"caminhoImagem" : caminhoImagem})
               .then(val => {
                  val._links = [
                    {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/alunos"},
@@ -67,9 +65,7 @@ module.exports = function (app) {
    };
 
    aluno.listar = function (req,res) {
-      var db = req.app.get("database");
-      var aluno = db.collection("aluno");
-      aluno.all()
+      dbAluno.all()
       .then(cursor => {
          cursor.all()
          .then(val => {
@@ -80,9 +76,7 @@ module.exports = function (app) {
 
    aluno.listarAluno = function (req,res) {
      var id = req.params.id;
-     var db = req.app.get("database");
-     var aluno = db.collection("aluno");
-     aluno.document(id)
+     dbAluno.document(id)
      .then(val => {
         val._links = [
          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/alunos"},
@@ -102,9 +96,7 @@ module.exports = function (app) {
      if(result.error!=null) {
         res.status(400).json(result.error);
      } else {
-        var db = req.app.get("database");
-        var aluno = db.collection("aluno");
-        aluno.update(id,dados)
+        dbAluno.update(id,dados)
         .then(val => {
            val._links = [
              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/alunos"},
@@ -121,9 +113,7 @@ module.exports = function (app) {
 
    aluno.deletar = function (req,res) {
       var id = req.params.id;
-      var db = req.app.get("database");
-      var aluno = db.collection("aluno");
-      aluno.remove(id)
+      dbAluno.remove(id)
       .then(val => {
          val._links = [
           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/alunos"},

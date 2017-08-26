@@ -1,12 +1,13 @@
 module.exports = function (app) {
    var model = app.model.usuario;
    var Joi = app.get("joi");
+   var db = app.get("database");
+   var dbUsuario = db.collection("usuario");
 
    var usuario = {};
 
    usuario.salvar = function (req,res) {
      var dados = req.body;
-     var db = req.app.get("database");
      db.query("FOR usuario IN usuario FILTER usuario._key == @id RETURN usuario",{'id' : dados._key})
      .then(cursor => {
         cursor.next()
@@ -16,8 +17,7 @@ module.exports = function (app) {
               if (result.error!=null) {
                  res.status(400).json(result.error).end()
               } else {
-                 var usuario = db.collection("usuario");
-                 usuario.save(dados)
+                 dbUsuario.save(dados)
                  .then(val => {
                     val._links = [
                       {rel : "listar", method : "GET", href: "http://" + req.headers.host + "/usuarios"},
@@ -34,8 +34,7 @@ module.exports = function (app) {
              update.push(val.idIdioma);
              update.push(dados.idIdioma);
              dados.idIdioma = update;
-             var usuario = db.collection("usuario");
-             usuario.update(dados._key,dados)
+             dbUsuario.update(dados._key,dados)
              .then(val => {
                 val._links = [
                   {rel : "listar", method : "GET", href: "http://" + req.headers.host + "/usuarios"},
@@ -52,7 +51,6 @@ module.exports = function (app) {
 
    usuario.login = async function(req,res) {
       var dados = req.body;
-      var db = req.app.get("database");
       var aluno =  await alunoLogin(db,dados);
       if (aluno==null) {
          var autor = await autorLogin(db,dados);
@@ -211,9 +209,7 @@ module.exports = function (app) {
    };
 
   usuario.listar = function (req,res) {
-      var db = req.app.get("database");
-      var usuario = db.collection("usuario");
-      usuario.all()
+      dbUsuario.all()
       .then(cursor => {
          cursor.all()
          .then(val => {
@@ -224,7 +220,6 @@ module.exports = function (app) {
 
    usuario.listarUsuario = function (req,res) {
      var id = req.params.id;
-     var db = req.app.get("database");
      db.query("FOR aluno IN aluno FILTER aluno._key == @id RETURN aluno",{'id' : id})
      .then(cursor => {
         cursor.next()
@@ -264,7 +259,6 @@ module.exports = function (app) {
    usuario.listarIdioma = function (req,res) {
       var id = req.params.id;
       var resposta;
-      var db = req.app.get("database");
       db.query("LET usuario = (FOR usuario IN usuario FILTER usuario._key == @id RETURN usuario.idIdioma) FOR idioma IN idioma FOR u IN usuario FILTER idioma._key == u or idioma._key IN u RETURN idioma",{'id' : id})
       .then(cursor => {
          cursor.all()
@@ -280,9 +274,7 @@ module.exports = function (app) {
 
    usuario.deletar = function (req,res) {
       var id = req.params.id;
-      var db = req.app.get("database");
-      var usuario = db.collection("usuario");
-      usuario.remove(id)
+      dbUsuario.remove(id)
       .then(val => {
          val._links = [
            {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/usuarios"},

@@ -1,6 +1,8 @@
 module.exports = function (app) {
    var model = app.model.administrador;
    var Joi = app.get("joi");
+   var db = app.get("database");
+   var dbAdministrador = db.collection("administrador");
 
    var administrador = {};
 
@@ -12,9 +14,7 @@ module.exports = function (app) {
       } else {
          dados.caminhoImagem = "/imagem/usuario.jpg";
          dados.status = 3;
-         var db = req.app.get("database");
-         var administrador = db.collection("administrador");
-         administrador.save(dados)
+         dbAdministrador.save(dados)
          .then(val => {
             val._links = [
               {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/administradores/" + val._key},
@@ -47,9 +47,7 @@ module.exports = function (app) {
               res.status(500).json(err);
             } else {
               var caminhoImagem = "/imagem/administrador/" + imagem;
-              var db = req.app.get("database");
-              var administrador = db.collection("administrador");
-              administrador.update(id,{'caminhoImagem' : caminhoImagem})
+              dbAdministrador.update(id,{'caminhoImagem' : caminhoImagem})
               .then(val => {
                  val._links = [
                    {rel : "adicionar", method: "POST", href:"http://" + req.headers.host + "/administradores"},
@@ -67,9 +65,7 @@ module.exports = function (app) {
    };
 
    administrador.listar = function (req,res) {
-      var db = req.app.get("database");
-      var administrador = db.collection("administrador");
-      administrador.all()
+      dbAdministrador.all()
       .then(cursor => {
          cursor.all()
          .then(val => {
@@ -80,9 +76,7 @@ module.exports = function (app) {
 
    administrador.listarAdministrador = function (req,res) {
      var id = req.params.id;
-     var db = req.app.get("database");
-     var administrador = db.collection("administrador");
-     administrador.document(id)
+     dbAdministrador.document(id)
      .then(val => {
         val._links = [
           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/administradores"},
@@ -102,9 +96,7 @@ module.exports = function (app) {
      if (result.error!=null) {
        res.status(400).json(result.error);
      } else {
-        var db = req.app.get("database");
-        var administrador = db.collection("administrador");
-        administrador.update(id,dados)
+        dbAdministrador.update(id,dados)
         .then(val => {
            val._links = [
              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/administradores"},
@@ -121,9 +113,7 @@ module.exports = function (app) {
 
    administrador.deletar = function (req,res) {
       var id = req.params.id;
-      var db = req.app.get("database");
-      var administrador = db.collection("administrador");
-      administrador.remove(id)
+      dbAdministrador.remove(id)
       .then(val => {
          val._links = [
            {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/administradores"},

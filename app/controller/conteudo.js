@@ -1,6 +1,8 @@
 module.exports = function (app) {
    var model = app.model.conteudo;
    var Joi = app.get("joi");
+   var db = app.get("database");
+   var dbConteudo = db.collection("conteudo");
 
    var conteudo = {};
 
@@ -10,9 +12,7 @@ module.exports = function (app) {
       if (result.error!=null) {
          res.status(400).json(result.error);
       } else {
-         var db = req.app.get("database");
-         var conteudo = db.collection("conteudo");
-         conteudo.save(dados)
+         dbConteudo.save(dados)
          .then(val => {
             val.links = [
               {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/conteudos/" + val._key},
@@ -27,9 +27,7 @@ module.exports = function (app) {
    };
 
    conteudo.listar = function (req,res) {
-      var db = req.app.get("database");
-      var conteudo = db.collection("conteudo");
-      conteudo.all()
+      dbConteudo.all()
       .then(cursor => {
          cursor.all()
          .then(val => {
@@ -40,9 +38,7 @@ module.exports = function (app) {
 
    conteudo.listarConteudo = function (req,res) {
       var id = req.params.id;
-      var db = req.app.get("database");
-      var conteudo = db.collection("conteudo");
-      conteudo.document(id)
+      dbConteudo.document(id)
       .then(val => {
          val._links = [
            {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/conteudos"},
@@ -58,7 +54,6 @@ module.exports = function (app) {
 
    conteudo.listarIdioma = function (req,res) {
       var idIdioma = req.params.idIdioma;
-      var db = req.app.get("database");
       db.query('FOR conteudo IN conteudo FOR idioma IN idioma FILTER idioma._key == @id and conteudo.idIdioma == idioma._key RETURN conteudo',{'id' : idIdioma})
       .then(cursor => {
          cursor.all()
@@ -80,9 +75,7 @@ module.exports = function (app) {
       if (result.error!=null) {
          res.status(400).json(result.error);
       } else {
-         var db = req.app.get("database");
-         var conteudo = db.collection("conteudo");
-         conteudo.update(id,dados)
+         dbConteudo.update(id,dados)
          .then(val => {
             val._links = [
               {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/conteudos"},
@@ -99,9 +92,7 @@ module.exports = function (app) {
 
    conteudo.deletar = function (req,res) {
        var id = req.params.id;
-       var db = req.app.get("database");
-       var conteudo = db.collection("conteudo");
-       conteudo.remove(id)
+       dbConteudo.remove(id)
        .then(val => {
           val._links = [
             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/conteudos"},
