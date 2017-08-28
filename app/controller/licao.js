@@ -48,6 +48,13 @@ module.exports = function (app) {
       .then(cursor => {
          cursor.all()
          .then(val => {
+            var links = {
+              _links : [
+                  {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/licoes"},
+                  {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/licoes"}
+              ]
+            };
+            val.push(_links);
             res.status(200).json(val).end()
          })
       })
@@ -130,14 +137,17 @@ module.exports = function (app) {
 
    licao.autores = function (req,res) {
       var idAutor = req.params.idAutor;
-      db.query("FOR licao IN licao FOR autor IN autor FILTER autor._key == @id and licao.idAutor == autor._key RETURN licao",{'id' : idAutor})
+      db.query("FOR licao IN licao FILTER licao.idAutor == @id RETURN licao",{'id' : idAutor})
       .then(cursor => {
          cursor.all()
          .then(val => {
-           val._links = [
-              {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/licoes"},
-              {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/licoes"}
-           ]
+           var links = {
+             _links : [
+               {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/licoes"},
+               {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/licoes"}
+             ]
+           };
+           val.push(links);
            res.status(200).json(val).end()
          })
       })
@@ -145,14 +155,17 @@ module.exports = function (app) {
 
    licao.idiomas = function (req,res) {
      var idIdioma = req.params.idIdioma;
-     db.query("FOR licao IN licao FOR idioma IN idioma FILTER idioma._key == @id and licao.idIdioma == idioma._key RETURN licao",{'id' : idIdioma})
+     db.query("FOR licao IN licao FILTER licao.idIdioma == @id RETURN licao",{'id' : idIdioma})
      .then(cursor => {
        cursor.all()
        .then(val => {
-         val._links = [
-            {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/licoes"},
-            {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/licoes"}
-         ]
+         var links = {
+           _links : [
+             {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/licoes"},
+             {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/licoes"}
+           ]
+         };
+         val.push(links);
          res.status(200).json(val).end()
        })
      })
@@ -160,14 +173,17 @@ module.exports = function (app) {
 
    licao.niveis = function (req,res) {
      var idNivel = req.params.idNivel;
-     db.query("FOR licao IN licao FOR nivel IN nivel FILTER nivel._key == @id and licao.idNivel == nivel._key RETURN licao",{'id' : idNivel})
+     db.query("FOR licao IN licao FILTER licao.idNivel == @id RETURN licao",{'id' : idNivel})
      .then(cursor => {
         cursor.all()
         .then(val => {
-          val._links = [
-             {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/licoes"},
-             {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/licoes"}
-          ]
+          var links = {
+            _links : [
+              {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/licoes"},
+              {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/licoes"}
+            ]
+          };
+          val.push(links);
           res.status(200).json(val).end()
         })
      })
@@ -175,14 +191,17 @@ module.exports = function (app) {
 
    licao.situacoes = function (req,res) {
      var idSituacao = req.params.idSituacao;
-     db.query("FOR licao IN licao FOR situacao IN situacao FILTER situacao._key == @id and licao.idSituacao == situacao._key RETURN licao",{'id' : idSituacao})
+     db.query("FOR licao IN licao FILTER licao.idSituacao == @id RETURN licao",{'id' : idSituacao})
      .then(cursor => {
         cursor.all()
         .then(val => {
-          val._links = [
-             {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/licoes"},
-             {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/licoes"}
-          ]
+          var links = {
+            _links : [
+              {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/licoes"},
+              {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/licoes"}
+            ]
+          };
+          val.push(links);  
           res.status(200).json(val).end()
         })
      })

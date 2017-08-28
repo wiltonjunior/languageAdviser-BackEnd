@@ -64,6 +64,13 @@ module.exports = function (app) {
       .then(cursor => {
          cursor.all()
          .then(val => {
+           var links = {
+             _links : [
+                 {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/contratos"},
+                 {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/contratos"}
+             ]
+           };
+           val.push(links);
            res.status(200).json(val).end()
          });
       });
@@ -176,6 +183,60 @@ module.exports = function (app) {
            res.status(200).json(val).end();
          });
       });
+   };
+
+   contrato.listarEmpresas = function (req,res) {
+      var idEmpresa = req.params.idEmpresa;
+      db.query("FOR contrato IN contrato FILTER contrato.idEmpresa == @id RETURN contrato",{'id' : idEmpresa})
+      .then(cursor => {
+         cursor.all()
+         .then(val => {
+            var links = {
+              _links : [
+                  {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/contratos"},
+                  {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/contratos"}
+              ]
+            };
+            val.push(links);
+            res.status(200).json(val).end();
+         })
+      })
+   };
+
+   contrato.listarTermosContrato = function (req,res) {
+      var idTermo = req.params.idTermo;
+      db.query("FOR contrato IN contrato FILTER @id IN contrato.idTermo or contrato.idTermo == @id RETURN contrato",{'id' : idTermo})
+      .then(cursor => {
+        cursor.all()
+        .then(val => {
+          var links = {
+            _links : [
+              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/contratos"},
+              {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/contratos"}
+            ]
+          };
+          val.push(links);
+          res.status(200).json(val).end();
+        })
+      })
+   };
+
+   contrato.listarRegioes = function (req,res) {
+      var idRegiao = req.params.idRegiao;
+      db.query("FOR contrato IN contrato FILTER contrato.idRegiao == @id RETURN contrato",{'id' : idRegiao})
+      .then(cursor => {
+         cursor.all()
+         .then(val => {
+            var links = {
+              _links : [
+                {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/contratos"},
+                {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/contratos"}
+              ]
+            };
+            val.push(links);
+            res.status(200).json(val).end();
+         })
+      })
    };
 
    contrato.editar = function (req,res) {

@@ -32,6 +32,12 @@ module.exports = function (app) {
       .then(cursor => {
          cursor.all()
          .then(val => {
+            var links = {
+               _links : [
+                   {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/situacoes"},
+                   {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/situacoes"}
+               ]
+            }
             res.status(200).json(val).end()
          })
       })

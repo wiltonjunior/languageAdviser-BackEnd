@@ -8,45 +8,18 @@ module.exports = function (app) {
 
    usuario.salvar = function (req,res) {
      var dados = req.body;
-     db.query("FOR usuario IN usuario FILTER usuario._key == @id RETURN usuario",{'id' : dados._key})
-     .then(cursor => {
-        cursor.next()
-        .then(val => {
-           if (val==null) {
-              var result = Joi.validate(dados,model);
-              if (result.error!=null) {
-                 res.status(400).json(result.error).end()
-              } else {
-                 dbUsuario.save(dados)
-                 .then(val => {
-                    val._links = [
-                      {rel : "listar", method : "GET", href: "http://" + req.headers.host + "/usuarios"},
-                      {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/usuarios/" + val._key}
-                    ]
-                    res.status(200).json(val).end()
-                 }, err => {
-                    res.status(500).json(err).end()
-                 })
-              }
-           }
-           else {
-             var update = [];
-             update.push(val.idIdioma);
-             update.push(dados.idIdioma);
-             dados.idIdioma = update;
-             dbUsuario.update(dados._key,dados)
-             .then(val => {
-                val._links = [
-                  {rel : "listar", method : "GET", href: "http://" + req.headers.host + "/usuarios"},
-                  {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/usuarios/" + val._key}
-                ]
-                res.status(200).json(val).end()
-             }, err => {
-                res.status(500).json(val).end()
-             })
-           }
-        })
-     })
+     var result = Joi.validate(dados,model);
+     if(result.error!=null) {
+       res.status(400).json(result.error);
+     }
+     else {
+       dbUsuario.save(dados)
+       .then(val => {
+         res.status(200).json(val).end()
+       }, err => {
+         res.status(500).json(err).end()
+       })
+     }
    };
 
    usuario.login = async function(req,res) {
@@ -213,6 +186,13 @@ module.exports = function (app) {
       .then(cursor => {
          cursor.all()
          .then(val => {
+            var links = {
+              _links : [
+                   {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/usuarios"},
+                   {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/usuarios"}
+              ]
+            };
+            val.push(links);
             res.status(200).json(val).end()
          })
       })
@@ -263,12 +243,40 @@ module.exports = function (app) {
       .then(cursor => {
          cursor.all()
          .then(val => {
-            val._links = [
-               {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/usuarios"},
-               {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/usuarios"}
-            ]
+            var links = {
+              _links : [
+                {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/usuarios"},
+                {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/usuarios"}
+              ]
+            };
+            val.push(links);
             res.status(200).json(val).end()
          })
+      })
+   };
+
+   usuario.editar = function (req,res) {
+      var id = req.params.id;
+      var dados = req.body;
+      db.query("FOR usuario IN usuario FILTER usuario._key == @id RETURN usuario",{'id' : id})
+      .then(cursor => {
+        cursor.all()
+        .then(val => {
+          var update = [];
+          update.push(val.idIdioma);
+          update.push(dados.idIdioma);
+          dados.idIdioma = update;
+          dbUsuario.update(dados._key,dados)
+          .then(val => {
+             val._links = [
+               {rel : "listar", method : "GET", href: "http://" + req.headers.host + "/usuarios"},
+               {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/usuarios/" + val._key}
+             ]
+             res.status(200).json(val).end()
+          }, err => {
+             res.status(500).json(val).end()
+          })
+        })
       })
    };
 

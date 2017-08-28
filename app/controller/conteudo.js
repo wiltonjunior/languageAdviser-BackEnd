@@ -1,4 +1,4 @@
-module.exports = function (app) {
+odule.exports = function (app) {
    var model = app.model.conteudo;
    var Joi = app.get("joi");
    var db = app.get("database");

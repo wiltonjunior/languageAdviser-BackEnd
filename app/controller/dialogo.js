@@ -31,6 +31,13 @@ module.exports = function (app) {
       .then(cursor => {
          cursor.all()
          .then(val => {
+            var links = {
+              _links : [
+                  {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/dialogos"},
+                  {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/dialogos"}
+              ]
+            };
+            val.push(links);
             res.status(200).json(val).end()
          })
       })
@@ -51,15 +58,36 @@ module.exports = function (app) {
    };
 
    dialogo.listarLicao = function (req,res) {
-     var idLicao = req.params.idLicao;
-     db.query("FOR licao IN licao FOR dialogo IN dialogo FILTER licao._key == @id and dialogo.idLicao == licao._key RETURN dialogo",{'id' : idLicao})
+     var id = req.params.id;
+     db.query("FOR licao IN licao FOR dialogo IN dialogo FILTER dialogo._key == @id and licao._key == dialogo.idLicao RETURN licao",{'id' : id})
      .then(cursor => {
         cursor.all()
         .then(val => {
-           val._links = [
-            {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/dialogos"},
-            {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/dialogos"}
-           ]
+          var links = {
+            _links :  [
+              {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/dialogos"},
+              {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/dialogos"}
+            ]
+          };
+          val.push(links);
+          res.status(200).json(val).end();
+        })
+     })
+   };
+
+   dialogo.listarLicoes = function (req,res) {
+     var idLicao = req.params.idLicao;
+     db.query("FOR dialogo IN dialogo FILTER dialogo.idLicao == @id RETURN dialogo",{'id' : idLicao})
+     .then(cursor => {
+        cursor.all()
+        .then(val => {
+           var links = {
+             _links : [
+               {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/dialogos"},
+               {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/dialogos"}
+             ]
+           };
+           val.push(links);
            res.status(200).json(val).end()
         })
      })
