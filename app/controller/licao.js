@@ -54,7 +54,7 @@ module.exports = function (app) {
                   {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/licoes"}
               ]
             };
-            val.push(_links);
+            val.push(links);
             res.status(200).json(val).end()
          })
       })
@@ -201,7 +201,7 @@ module.exports = function (app) {
               {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/licoes"}
             ]
           };
-          val.push(links);  
+          val.push(links);
           res.status(200).json(val).end()
         })
      })

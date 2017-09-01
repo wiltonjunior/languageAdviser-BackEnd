@@ -12,6 +12,7 @@ module.exports = function (app) {
   app.get("/contratos/empresas/:idEmpresa", contrato.listarEmpresas);
   app.get("/contratos/termosContrato/:idTermos", contrato.listarTermosContrato);
   app.get("/contratos/regioes/:idRegiao", contrato.listarRegioes);
+  app.put("/contratos/termo", contrato.editarTermo);
   app.put("/contratos/:id", contrato.editar);
   app.delete("/contratos/:id", contrato.deletar);
 }

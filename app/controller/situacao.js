@@ -37,7 +37,8 @@ module.exports = function (app) {
                    {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/situacoes"},
                    {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/situacoes"}
                ]
-            }
+            };
+            val.push(links);
             res.status(200).json(val).end()
          })
       })

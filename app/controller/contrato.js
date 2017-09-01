@@ -6,58 +6,59 @@ module.exports = function (app) {
 
    var contrato = {};
 
-   contrato.salvar = function (req,res) {
+   contrato.salvar = async function (req,res) {
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if (result.error!=null) {
          res.status(400).json(result.error);
       } else {
-         db.query("LET cont = (FOR contrato IN contrato FILTER contrato.idRegiao == @id RETURN contrato) RETURN length(cont)",{'id' : dados.idRegiao})
-         .then(cursor => {
-            cursor.next()
-            .then(val => {
-               if(val!=0) {
-                  db.query("LET cont = (FOR contrato IN contrato FILTER contrato.idRegiao == @id RETURN contrato) LET contrato = (FOR c IN cont FILTER c.idTermo ANY IN @termos or c.idTermo ANY == @termos or c.idTermo == @termos or c.idTermo IN @termos RETURN c) RETURN length(contrato)",{'id' : dados.idRegiao,'termos' : dados.idTermo})
-                  .then(cursor => {
-                     cursor.next()
-                     .then(val => {
-                        if(val!=0) {
-                           var resposta = {'mensagem' : 'Contrato com termos parecidos já existe'};
-                           res.status(409).json(resposta);
-                        }
-                        else {
-                           dbContrato.save(dados)
-                           .then(val => {
-                             val._links = [
-                               {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/contratos/" + val._key},
-                               {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/contratos/" + val._key},
-                               {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/contratos/" + val._key}
-                             ]
-                             res.status(201).json(val).end()
-                           }, err => {
-                              res.status(500).json(err).end()
-                           })
-                        }
-                     })
-                  })
-               }
-               else {
-                 dbContrato.save(dados)
-                 .then(val => {
-                   val._links = [
-                     {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/contratos/" + val._key},
-                     {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/contratos/" + val._key},
-                     {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/contratos/" + val._key}
-                   ]
-                   res.status(201).json(val).end()
-                 }, err => {
-                   res.status(500).json(err).end()
-                 })
-               }
-            })
-         })
+         var qntRegiao = await regiao(dados);
+         if(qntRegiao!=0) {
+            var qntContrato = await termos(dados);
+            if(qntContrato!=0) {
+              var resposta = {'mensagem' : 'Contrato com termos parecidos já existe'};
+              res.status(409).json(resposta);
+            }
+            else {
+              dbContrato.save(dados)
+              .then(val => {
+                val._links = [
+                  {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/contratos/" + val._key},
+                  {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/contratos/" + val._key},
+                  {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/contratos/" + val._key}
+                ]
+                res.status(201).json(val).end()
+              }, err => {
+                 res.status(500).json(err).end()
+              })
+            }
+         }
+         else {
+           dbContrato.save(dados)
+           .then(val => {
+             val._links = [
+               {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/contratos/" + val._key},
+               {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/contratos/" + val._key},
+               {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/contratos/" + val._key}
+             ]
+             res.status(201).json(val).end()
+           }, err => {
+             res.status(500).json(err).end()
+           })
+         }
       }
    };
+
+
+   async function regiao(dados) {
+      var resultados = await db.query("LET cont = (FOR contrato IN contrato FILTER contrato.idRegiao == @id RETURN contrato) RETURN length(cont)",{'id' : dados.idRegiao});
+      return resultados._result[0];
+   };
+
+   async function termos(dados) {
+      var resultados = await db.query("LET cont = (FOR contrato IN contrato FILTER contrato.idRegiao == @id RETURN contrato) LET contrato = (FOR c IN cont FILTER c.idTermo ANY IN @termos or c.idTermo ANY == @termos or c.idTermo == @termos or c.idTermo IN @termos RETURN c) RETURN length(contrato)",{'id' : dados.idRegiao,'termos' : dados.idTermo});
+      return resultados._result[0];
+   }
 
    contrato.listar = function (req,res) {
       dbContrato.all()
@@ -236,6 +237,25 @@ module.exports = function (app) {
             val.push(links);
             res.status(200).json(val).end();
          })
+      })
+   };
+
+   contrato.editarTermo = async function (req,res) {
+      var dados = req.body;
+      var resultados =  await db.query("FOR contrato IN contrato FILTER contrato._key == @id RETURN contrato.idTermo",{'id' : dados._key});
+      var termo = [];
+      if(resultados._result[0]==null) {
+        termo.push(dados.idTermo);
+      }
+      else {
+        termo = resultados._result;
+        termo.push(dados.idTermo);
+      }
+      dbContrato.update(dados._key,{'idTermo' : termo})
+      .then(val => {
+         res.status(200).json(val).end()
+      }, err => {
+         res.status(500).json(err).end()
       })
    };
 

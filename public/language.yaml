@@ -440,136 +440,6 @@ paths:
           description: Erro inesperado
           schema:
             $ref: '#/definitions/Erro'
-  /conteudos:
-    get:
-      summary: Lista dos Conteúdos
-      description: Retorna todos os conteúdos cadastrados.
-      tags:
-        - Conteudos
-      responses:
-        '200':
-          description: Uma lista de conteúdos.
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Conteudo'
-        '500':
-          description: Erro inesperado
-    post:
-      summary: Cadastrar Conteúdo
-      description: Cadastrar conteúdo.
-      parameters:
-        - name: Conteudo
-          in: body
-          description: Dados para inserir um conteudo.
-          schema:
-            $ref: '#/definitions/ConteudoPOST'
-      tags:
-        - Conteudos
-      responses:
-        '201':
-          description: Operação Confirmada.
-          schema:
-            $ref: '#/definitions/Confirmacao'
-        '400':
-          description: Problema na validação.
-          schema:
-            $ref: '#/definitions/Erro'
-        '500':
-          description: Erro inesperado.
-          schema:
-            $ref: '#/definitions/Erro'
-  '/conteudos/idioma/{idIdioma}':
-    get:
-      summary: Retorna todos os conteúdos de um determinado idioma.
-      description: Retorna todos os conteúdos de um determinado idioma.
-      parameters:
-        - name: idIdioma
-          in: path
-          description: ID Idioma
-          required: true
-          type: integer
-      tags:
-        - Conteudos
-      responses:
-        '200':
-          description: Operação Confirmada;
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Conteudo'
-        '500':
-          description: Erro inesperado.
-          schema:
-            $ref: '#/definitions/Erro'
-  '/conteudos/{id}':
-    get:
-      summary: Retorna Dados do Conteúdo.
-      description: >-
-        Por meio do id do Conteúdo, todas as informações do conteúdo vão ser
-        mostrada.
-      parameters:
-        - name: id
-          in: path
-          description: ID Conteudo
-          required: true
-          type: integer
-      tags:
-        - Conteudos
-      responses:
-        '200':
-          description: Operação Confirmada.
-          schema:
-            $ref: '#/definitions/Conteudo'
-        '500':
-          description: Erro inesperado
-          schema:
-            $ref: '#/definitions/Erro'
-    put:
-      summary: Atualizar Conteúdo
-      description: Autalizar dados de um conteúdo.
-      parameters:
-        - name: conteudo
-          in: body
-          description: Informações do Conteúdo.
-          required: true
-          schema:
-            $ref: '#/definitions/ConteudoPOST'
-      tags:
-        - Conteudos
-      responses:
-        '200':
-          description: Operação Confirmada
-          schema:
-            $ref: '#/definitions/Confirmacao'
-        '400':
-          description: Problema na validação.
-          schema:
-            $ref: '#/definitions/Erro'
-        '500':
-          description: Erro inesperado
-          schema:
-            $ref: '#/definitions/Erro'
-    delete:
-      summary: Apagar Conteúdo
-      description: 'Por meio do ID do Conteúdo, o conteúdo especifico vai ser excluido.'
-      parameters:
-        - name: id
-          in: path
-          description: ID do Conteúdo
-          required: true
-          type: integer
-      tags:
-        - Conteudos
-      responses:
-        '200':
-          description: Operação Confirmada
-          schema:
-            $ref: '#/definitions/Confirmacao'
-        '500':
-          description: Erro inesperado
-          schema:
-            $ref: '#/definitions/Erro'
   /contratos:
     get:
       summary: Lista dos Contratos.
@@ -650,7 +520,7 @@ paths:
   '/contratos/empresa/{id}':
     get:
       summary: Retorna Empresa do Contrato
-      description: Retorna a empresa do contrato.
+      description: Retorna a Empresa do contrato.
       parameters:
         - name: id
           in: path
@@ -706,6 +576,75 @@ paths:
           description: Operação Confirmada.
           schema:
             $ref: '#/definitions/Termos'
+        '500':
+          description: Erro inesperado
+          schema:
+            $ref: '#/definitions/Erro'
+  '/contratos/empresas/{idEmpresa}':
+    get:
+      summary: Retorna todos os contratos de uma empresa.
+      description: Retorna todos os contratos de uma empresa.
+      parameters:
+        - name: idEmpresa
+          in: path
+          description: ID Empresa
+          required: true
+          type: integer
+      tags:
+        - Contratos
+      responses:
+        '200':
+          description: Uma lista de Contratos.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Contrato'
+        '500':
+          description: Erro inesperado
+          schema:
+            $ref: '#/definitions/Erro'
+  '/contratos/termosContrato/{idTermos}':
+    get:
+      summary: Retorna todos os contratos de um determinado termo.
+      description: Retorna todos os contratos de um determinado termo.
+      parameters:
+        - name: idTermos
+          in: path
+          description: ID Termos
+          required: true
+          type: integer
+      tags:
+        - Contratos
+      responses:
+        '200':
+          description: Uma lista de Contratos.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Contrato'
+        '500':
+          description: Erro inesperado
+          schema:
+            $ref: '#/definitions/Erro'
+  '/contratos/regioes/{idRegiao}':
+    get:
+      summary: Retorna todos os contratos de uma determinada região.
+      description: Retorna todos os contratos de uma determinada região.
+      parameters:
+        - name: idRegiao
+          in: path
+          description: ID Regiao
+          required: true
+          type: integer
+      tags:
+        - Contratos
+      responses:
+        '200':
+          description: Uma lista de Contratos.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Contrato'
         '500':
           description: Erro inesperado
           schema:
@@ -837,7 +776,28 @@ paths:
           description: Erro inesperado.
           schema:
             $ref: '#/definitions/Erro'
-  '/dialogos/licao/{idLicao}':
+  '/dialogos/licao/{id}':
+    get:
+      summary: Retorna a lição de um diálogo.
+      description: Retorna a lição de um diálogo.
+      parameters:
+        - name: id
+          in: path
+          description: ID
+          required: true
+          type: integer
+      tags:
+        - Dialogos
+      responses:
+        '200':
+          description: Operação Confirmada.
+          schema:
+            $ref: '#/definitions/Licao'
+        '500':
+          description: Erro inesperado.
+          schema:
+            $ref: '#/definitions/Erro'
+  '/dialogos/licoes/{idLicao}':
     get:
       summary: Retorna todos os diálogos de uma determinada lição.
       description: Retorna todos os diálogos de uma determinada lição.
@@ -1205,6 +1165,33 @@ paths:
           description: Erro inesperado.
           schema:
             $ref: '#/definitions/Erro'
+  /licoes/listar:
+    post:
+      summary: Retornar todas as lições aptas.
+      description: 'De acordo com o idioma, nível e a situação as lições serão selecionadas.'
+      parameters:
+        - name: Lição
+          in: body
+          description: Lições
+          schema:
+            $ref: '#/definitions/LicaoSelecionar'
+      tags:
+        - Lições
+      responses:
+        '201':
+          description: Uma lista de Lições.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Licao'
+        '400':
+          description: Problema na validação.
+          schema:
+            $ref: '#/definitions/Erro'
+        '500':
+          description: Erro inesperado.
+          schema:
+            $ref: '#/definitions/Erro'
   '/licoes/avaliacao/{idLicao}&{avaliacao}':
     get:
       summary: Avaliar a Lição.
@@ -1254,14 +1241,146 @@ paths:
           description: Erro inesperado.
           schema:
             $ref: '#/definitions/Erro'
-  '/licoes/conteudo/{idConteudo}':
+  '/licoes/idioma/{id}':
     get:
-      summary: Retorna todas as lições de um determinado conteúdo.
-      description: Retorna todas as lições de um determinado conteúdo.
+      summary: Retorna o Idioma da Lição
+      description: Retorna o Idioma da Lição.
       parameters:
-        - name: idConteudo
+        - name: id
           in: path
-          description: ID Conteúdo
+          description: ID Lição
+          required: true
+          type: integer
+      tags:
+        - Lições
+      responses:
+        '200':
+          description: Operação Confirmada.
+          schema:
+            $ref: '#/definitions/Idioma'
+        '500':
+          description: Erro inesperado.
+          schema:
+            $ref: '#/definitions/Erro'
+  '/licoes/nivel/{id}':
+    get:
+      summary: Retorna o Nível da Lição
+      description: Retorna o Nível da Lição.
+      parameters:
+        - name: id
+          in: path
+          description: ID Lição
+          required: true
+          type: integer
+      tags:
+        - Lições
+      responses:
+        '200':
+          description: Operação Confirmada.
+          schema:
+            $ref: '#/definitions/Nivel'
+        '500':
+          description: Erro inesperado.
+          schema:
+            $ref: '#/definitions/Erro'
+  '/licoes/situacao/{id}':
+    get:
+      summary: Retorna a Situação da Lição
+      description: Retorna a Situação da Lição.
+      parameters:
+        - name: id
+          in: path
+          description: ID Lição
+          required: true
+          type: integer
+      tags:
+        - Lições
+      responses:
+        '200':
+          description: Operação Confirmada.
+          schema:
+            $ref: '#/definitions/Situacao'
+        '500':
+          description: Erro inesperado.
+          schema:
+            $ref: '#/definitions/Erro'
+  '/licoes/autores/{idAutor}':
+    get:
+      summary: Retorna todas as lições de um determinado autor.
+      description: Retorna todas as lições de um determinado autor.
+      parameters:
+        - name: idAutor
+          in: path
+          description: ID Autor
+          required: true
+          type: integer
+      tags:
+        - Lições
+      responses:
+        '200':
+          description: Operação Confirmada.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Licao'
+        '500':
+          description: Erro inesperado.
+          schema:
+            $ref: '#/definitions/Erro'
+  '/licoes/idiomas/{idIdioma}':
+    get:
+      summary: Retorna todas as lições de um determinado idioma.
+      description: Retorna todas as lições de um determinado idioma.
+      parameters:
+        - name: idIdioma
+          in: path
+          description: ID Idioma
+          required: true
+          type: integer
+      tags:
+        - Lições
+      responses:
+        '200':
+          description: Operação Confirmada.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Licao'
+        '500':
+          description: Erro inesperado.
+          schema:
+            $ref: '#/definitions/Erro'
+  '/licoes/niveis/{idNivel}':
+    get:
+      summary: Retorna todas as lições de um determinado nível.
+      description: Retorna todas as lições de um determinado nível.
+      parameters:
+        - name: idNivel
+          in: path
+          description: ID Nivel
+          required: true
+          type: integer
+      tags:
+        - Lições
+      responses:
+        '200':
+          description: Operação Confirmada.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Licao'
+        '500':
+          description: Erro inesperado.
+          schema:
+            $ref: '#/definitions/Erro'
+  '/licoes/situacoes/{idSituacao}':
+    get:
+      summary: Retorna todas as lições de uma determinada situação.
+      description: Retorna todas as lições de uma determinada situação.
+      parameters:
+        - name: idSituacao
+          in: path
+          description: ID Situacao
           required: true
           type: integer
       tags:
@@ -1334,6 +1453,111 @@ paths:
           type: integer
       tags:
         - Lições
+      responses:
+        '200':
+          description: Operação Confirmada
+          schema:
+            $ref: '#/definitions/Confirmacao'
+        '500':
+          description: Erro inesperado
+          schema:
+            $ref: '#/definitions/Erro'
+  /niveis:
+    get:
+      summary: Lista de Niveis.
+      description: Retorna todos os niveis cadastrados.
+      tags:
+        - Niveis
+      responses:
+        '200':
+          description: Uma lista de Niveis.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Nivel'
+        '500':
+          description: Erro inesperado
+    post:
+      summary: Cadastrar Nível
+      description: Cadastrar Nível.
+      parameters:
+        - name: Nível
+          in: body
+          description: Dados para inserir um nível.
+          schema:
+            $ref: '#/definitions/NivelPOST'
+      tags:
+        - Niveis
+      responses:
+        '201':
+          description: Operação Confirmada.
+          schema:
+            $ref: '#/definitions/Confirmacao'
+        '400':
+          description: Problema na validação.
+          schema:
+            $ref: '#/definitions/Erro'
+        '500':
+          description: Erro inesperado.
+          schema:
+            $ref: '#/definitions/Erro'
+  '/niveis/{id}':
+    get:
+      summary: Retorna Dados do Nível
+      description: 'Por meio do id do nível, todas as informações do nível vão ser mostrada.'
+      parameters:
+        - name: id
+          in: path
+          description: ID Nivel
+          required: true
+          type: integer
+      tags:
+        - Niveis
+      responses:
+        '200':
+          description: Operação Confirmada.
+          schema:
+            $ref: '#/definitions/Nivel'
+        '500':
+          description: Erro inesperado
+          schema:
+            $ref: '#/definitions/Erro'
+    put:
+      summary: Atualizar Nível
+      description: Autalizar dados de um nível.
+      parameters:
+        - name: nivel
+          in: body
+          description: Informações do Nível.
+          required: true
+          schema:
+            $ref: '#/definitions/NivelPOST'
+      tags:
+        - Niveis
+      responses:
+        '200':
+          description: Operação Confirmada
+          schema:
+            $ref: '#/definitions/Confirmacao'
+        '400':
+          description: Problema na validação.
+          schema:
+            $ref: '#/definitions/Erro'
+        '500':
+          description: Erro inesperado
+          schema:
+            $ref: '#/definitions/Erro'
+    delete:
+      summary: Apagar Nível
+      description: 'Por meio do ID do nível, o nível especifico vai ser excluido.'
+      parameters:
+        - name: id
+          in: path
+          description: ID do Nível
+          required: true
+          type: integer
+      tags:
+        - Niveis
       responses:
         '200':
           description: Operação Confirmada
@@ -1441,6 +1665,113 @@ paths:
           type: integer
       tags:
         - Regiões
+      responses:
+        '200':
+          description: Operação Confirmada
+          schema:
+            $ref: '#/definitions/Confirmacao'
+        '500':
+          description: Erro inesperado
+          schema:
+            $ref: '#/definitions/Erro'
+  /situacoes:
+    get:
+      summary: Lista das Situações.
+      description: Retorna todas as situações cadastrados.
+      tags:
+        - Situações
+      responses:
+        '200':
+          description: Uma lista de Situações.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Situacao'
+        '500':
+          description: Erro inesperado
+    post:
+      summary: Cadastrar Situação.
+      description: Cadastrar Situação.
+      parameters:
+        - name: Situação
+          in: body
+          description: Dados para inserir uma situação.
+          schema:
+            $ref: '#/definitions/SituacaoPOST'
+      tags:
+        - Situações
+      responses:
+        '201':
+          description: Operação Confirmada.
+          schema:
+            $ref: '#/definitions/Confirmacao'
+        '400':
+          description: Problema na validação.
+          schema:
+            $ref: '#/definitions/Erro'
+        '500':
+          description: Erro inesperado.
+          schema:
+            $ref: '#/definitions/Erro'
+  '/situacoes/{id}':
+    get:
+      summary: Retorna Dados da Situação.
+      description: >-
+        Por meio do id da situaçõa, todas as informações da situação vão ser
+        mostrada.
+      parameters:
+        - name: id
+          in: path
+          description: ID Situação
+          required: true
+          type: integer
+      tags:
+        - Situações
+      responses:
+        '200':
+          description: Operação Confirmada.
+          schema:
+            $ref: '#/definitions/Situacao'
+        '500':
+          description: Erro inesperado
+          schema:
+            $ref: '#/definitions/Erro'
+    put:
+      summary: Atualizar Situação.
+      description: Autalizar dados de uma situação.
+      parameters:
+        - name: situação
+          in: body
+          description: Informações da Situação.
+          required: true
+          schema:
+            $ref: '#/definitions/SituacaoPOST'
+      tags:
+        - Situações
+      responses:
+        '200':
+          description: Operação Confirmada
+          schema:
+            $ref: '#/definitions/Confirmacao'
+        '400':
+          description: Problema na validação.
+          schema:
+            $ref: '#/definitions/Erro'
+        '500':
+          description: Erro inesperado
+          schema:
+            $ref: '#/definitions/Erro'
+    delete:
+      summary: Apagar Situação
+      description: 'Por meio do ID da situação, a situação especifica vai ser excluido.'
+      parameters:
+        - name: id
+          in: path
+          description: ID da Situação
+          required: true
+          type: integer
+      tags:
+        - Situações
       responses:
         '200':
           description: Operação Confirmada
@@ -1573,12 +1904,12 @@ paths:
           schema:
             $ref: '#/definitions/Erro'
     post:
-      summary: Cadastrar e Editar Usuário
-      description: Cadastrar e Editar Usuário.
+      summary: Cadastrar Usuário.
+      description: Cadastrar Usuário.
       parameters:
         - name: Usuario
           in: body
-          description: Dados para inserir ou editar um usuário.
+          description: Dados para inserir um usuário.
           schema:
             $ref: '#/definitions/UsuarioPOST'
       tags:
@@ -1659,6 +1990,31 @@ paths:
           description: Operação Confirmada.
           schema:
             $ref: '#/definitions/Usuario'
+        '500':
+          description: Erro inesperado
+          schema:
+            $ref: '#/definitions/Erro'
+    put:
+      summary: Atualizar Usuário.
+      description: Atualizar dados do Usuário.
+      parameters:
+        - name: Usuário
+          in: body
+          description: Informações do Usuário.
+          required: true
+          schema:
+            $ref: '#/definitions/UsuarioPOST'
+      tags:
+        - Usuarios
+      responses:
+        '200':
+          description: Operação Confirmada
+          schema:
+            $ref: '#/definitions/Confirmacao'
+        '400':
+          description: Problema na validação.
+          schema:
+            $ref: '#/definitions/Erro'
         '500':
           description: Erro inesperado
           schema:
@@ -2034,7 +2390,9 @@ definitions:
       - descricao
       - data
       - idAutor
-      - idConteudo
+      - idIdioma
+      - idNivel
+      - idSituacao
     properties:
       _key:
         type: string
@@ -2054,7 +2412,11 @@ definitions:
         type: integer
       idAutor:
         type: string
-      idConteudo:
+      idIdioma:
+        type: string
+      idNivel:
+        type: string
+      idSituacao:
         type: string
   LicaoPOST:
     type: object
@@ -2067,7 +2429,45 @@ definitions:
         type: string
       idAutor:
         type: string
-      idConteudo:
+      idIdioma:
+        type: string
+      idNivel:
+        type: string
+      idSituacao:
+        type: string
+  LicaoSelecionar:
+    type: object
+    properties:
+      _key:
+        type: string
+      idIdioma:
+        type: string
+      idNivel:
+        type: string
+      idSituacao:
+        type: string
+  Nivel:
+    type: object
+    required:
+      - nomeNivel
+      - descricao
+    properties:
+      _key:
+        type: string
+      _id:
+        type: string
+      _rev:
+        type: string
+      nomeNivel:
+        type: string
+      descricao:
+        type: string
+  NivelPOST:
+    type: object
+    properties:
+      nomeNivel:
+        type: string
+      descricao:
         type: string
   Regiao:
     type: object
@@ -2091,6 +2491,29 @@ definitions:
       tipoRegiao:
         type: string
       localizacao:
+        type: string
+  Situacao:
+    type: object
+    required:
+      - nomeSituacao
+      - descricao
+    properties:
+      _key:
+        type: string
+      _id:
+        type: string
+      _rev:
+        type: string
+      nomeSituacao:
+        type: string
+      descricao:
+        type: string
+  SituacaoPOST:
+    type: object
+    properties:
+      nomeSituacao:
+        type: string
+      descricao:
         type: string
   Termos:
     type: object
