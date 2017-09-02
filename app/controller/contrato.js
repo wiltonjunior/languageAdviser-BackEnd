@@ -4,61 +4,30 @@ module.exports = function (app) {
    var db = app.get("database");
    var dbContrato = db.collection("contrato");
 
+
    var contrato = {};
 
-   contrato.salvar = async function (req,res) {
+   contrato.salvar = function (req,res) {
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if (result.error!=null) {
-         res.status(400).json(result.error);
-      } else {
-         var qntRegiao = await regiao(dados);
-         if(qntRegiao!=0) {
-            var qntContrato = await termos(dados);
-            if(qntContrato!=0) {
-              var resposta = {'mensagem' : 'Contrato com termos parecidos já existe'};
-              res.status(409).json(resposta);
-            }
-            else {
-              dbContrato.save(dados)
-              .then(val => {
-                val._links = [
-                  {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/contratos/" + val._key},
-                  {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/contratos/" + val._key},
-                  {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/contratos/" + val._key}
-                ]
-                res.status(201).json(val).end()
-              }, err => {
-                 res.status(500).json(err).end()
-              })
-            }
-         }
-         else {
-           dbContrato.save(dados)
-           .then(val => {
-             val._links = [
-               {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/contratos/" + val._key},
-               {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/contratos/" + val._key},
-               {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/contratos/" + val._key}
-             ]
-             res.status(201).json(val).end()
-           }, err => {
-             res.status(500).json(err).end()
-           })
-         }
+        res.status(400).json(result.error);
+      }
+      else {
+        dbContrato.save(dados)
+        .then(val => {
+           val._links = [
+             {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/contratos/" + val._key},
+             {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/contratos/" + val._key},
+             {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/contratos/" + val._key}
+           ]
+           res.status(201).json(val).end()
+        }, err => {
+           res.status(500).json(err).end()
+        })
       }
    };
 
-
-   async function regiao(dados) {
-      var resultados = await db.query("LET cont = (FOR contrato IN contrato FILTER contrato.idRegiao == @id RETURN contrato) RETURN length(cont)",{'id' : dados.idRegiao});
-      return resultados._result[0];
-   };
-
-   async function termos(dados) {
-      var resultados = await db.query("LET cont = (FOR contrato IN contrato FILTER contrato.idRegiao == @id RETURN contrato) LET contrato = (FOR c IN cont FILTER c.idTermo ANY IN @termos or c.idTermo ANY == @termos or c.idTermo == @termos or c.idTermo IN @termos RETURN c) RETURN length(contrato)",{'id' : dados.idRegiao,'termos' : dados.idTermo});
-      return resultados._result[0];
-   }
 
    contrato.listar = function (req,res) {
       dbContrato.all()
@@ -82,12 +51,15 @@ module.exports = function (app) {
        var data = dataAtual(today);
        db.query("LET ANO = (FOR contrato IN contrato RETURN {'idContrato' : contrato._key,'dataTermino' : contrato.dataTermino, 'data' : DATE_DIFF(@data,contrato.dataTermino,'y',false)}) LET MES = (FOR a IN ANO FILTER a.data >= 0 RETURN {'idContrato' : a.idContrato, 'dataTermino' : a.dataTermino, 'data' : DATE_DIFF(@data,a.dataTermino,'m',false)}) LET DIA = (FOR m IN MES FILTER m.data >= 0 RETURN {'idContrato' : m.idContrato, 'dataTermino' : m.dataTermino, 'data' : DATE_DIFF(@data,m.dataTermino,'d',false)}) LET cont = (FOR contrato IN contrato FOR d IN DIA FILTER d.data >= 0 and d.idContrato == contrato._key RETURN contrato) RETURN cont",{'data' : data})
        .then(cursor => {
-          cursor.next()
+          cursor.all()
           .then(val => {
-              val._links = [
-                {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/contratos"},
-                {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/contratos"}
-              ]
+              var links = {
+                _links : [
+                  {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/contratos"},
+                  {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/contratos"}
+                ]
+              };
+              val.push(links);
              res.status(200).json(val).end()
           })
        })
@@ -100,10 +72,13 @@ module.exports = function (app) {
       .then(cursor => {
          cursor.next()
          .then(val => {
-            val._links = [
-              {rel: "adicionar", method: "POST", href: "http://" + req.headers.host + "/contratos"},
-              {rel: "listar", method: "GET", href: "http://" + req.headers.host + "/contratos"}
-            ]
+            var links = {
+              _links : [
+                {rel: "adicionar", method: "POST", href: "http://" + req.headers.host + "/contratos"},
+                {rel: "listar", method: "GET", href: "http://" + req.headers.host + "/contratos"}
+              ]
+            };
+            val.push(links);
             res.status(200).json(val).end()
          })
       })
@@ -242,20 +217,93 @@ module.exports = function (app) {
 
    contrato.editarTermo = async function (req,res) {
       var dados = req.body;
-      var resultados =  await db.query("FOR contrato IN contrato FILTER contrato._key == @id RETURN contrato.idTermo",{'id' : dados._key});
-      var termo = [];
-      if(resultados._result[0]==null) {
-        termo.push(dados.idTermo);
+      var resultados =  await db.query("FOR contrato IN contrato FILTER contrato._key == @id RETURN contrato",{'id' : dados._key});
+      var quantRegiao = await regiao(resultados._result[0].idRegiao);
+      if(quantRegiao!=0){
+         var quantContrato = await termos(resultados._result[0].idRegiao,dados.idTermo);
+         if(quantContrato!=0) {
+           var resposta = {'mensagem' : 'Contrato com termos parecidos já existe'};
+           res.status(409).json(resposta);
+         }
+         else {
+           var result = await adicionarTermo(resultados,dados.idTermo);
+           result._links = [
+             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/contratos"},
+             {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/contratos"},
+             {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/contratos/" + dados._key},
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/contratos" + dados._key}
+           ]
+           res.status(200).json(result).end()
+         }
       }
       else {
-        termo = resultados._result;
-        termo.push(dados.idTermo);
+        var result = await adicionarTermo(resultados,dados.idTermo);
+        result._links = [
+          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/contratos"},
+          {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/contratos"},
+          {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/contratos/" + dados._key},
+          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/contratos" + dados._key}
+        ]
+        res.status(200).json(result).end()
       }
-      dbContrato.update(dados._key,{'idTermo' : termo})
+   };
+
+   async function regiao(idRegiao) {
+      var resultados = await db.query("LET cont = (FOR contrato IN contrato FILTER contrato.idRegiao == @id RETURN contrato) RETURN length(cont)",{'id' : idRegiao});
+      return resultados._result[0];
+   };
+
+
+   async function termos(idRegiao,idTermo) {
+      var resultados = await db.query("LET cont = (FOR contrato IN contrato FILTER contrato.idRegiao == @id RETURN contrato) LET contrato = (FOR c IN cont FILTER c.idTermo ANY IN @termos or c.idTermo ANY == @termos or c.idTermo == @termos or c.idTermo IN @termos RETURN c) RETURN length(contrato)",{'id' : idRegiao,'termos' : idTermo});
+      return resultados._result[0];
+   };
+
+   async function adicionarTermo(resultados,idTermo) {
+     var termo = [];
+     var termos = resultados._result[0].idTermo;
+     if(resultados._result[0].idTermo == undefined){
+        termo = idTermo;
+     }
+     else {
+       var valor = Array.isArray(termos);
+       if(valor==true) {
+         termo = resultados._result[0].idTermo;
+         termo.push(idTermo);
+       }
+       else {
+         termo.push(termos);
+         termo.push(idTermo);
+       }
+     }
+     var result = await dbContrato.update(resultados._result[0]._key,{'idTermo' : termo});
+     return result;
+   };
+
+
+   contrato.deletarTermo = function (req,res) {
+      var dados = req.body;
+      var termos = dados.idTermo;
+      var termo = [];
+      var valor = Array.isArray(termos);
+      if(valor==true) {
+         termo = termos;
+         termo.pop(termos);
+      }
+      else {
+        termo = null;
+      }
+      dbContrato.update(dados._key,termo)
       .then(val => {
-         res.status(200).json(val).end()
+        val._links = [
+          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/contratos"},
+          {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/contratos"},
+          {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/contratos/" + dados._key},
+          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/contratos" + dados._key}
+        ]
+        res.status(200).json(val).end()
       }, err => {
-         res.status(500).json(err).end()
+        res.status(500).json(err).end()
       })
    };
 
