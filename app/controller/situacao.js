@@ -27,6 +27,43 @@ module.exports = function (app) {
       }
    };
 
+   situacao.imagem = function (req,res) {
+      var id = req.params.id;
+      var fs = app.get("fs");
+      var formidable = app.get("formidable");
+      var hasha = app.get("hasha");
+      var path = app.get("path");
+
+
+      var form = new formidable.IncomingForm();
+      form.parse(req, function (err,fields,files) {
+         var oldpath = files.photo.path;
+         var hash = hasha.fromFileSync(oldpath,{algorithm : "md5"});
+         var tipo = path.extname(files.photo.name);
+         var imagem = hash + tipo;
+         var newpath = "./public/imagem/situacao/" + imagem;
+         fs.rename(oldpath,newpath, function (err) {
+            if(err) {
+              res.status(500).json(err).end()
+            }
+            else {
+              var caminhoImagem = "/imagem/situacao/" + imagem;
+              dbSituacao.update(id,{"caminhoImagem" : caminhoImagem})
+              .then(val => {
+                val._links = [
+                   {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/situacoes/" + val._key},
+                   {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/situacoes/" + val._key},
+                   {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/situacoes/" + val._key}
+                 ]
+                 res.status(200).json(val).end()
+              }, err => {
+                 res.status(500).json(err).end()
+              })
+            }
+         });
+      });
+   };
+
    situacao.listar = function (req,res) {
       dbSituacao.all()
       .then(cursor => {

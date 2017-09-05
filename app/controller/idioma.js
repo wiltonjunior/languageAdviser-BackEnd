@@ -42,7 +42,7 @@ module.exports = function (app) {
          var newpath = "./public/imagem/idioma/" + imagem;
          fs.rename(oldpath,newpath,function (err) {
             if (err) {
-               res.status(500).json(result.error);
+               res.status(500).json(err);
             } else {
                var caminhoImagem = "/imagem/idioma/" + imagem;
                dbIdioma.update(id,{"caminhoImagem" : caminhoImagem})

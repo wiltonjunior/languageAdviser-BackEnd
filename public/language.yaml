@@ -649,6 +649,50 @@ paths:
           description: Erro inesperado
           schema:
             $ref: '#/definitions/Erro'
+  /contratos/adicionarTermo:
+    put:
+      summary: Adiciona termo nos contratos.
+      description: Adiciona termo nos contratos.
+      parameters:
+        - name: contrato
+          in: body
+          description: Informações do Termo do Contrato.
+          required: true
+          schema:
+            $ref: '#/definitions/ContratoTermo'
+      tags:
+        - Contratos
+      responses:
+        '200':
+          description: Operação Confirmada.
+          schema:
+            $ref: '#/definitions/Confirmacao'
+        '500':
+          description: Erro inesperado
+          schema:
+            $ref: '#/definitions/Erro'
+  /contratos/deletarTermo:
+    put:
+      summary: Remove termo nos contratos.
+      description: Remove termo nos contratos.
+      parameters:
+        - name: contrato
+          in: body
+          description: Informações do Termo do Contrato.
+          required: true
+          schema:
+            $ref: '#/definitions/ContratoTermo'
+      tags:
+        - Contratos
+      responses:
+        '200':
+          description: Operação Confirmada.
+          schema:
+            $ref: '#/definitions/Confirmacao'
+        '500':
+          description: Erro inesperado
+          schema:
+            $ref: '#/definitions/Erro'
   '/contratos/{id}':
     get:
       summary: Retorna Dados do Contrato
@@ -1713,6 +1757,34 @@ paths:
           description: Erro inesperado.
           schema:
             $ref: '#/definitions/Erro'
+  '/situacoes/imagem/{id}':
+    post:
+      summary: Fazer o upload de imagem
+      description: Fazer o upload de imagem.
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: id
+          in: path
+          description: ID Situação
+          required: true
+          type: integer
+        - name: photo
+          in: formData
+          description: Imagem
+          type: file
+          required: true
+      tags:
+        - Situações
+      responses:
+        '200':
+          description: Operação Confirmada.
+          schema:
+            $ref: '#/definitions/Confirmacao'
+        '500':
+          description: Erro inesperado.
+          schema:
+            $ref: '#/definitions/Erro'
   '/situacoes/{id}':
     get:
       summary: Retorna Dados da Situação.
@@ -1966,7 +2038,7 @@ paths:
         '200':
           description: Operação Confirmada.
           schema:
-            $ref: '#/definitions/Conteudo'
+            $ref: '#/definitions/Idioma'
         '500':
           description: Erro inesperado.
           schema:
@@ -2207,34 +2279,6 @@ definitions:
         type: string
       idIdioma:
         type: string
-  Conteudo:
-    type: object
-    required:
-      - nomeConteudo
-      - descricao
-      - idIdioma
-    properties:
-      _key:
-        type: string
-      _id:
-        type: string
-      _rev:
-        type: string
-      nomeConteudo:
-        type: string
-      descricao:
-        type: string
-      idIdioma:
-        type: string
-  ConteudoPOST:
-    type: object
-    properties:
-      nomeConteudo:
-        type: string
-      descricao:
-        type: string
-      idIdioma:
-        type: string
   Contrato:
     type: object
     required:
@@ -2281,9 +2325,13 @@ definitions:
         type: string
       idRegiao:
         type: string
+  ContratoTermo:
+    type: object
+    properties:
+      _key:
+        type: string
       idTermo:
-        type: array
-        format: string
+        type: string
   Dialogo:
     type: object
     required:
