@@ -1,8 +1,8 @@
 module.exports = function () {
   var arangojs = require("arangojs");
 
-  var username = 'root';
-  var password = 'arango2016';
+  var username = 'la';
+  var password = 'la';
   var host = 'lordi.uern.br';
   var port = '8529';
   var database = 'language-adviser';

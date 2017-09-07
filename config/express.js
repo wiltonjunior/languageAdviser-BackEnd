@@ -21,6 +21,8 @@ module.exports = function () {
   app.set("hasha",hasha);
   app.set("path",path);
   app.set("googleMaps",googleMaps);
+  app.set("view engine","ejs");
+  app.set("views","./app/view");
 
   app.use(bodyParser.urlencoded({extended:true}));
   app.use(bodyParser.json());
