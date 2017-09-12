@@ -30,7 +30,7 @@ module.exports = function (app) {
 
    licao.selecionar = function (req,res) {
       var dados = req.body;
-      db.query("FOR licao IN licao FILTER licao.idIdioma == @idIdioma and licao.idNivel == @idNivel and licao.idSituacao == @idSituacao RETURN licao",{'idAutor' : dados.idAutor,'idNivel' : dados.idNivel, 'idSituacao' : dados.idSituacao})
+      db.query("FOR licao IN licao FILTER licao.idIdioma == @idIdioma and licao.idNivel == @idNivel and licao.idSituacao == @idSituacao RETURN licao",{'idIdioma' : dados.idIdioma,'idNivel' : dados.idNivel, 'idSituacao' : dados.idSituacao})
       .then(cursor => {
          cursor.all()
          .then(val => {
