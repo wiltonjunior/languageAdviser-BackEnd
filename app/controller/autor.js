@@ -111,7 +111,7 @@ module.exports = function (app) {
       })
    };
 
-   autor.editar = function (req,res) {
+  autor.editar = function (req,res) {
      var id = req.params.id;
      var dados = req.body;
      var result = Joi.validate(dados,model);

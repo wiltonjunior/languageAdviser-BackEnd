@@ -2486,8 +2486,6 @@ definitions:
   LicaoSelecionar:
     type: object
     properties:
-      _key:
-        type: string
       idIdioma:
         type: string
       idNivel:
