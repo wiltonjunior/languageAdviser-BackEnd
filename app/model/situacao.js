@@ -5,7 +5,8 @@ module.exports = function (app) {
      _key : Joi.string(),
      nomeSituacao : Joi.string().required(),
      descricao : Joi.string().required(),
-     grupo : Joi.string().required()
+     grupo : Joi.string().required(),
+     caminhoImagem : Joi.string()
    }
 
    return situacao;

@@ -6,6 +6,7 @@ module.exports = function (app) {
    app.get("/autores",autor.listar);
    app.get("/autores/:id",autor.listarAutor);
    app.get("/autores/idioma/:id",autor.listarIdioma);
+   app.get("/autores/avaliacao/:id",autor.avaliacao);
    app.put("/autores/:id",autor.editar);
    app.delete("/autores/:id",autor.deletar);
 }

@@ -49,13 +49,16 @@ module.exports = function (app) {
               var caminhoImagem = "/imagem/aluno/" + imagem;
               dbAluno.update(id,{"caminhoImagem" : caminhoImagem})
               .then(val => {
-                 val._links = [
+                 var respostaImagem = {
+                   "caminhoImagem" : caminhoImagem
+                 }
+                 respostaImagem._links = [
                    {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/alunos"},
                    {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/alunos"},
                    {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/alunos/" + id},
                    {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/alunos/" + id}
                  ]
-                 res.status(200).json(val).end()
+                 res.status(200).json(respostaImagem).end()
               }, err => {
                  res.status(500).json(err).end()
               })

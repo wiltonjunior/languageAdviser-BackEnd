@@ -47,12 +47,15 @@ module.exports = function (app) {
                var caminhoImagem = "/imagem/idioma/" + imagem;
                dbIdioma.update(id,{"caminhoImagem" : caminhoImagem})
                .then(val => {
-                 val._links = [
-                    {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/idiomas/" + val._key},
-                    {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/idiomas/" + val._key},
-                    {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/idiomas/" + val._key}
-                  ]
-                  res.status(200).json(val).end()
+                 var respostaImagem = {
+                   "caminhoImagem" : caminhoImagem
+                 }
+                 respostaImagem._links = [
+                   {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/idiomas/" + val._key},
+                   {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/idiomas/" + val._key},
+                   {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/idiomas/" + val._key}
+                 ]
+                 res.status(200).json(respostaImagem).end()
                }, err => {
                   res.status(500).json(err).end()
                })

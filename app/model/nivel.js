@@ -4,7 +4,8 @@ module.exports = function (app) {
    const nivel = {
       _key : Joi.string(),
       nomeNivel : Joi.string().required(),
-      descricao : Joi.string().required()
+      descricao : Joi.string().required(),
+      caminhoImagem : Joi.string()
    };
 
    return nivel;

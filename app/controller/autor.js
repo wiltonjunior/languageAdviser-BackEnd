@@ -49,13 +49,16 @@ module.exports = function (app) {
               var caminhoImagem = "/imagem/autor/" + imagem;
               dbAutor.update(id,{"caminhoImagem" : caminhoImagem})
               .then(val => {
-                 val._links = [
+                 var respostaImagem = {
+                   "caminhoImagem" : caminhoImagem
+                 }
+                 respostaImagem._links = [
                    {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/autores"},
                    {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/autores"},
                    {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/autores/" + id},
                    {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/autores/" + id}
                  ]
-                 res.status(200).json(val).end()
+                 res.status(200).json(respostaImagem).end()
               }, err => {
                  res.status(500).json(err).end()
               })
@@ -98,7 +101,7 @@ module.exports = function (app) {
 
    autor.listarIdioma = function (req,res) {
       var id = req.params.id;
-      db.query("FOR idioma IN idioma FOR autor IN autor FILTER autor._key == @id and autor.idIdioma == alunos._key RETURN idioma",{'id' : id})
+      db.query("FOR idioma IN idioma FOR autor IN autor FILTER autor._key == @id and autor.idIdioma == idioma._key RETURN idioma",{'id' : id})
       .then(cursor => {
          cursor.next()
          .then(val => {
@@ -110,6 +113,23 @@ module.exports = function (app) {
          })
       })
    };
+
+
+   autor.avaliacao = function (req,res) {
+      var id = req.params.id;
+      db.query("FOR autor IN autor FOR licao IN licao FILTER autor._key == @id and licao.idAutor == autor._key COLLECT nomeAutor = autor.nomeAutor AGGREGATE md = SUM(licao.avaliacao), tt = length(licao) RETURN {'nomeAutor' : nomeAutor, 'Media' : md, 'Total' : tt}",{'id' : id})
+      .then(cursor => {
+        cursor.next()
+        .then(val => {
+          val._links = [
+             {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/autores"},
+             {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/autores"}
+          ]
+          res.status(200).json(val).end()
+        })
+      })
+   };
+
 
   autor.editar = function (req,res) {
      var id = req.params.id;
