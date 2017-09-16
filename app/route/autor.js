@@ -4,6 +4,7 @@ module.exports = function (app) {
    app.post("/autores",autor.salvar);
    app.post("/autores/imagem/:id",autor.imagem);
    app.get("/autores",autor.listar);
+   app.get("/autores/ranking",autor.ranking);
    app.get("/autores/:id",autor.listarAutor);
    app.get("/autores/idioma/:id",autor.listarIdioma);
    app.get("/autores/avaliacao/:id",autor.avaliacao);

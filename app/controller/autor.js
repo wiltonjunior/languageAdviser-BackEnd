@@ -117,7 +117,7 @@ module.exports = function (app) {
 
    autor.avaliacao = function (req,res) {
       var id = req.params.id;
-      db.query("FOR autor IN autor FOR licao IN licao FILTER autor._key == @id and licao.idAutor == autor._key COLLECT nomeAutor = autor.nomeAutor AGGREGATE md = SUM(licao.avaliacao), tt = length(licao) RETURN {'nomeAutor' : nomeAutor, 'Media' : md, 'Total' : tt}",{'id' : id})
+      db.query("FOR autor IN autor FOR licao IN licao FILTER autor._key == @id and licao.idAutor == autor._key COLLECT nomeAutor = autor.nomeAutor AGGREGATE md = SUM(licao.avaliacao), tt = length(licao) RETURN {'nomeAutor' : nomeAutor,'Media' : md/tt, 'Total' : tt}",{'id' : id})
       .then(cursor => {
         cursor.next()
         .then(val => {
@@ -130,6 +130,22 @@ module.exports = function (app) {
       })
    };
 
+   autor.ranking = async function (req,res) {
+       db.query("FOR autor IN autor FOR licao IN licao FILTER licao.idAutor == autor._key COLLECT idAutor = autor._key, nomeAutor = autor.nomeAutor AGGREGATE md = SUM(licao.avaliacao), tt = length(licao) RETURN {'nomeAutor' : nomeAutor, 'Media' : md/tt, 'Total' : tt}")
+       .then(cursor => {
+          cursor.all()
+          .then(val => {
+             var links = {
+               _links : [
+                 {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/autores"},
+                 {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/autores"}
+               ]
+             }
+             val.push(links);
+             res.status(200).json(val).end()
+          })
+       })
+   };
 
   autor.editar = function (req,res) {
      var id = req.params.id;

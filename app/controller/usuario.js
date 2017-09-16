@@ -15,6 +15,10 @@ module.exports = function (app) {
      else {
        dbUsuario.save(dados)
        .then(val => {
+         val._links = [
+           {rel : "listar", method : "GET", href: "http://" + req.headers.host + "/usuarios"},
+           {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/usuarios/" + val._key}
+         ]
          res.status(200).json(val).end()
        }, err => {
          res.status(500).json(err).end()
@@ -161,7 +165,24 @@ module.exports = function (app) {
           return resultado._result[0];
        }
        else {
-          return resultado._result[0];
+          var aluno = resultado._result[0];
+          var valor = Array.isArray(aluno.usuario.idIdioma);
+          if(valor==true) {
+            var idioma = [];
+            var i;
+            for(i=0;i<aluno.usuario.idIdioma.length;i++) {
+               var rtr = await db.query("FOR idioma IN idioma FILTER idioma._key == @id RETURN idioma",{'id' : aluno.usuario.idIdioma[i]});
+               idioma.push(rtr._result[0]);
+            }
+            aluno.usuario.idIdioma = idioma;
+            return aluno;
+          }
+          else {
+            var idioma;
+            idioma = await db.query("FOR idioma IN idioma FILTER idioma._key == @id RETURN idioma",{'id' : aluno.usuario.idIdioma});
+            aluno.usuario.idIdioma = idioma._result[0];
+            return aluno;
+          }
        }
    };
 
@@ -172,7 +193,24 @@ module.exports = function (app) {
          return resultado._result[0];
       }
       else {
-         return resultado._result[0];
+        var autor = resultado._result[0];
+        var valor = Array.isArray(autor.usuario.idIdioma);
+        if(valor==true) {
+          var idioma = [];
+          var i;
+          for(i=0;i<autor.usuario.idIdioma.length;i++) {
+             var rtr = await db.query("FOR idioma IN idioma FILTER idioma._key == @id RETURN idioma",{'id' : autor.usuario.idIdioma[i]});
+             idioma.push(rtr._result[0]);
+          }
+          autor.usuario.idIdioma = idioma;
+          return autor;
+        }
+        else {
+          var idioma;
+          idioma = await db.query("FOR idioma IN idioma FILTER idioma._key == @id RETURN idioma",{'id' : autor.usuario.idIdioma});
+          autor.usuario.idIdioma = idioma._result[0];
+          return autor;
+        }
       }
    };
 
@@ -260,12 +298,24 @@ module.exports = function (app) {
       var dados = req.body;
       db.query("FOR usuario IN usuario FILTER usuario._key == @id RETURN usuario",{'id' : id})
       .then(cursor => {
-        cursor.all()
+        cursor.next()
         .then(val => {
-          var update = [];
-          update.push(val.idIdioma);
-          update.push(dados.idIdioma);
-          dados.idIdioma = update;
+          var valor = Array.isArray(val.idIdioma);
+          if(valor==true) {
+            var update = [];
+            var i;
+            for(i=0;i<val.idIdioma.length;i++) {
+               update.push(val.idIdioma[i]);
+            }
+            update.push(dados.idIdioma);
+            dados.idIdioma = update;
+          }
+          else {
+            var update = [];
+            update.push(val.idIdioma);
+            update.push(dados.idIdioma);
+            dados.idIdioma = update;
+          }
           dbUsuario.update(dados._key,dados)
           .then(val => {
              val._links = [
