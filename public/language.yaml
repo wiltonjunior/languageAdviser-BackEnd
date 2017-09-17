@@ -76,7 +76,7 @@ paths:
         '200':
           description: Operação Confirmada.
           schema:
-            $ref: '#/definitions/Confirmacao'
+            $ref: '#/definitions/Imagem'
         '500':
           description: Erro inesperado.
           schema:
@@ -215,7 +215,7 @@ paths:
         '200':
           description: Operação Confirmada.
           schema:
-            $ref: '#/definitions/Confirmacao'
+            $ref: '#/definitions/Imagem'
         '500':
           description: Erro inesperado.
           schema:
@@ -348,11 +348,45 @@ paths:
         '200':
           description: Operação Confirmada.
           schema:
-            $ref: '#/definitions/Confirmacao'
+            $ref: '#/definitions/Imagem'
         '500':
           description: Erro inesperado.
           schema:
             $ref: '#/definitions/Erro'
+  /autores/avaliacao/{id}:
+    get:
+      summary: Avaliação do Autor
+      description: Retorna a avaliação do autor.
+      parameters:
+        - name: id
+          in: path
+          description: ID Autor
+          required: true
+          type: integer
+      tags:
+        - Autores
+      responses:
+        '200':
+          description: Avaliação do autor.
+          schema:
+              $ref: '#/definitions/Ranking'
+        '500':
+          description: Erro inesperado
+  /autores/ranking:
+    get:
+      summary: Avaliações dos autores
+      description: Retorna todas avaliações dos autores.
+      tags:
+        - Autores
+      responses:
+        '200':
+          description: Avaliações dos autores
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Ranking'
+        '500':
+          description: Erro inesperado
   '/autores/idioma/{id}':
     get:
       summary: Retorna idioma do Autor
@@ -1087,7 +1121,7 @@ paths:
       parameters:
         - name: id
           in: path
-          description: ID Administrador
+          description: ID Idioma
           required: true
           type: integer
         - name: photo
@@ -1101,7 +1135,7 @@ paths:
         '200':
           description: Operação Confirmada.
           schema:
-            $ref: '#/definitions/Confirmacao'
+            $ref: '#/definitions/Imagem'
         '500':
           description: Erro inesperado.
           schema:
@@ -1488,7 +1522,7 @@ paths:
             $ref: '#/definitions/Erro'
     delete:
       summary: Apagar Lição
-      description: 'Por meio do ID da liçaõ, a lição especifica vai ser excluido.'
+      description: 'Por meio do ID da lição, a lição especifica vai ser excluido.'
       parameters:
         - name: id
           in: path
@@ -1545,6 +1579,34 @@ paths:
           description: Erro inesperado.
           schema:
             $ref: '#/definitions/Erro'
+  /niveis/imagem/{id}:
+    post:
+      summary: Fazer o upload de imagem
+      description: Fazer o upload de imagem.
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: id
+          in: path
+          description: ID Nível
+          required: true
+          type: integer
+        - name: photo
+          in: formData
+          description: Imagem
+          type: file
+          required: true
+      tags:
+        - Niveis
+      responses:
+        '200':
+          description: Operação Confirmada.
+          schema:
+            $ref: '#/definitions/Imagem'
+        '500':
+          description: Erro inesperado.
+          schema:
+            $ref: '#/definitions/Erro'          
   '/niveis/{id}':
     get:
       summary: Retorna Dados do Nível
@@ -1780,7 +1842,7 @@ paths:
         '200':
           description: Operação Confirmada.
           schema:
-            $ref: '#/definitions/Confirmacao'
+            $ref: '#/definitions/Imagem'
         '500':
           description: Erro inesperado.
           schema:
@@ -2508,6 +2570,8 @@ definitions:
         type: string
       descricao:
         type: string
+      caminhoImagem:
+        type: string
   NivelPOST:
     type: object
     properties:
@@ -2543,6 +2607,7 @@ definitions:
     required:
       - nomeSituacao
       - descricao
+      - grupo
     properties:
       _key:
         type: string
@@ -2554,12 +2619,18 @@ definitions:
         type: string
       descricao:
         type: string
+      grupo:
+        type: string
+      caminhoImagem:
+        type: string
   SituacaoPOST:
     type: object
     properties:
       nomeSituacao:
         type: string
       descricao:
+        type: string
+      grupo:
         type: string
   Termos:
     type: object
@@ -2625,12 +2696,21 @@ definitions:
         type: string
       longitude:
         type: string
+  Ranking:
+    type: object
+    properties:
+      nomeAutor:
+        type: string
+      media:
+        type: number
+        format: float
+      total:
+        type: integer
   Imagem:
     type: object
     properties:
-      imagem:
+      caminhoImagem:
         type: string
-        format: byte
   Estudar:
     type: object
     properties:

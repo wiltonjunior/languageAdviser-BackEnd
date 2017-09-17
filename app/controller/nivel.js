@@ -41,13 +41,13 @@ module.exports = function (app) {
          var hash = hasha.fromFileSync(oldpath,{algorithm : "md5"});
          var tipo = path.extname(files.photo.name);
          var imagem = hash + tipo;
-         var newpath = "./public/imagem/nivel" + imagem;
+         var newpath = "./public/imagem/nivel/" + imagem;
          fs.rename(oldpath,newpath, function (err) {
             if (err) {
               res.status(500).json(err);
             }
             else {
-              var caminhoImagem = "/imagem/nivel" + imagem;
+              var caminhoImagem = "/imagem/nivel/" + imagem;
               dbNivel.update(id,{"caminhoImagem" : caminhoImagem})
               .then(val => {
                  var respostaImagem = {
