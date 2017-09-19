@@ -7,4 +7,6 @@ module.exports = function (app) {
     app.get("/imagem/aluno",arquivo.diretorioAluno);
     app.get("/imagem/autor",arquivo.diretorioAutor);
     app.get("/imagem/idioma",arquivo.diretorioIdioma);
+    app.get("/imagem/nivel",arquivo.diretorioNivel);
+    app.get("/imagem/situacao",arquivo.diretorioSituacao);
 }

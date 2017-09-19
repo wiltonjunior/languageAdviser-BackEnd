@@ -121,6 +121,10 @@ module.exports = function (app) {
       .then(cursor => {
         cursor.next()
         .then(val => {
+          if(val==null) {
+            val.Media = 0;
+            val.Total = 0;
+          }
           val._links = [
              {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/autores"},
              {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/autores"}
