@@ -101,13 +101,13 @@ module.exports = function (app) {
          .then(async val => {
             var dialogo = val;
             var contrato = await contratoAtivo(db);
-            db.query("LET reg = (FOR regiao IN regiao FILTER regiao.localizacao == @pais or regiao.localizacao == @estado or regiao.localizacao == @cidade RETURN regiao._key) LET cont = (FOR c IN @contrato FOR r IN reg FILTER c.idRegiao == r RETURN c) LET term = (FOR termo IN termos FOR c IN cont FILTER termo._key == c.idTermo or termo._key IN c.idTermo RETURN {'_key' : termo._key,'termo' : termo.termo,'termoTraducao' : termo.termoTraducao,'palavraChave' : c.palavraChave}) RETURN term",{'pais' : dados.pais,'estado' : dados.estado,'cidade' : dados.cidade,'contrato' : contrato})
+            db.query("LET reg = (FOR regiao IN regiao FILTER regiao.localizacao == @pais or regiao.localizacao == @estado or regiao.localizacao == @cidade RETURN regiao._key) LET cont = (FOR c IN @contrato FOR r IN reg FILTER c.idRegiao == r RETURN c) LET term = (FOR termo IN termos FOR c IN cont FILTER termo._key == c.idTermo or termo._key IN c.idTermo RETURN {'_key' : termo._key,'termo' : termo.termo,'palavraChave' : c.palavraChave}) RETURN term",{'pais' : dados.pais,'estado' : dados.estado,'cidade' : dados.cidade,'contrato' : contrato})
             .then(cursor => {
                cursor.next()
                .then(val => {
                   if (val!=null) {
                     for(var i = 0; i < val.length; i++) {
-                       var palavra = val[i].termoTraducao;
+                       var palavra = val[i].termo;
                        var resultado = dialogo.texto.search(palavra);
                        if(resultado>0) {
                          var re = new RegExp(palavra,"g");

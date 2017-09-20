@@ -7,23 +7,59 @@ module.exports = function (app) {
    var usuario = {};
 
    usuario.salvar = function (req,res) {
-     var dados = req.body;
-     var result = Joi.validate(dados,model);
-     if(result.error!=null) {
-       res.status(400).json(result.error);
-     }
-     else {
-       dbUsuario.save(dados)
-       .then(val => {
-         val._links = [
-           {rel : "listar", method : "GET", href: "http://" + req.headers.host + "/usuarios"},
-           {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/usuarios/" + val._key}
-         ]
-         res.status(200).json(val).end()
-       }, err => {
-         res.status(500).json(err).end()
-       })
-     }
+      var dados = req.body;
+      db.query("FOR usuario IN usuario FILTER usuario._key == @id RETURN usuario",{'id' : dados._key})
+      .then(cursor => {
+         cursor.next()
+         .then(val => {
+            if(val==null) {
+              var result = Joi.validate(dados,model);
+              if(result.error!=null) {
+                res.status(400).json(result.error);
+              }
+              else {
+                dbUsuario.save(dados)
+                .then(val => {
+                  val._links = [
+                    {rel : "listar", method : "GET", href: "http://" + req.headers.host + "/usuarios"},
+                    {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/usuarios/" + val._key}
+                  ]
+                  res.status(200).json(val).end()
+                }, err => {
+                  res.status(500).json(err).end()
+                })
+              }
+            }
+            else {
+              var valor = Array.isArray(val.idIdioma);
+              if(valor==true) {
+                var update = [];
+                var i;
+                for(i=0;i<val.idIdioma;i++) {
+                  update.push(val.idIdioma[i]);
+                }
+                update.push(dados.idIdioma);
+                dados.idIdioma = update;
+              }
+              else {
+                var update = [];
+                update.push(val.idIdioma);
+                update.push(dados.idIdioma);
+                dados.idIdioma = update;
+              }
+              dbUsuario.update(dados._key,dados)
+              .then(val => {
+                 val._links = [
+                   {rel : "listar", method : "GET", href: "http://" + req.headers.host + "/usuarios"},
+                   {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/usuarios/" + val._key}
+                 ]
+                 res.status(200).json(val).end()
+              }, err => {
+                 res.status(500).json(err).end()
+              })
+            }
+         })
+      })
    };
 
    usuario.login = async function(req,res) {
@@ -292,44 +328,7 @@ module.exports = function (app) {
          })
       })
    };
-
-   usuario.editar = function (req,res) {
-      var id = req.params.id;
-      var dados = req.body;
-      db.query("FOR usuario IN usuario FILTER usuario._key == @id RETURN usuario",{'id' : id})
-      .then(cursor => {
-        cursor.next()
-        .then(val => {
-          var valor = Array.isArray(val.idIdioma);
-          if(valor==true) {
-            var update = [];
-            var i;
-            for(i=0;i<val.idIdioma.length;i++) {
-               update.push(val.idIdioma[i]);
-            }
-            update.push(dados.idIdioma);
-            dados.idIdioma = update;
-          }
-          else {
-            var update = [];
-            update.push(val.idIdioma);
-            update.push(dados.idIdioma);
-            dados.idIdioma = update;
-          }
-          dbUsuario.update(dados._key,dados)
-          .then(val => {
-             val._links = [
-               {rel : "listar", method : "GET", href: "http://" + req.headers.host + "/usuarios"},
-               {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/usuarios/" + val._key}
-             ]
-             res.status(200).json(val).end()
-          }, err => {
-             res.status(500).json(val).end()
-          })
-        })
-      })
-   };
-
+   
    usuario.deletar = function (req,res) {
       var id = req.params.id;
       dbUsuario.remove(id)

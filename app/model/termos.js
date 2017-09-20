@@ -4,7 +4,7 @@ module.exports = function (app) {
    const termos = {
       _key : Joi.string(),
       termo : Joi.string().required(),
-      termoTraducao : Joi.string().required()
+      idIdioma : Joi.string().required()
    };
 
    return termos;
