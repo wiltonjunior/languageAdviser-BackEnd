@@ -33,30 +33,53 @@ module.exports = function (app) {
             else {
               var valor = Array.isArray(val.idIdioma);
               if(valor==true) {
-                var update = [];
-                var i;
-                for(i=0;i<val.idIdioma;i++) {
-                  update.push(val.idIdioma[i]);
+                var pos = val.idIdioma.indexOf(dados.idIdioma);
+                if(pos>=0) {
+                  var resposta = {"mensagem" : "Idioma já esta sendo estudando"};
+                  res.status(409).json(resposta);
                 }
-                update.push(dados.idIdioma);
-                dados.idIdioma = update;
+                else {
+                  var update = [];
+                  var i;
+                  for(i=0;i<val.idIdioma.length;i++) {
+                    update.push(val.idIdioma[i]);
+                  }
+                  update.push(dados.idIdioma);
+                  dados.idIdioma = update;
+                  dbUsuario.update(dados._key,dados)
+                  .then(val => {
+                     val._links = [
+                       {rel : "listar", method : "GET", href: "http://" + req.headers.host + "/usuarios"},
+                       {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/usuarios/" + val._key}
+                     ]
+                     res.status(200).json(val).end()
+                  }, err => {
+                     res.status(500).json(err).end()
+                  })
+                }
               }
               else {
-                var update = [];
-                update.push(val.idIdioma);
-                update.push(dados.idIdioma);
-                dados.idIdioma = update;
+                if(val.idIdioma==dados.idIdioma) {
+                   var resposta = {"mensagem" : "Idioma já esta sendo estudando"};
+                   res.status(409).json(resposta);
+                }
+                else {
+                  var update = [];
+                  update.push(val.idIdioma);
+                  update.push(dados.idIdioma);
+                  dados.idIdioma = update;
+                  dbUsuario.update(dados._key,dados)
+                  .then(val => {
+                     val._links = [
+                       {rel : "listar", method : "GET", href: "http://" + req.headers.host + "/usuarios"},
+                       {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/usuarios/" + val._key}
+                     ]
+                     res.status(200).json(val).end()
+                  }, err => {
+                     res.status(500).json(err).end()
+                  })
+                }
               }
-              dbUsuario.update(dados._key,dados)
-              .then(val => {
-                 val._links = [
-                   {rel : "listar", method : "GET", href: "http://" + req.headers.host + "/usuarios"},
-                   {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/usuarios/" + val._key}
-                 ]
-                 res.status(200).json(val).end()
-              }, err => {
-                 res.status(500).json(err).end()
-              })
             }
          })
       })
@@ -328,7 +351,74 @@ module.exports = function (app) {
          })
       })
    };
-   
+
+   usuario.editar = function (req,res) {
+      var id = req.params.id;
+      var dados = req.body;
+      var result = Joi.validate(dados,model);
+      if(result.error!=null) {
+         res.status(400).json(result.error);
+      }
+      else {
+         db.query("FOR usuario IN usuario FILTER usuario._key == @id RETURN usuario",{'id' : id})
+         .then(cursor => {
+            cursor.next()
+            .then(val => {
+                var valor = Array.isArray(val.idIdioma);
+                if (valor==true) {
+                   var pos = val.idIdioma.indexOf(dados.idIdioma);
+                   if(pos>=0) {
+                      var update = [];
+                      var i;
+                      for(i=0;i<val.idIdioma.length;i++) {
+                         update.push(val.idIdioma[i]);
+                      }
+                      update.splice(pos,1);
+                      if(update.length==1) {
+                        dados.idIdioma = update[0];
+                      }
+                      else {
+                        dados.idIdioma = update;
+                      }
+                      dbUsuario.update(dados._key,{'idIdioma' : dados.idIdioma})
+                      .then(val => {
+                        val._links = [
+                          {rel : "listar", method : "GET", href: "http://" + req.headers.host + "/usuarios"},
+                          {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/usuarios/" + val._key}
+                        ]
+                        res.status(200).json(val).end()
+                      }, err => {
+                        res.status(500).json(err).end()
+                      })
+                   }
+                   else {
+                      var resposta = {"mensagem" : "Idioma não esta sendo estudando"};
+                      res.status(200).json(resposta);
+                   }
+                }
+                else {
+                   if(val.idIdioma == dados.idIdioma) {
+                       dbUsuario.remove(dados._key)
+                       .then(val => {
+                         val._links = [
+                           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/usuarios"},
+                           {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/usuarios"}
+                         ]
+                         res.status(200).json(val).end()
+                       }, err => {
+                         res.status(500).json(err).end()
+                       })
+                   }
+                   else {
+                     var resposta = {"mensagem" : "Idioma não esta sendo estudando"};
+                     res.status(200).json(resposta);
+                   }
+                }
+            })
+         })
+      }
+   };
+
    usuario.deletar = function (req,res) {
       var id = req.params.id;
       dbUsuario.remove(id)

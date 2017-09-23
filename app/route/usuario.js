@@ -6,5 +6,6 @@ module.exports = function (app) {
    app.get("/usuarios",usuario.listar);
    app.get("/usuarios/:id",usuario.listarUsuario);
    app.get("/usuarios/idioma/:id",usuario.listarIdioma);
+   app.put("/usuarios/:id",usuario.editar);
    app.delete("/usuarios/:id",usuario.deletar);
 }

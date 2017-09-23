@@ -34,10 +34,13 @@ module.exports = function (app) {
       .then(cursor => {
          cursor.all()
          .then(val => {
-           val._links = [
-              {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/licoes"},
-              {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/licoes"}
-           ]
+           var links = {
+             _links : [
+               {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/licoes"},
+               {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/licoes"}
+             ]
+           }
+           val.push(links);
            res.status(200).json(val).end()
          })
       })
