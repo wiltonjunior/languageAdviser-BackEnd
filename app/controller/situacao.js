@@ -60,7 +60,7 @@ module.exports = function (app) {
                 ]
                 res.status(200).json(respostaImagem).end()
               }, err => {
-                 res.status(500).json(err).end()
+                res.status(500).json(err).end()
               })
             }
          });

@@ -135,7 +135,7 @@ module.exports = function (app) {
    };
 
    autor.ranking = async function (req,res) {
-       db.query("FOR autor IN autor FOR licao IN licao FILTER licao.idAutor == autor._key COLLECT idAutor = autor._key, nomeAutor = autor.nomeAutor AGGREGATE md = SUM(licao.avaliacao), tt = length(licao) RETURN {'nomeAutor' : nomeAutor, 'Media' : md/tt, 'Total' : tt}")
+       db.query("FOR autor IN autor FOR licao IN licao FILTER licao.idAutor == autor._key COLLECT idAutor = autor._key, nomeAutor = autor.nomeAutor, caminhoImagem = autor.caminhoImagem AGGREGATE md = SUM(licao.avaliacao), tt = length(licao) RETURN {'nomeAutor' : nomeAutor, 'Media' : md/tt, 'Total' : tt, 'caminhoImagem' : caminhoImagem}")
        .then(cursor => {
           cursor.all()
           .then(val => {

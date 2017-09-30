@@ -4,12 +4,12 @@ module.exports = function (app) {
   var arquivo = {};
 
   arquivo.diretorioImagem = function (req,res) {
-     fs.readdir("./public/imagem", function (err,files) {
+     fs.readdir("./public/imagem", async function (err,files) {
         if (err) {
            res.status(500).json(err);
         }
         else {
-          res.status(200).json(files);
+           res.status(200).json(files);
         }
      })
   };
