@@ -6,26 +6,50 @@ module.exports = function (app) {
 
    var empresa = {};
 
-   empresa.salvar = function (req,res) {
+   empresa.salvar = async function (req,res) {
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if(result.error!=null) {
         res.status(400).json(result.error);
       }
       else {
-        dbEmpresa.save(dados)
-        .then(val => {
-          val._links = [
-            {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/empresas/" + val._key},
-            {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/empresas/" + val._key},
-            {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/empresas/" + val._key}
-          ]
-          res.status(201).json(val).end()
-        }, err => {
-           res.status(500).json(err).end();
+        var googleMaps = req.app.get("googleMaps");
+        googleMaps.geocode({
+          address : dados.cidade + "," + dados.estado + "," + dados.pais
+        }, async function (err,result) {
+            if(err) {
+              var resultado = await salvarEmpresa(req,dados);
+              if(resultado==null) {
+                res.status(500).json();
+              }
+              else {
+                res.status(201).json(resultado);
+              }
+            }
+            else {
+              dados.latitude = result.json.results[0].geometry.location.lat;
+              dados.longitude = result.json.results[0].geometry.location.lng;
+              var resultado = await salvarEmpresa(req,dados);
+              if(resultado==null) {
+                res.status(500).json();
+              }
+              else {
+                res.status(201).json(resultado);
+              }
+            }
         });
       }
    };
+
+   async function salvarEmpresa(req,dados) {
+      var resultados = await dbEmpresa.save(dados);
+      resultados._links = [
+        {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/empresas/" + resultados._key},
+        {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/empresas/" + resultados._key},
+        {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/empresas/" + resultados._key}
+      ];
+      return resultados;
+   }
 
    empresa.listar = function (req,res) {
       dbEmpresa.all()
@@ -67,20 +91,44 @@ module.exports = function (app) {
          res.status(400).json(result.error);
       }
       else {
-        dbEmpresa.update(id,dados)
-        .then(val => {
-          val._links = [
-            {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/empresas"},
-            {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/empresas"},
-            {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/empresas/" + id},
-            {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/empresas/" + id}
-          ]
-          res.status(200).json(val).end()
-        }, err => {
-           res.status(500).json(err).end()
+        var googleMaps = req.app.get("googleMaps");
+        googleMaps.geocode({
+          address : dados.cidade + "," + dados.estado + "," + dados.pais
+        }, async function (err,result) {
+            if(err) {
+              var resultado = await editarEmpresa(req,id,dados);
+              if(resultado==null) {
+                res.status(500).json();
+              }
+              else {
+                res.status(201).json(resultado);
+              }
+            }
+            else {
+              dados.latitude = result.json.results[0].geometry.location.lat;
+              dados.longitude = result.json.results[0].geometry.location.lng;
+              var resultado = await editarEmpresa(req,id,dados);
+              if(resultado==null) {
+                res.status(500).json();
+              }
+              else {
+                res.status(201).json(resultado);
+              }
+            }
         });
       }
    };
+
+   async function editarEmpresa(req,id,dados) {
+      var resultados = await dbEmpresa.update(id,dados);
+      resultados._links = [
+        {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/empresas"},
+        {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/empresas"},
+        {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/empresas/" + id},
+        {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/empresas/" + id}
+      ];
+      return resultados;
+   }
 
    empresa.deletar = function (req,res) {
       var id = req.params.id;

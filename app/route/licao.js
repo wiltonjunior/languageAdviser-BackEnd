@@ -2,7 +2,6 @@ module.exports = function (app) {
     var licao = app.controller.licao;
 
     app.post("/licoes",licao.salvar);
-    app.post("/licoes/listar",licao.selecionar);
     app.get("/licoes",licao.listar);
     app.get("/licoes/:id",licao.listarLicao);
     app.get("/licoes/autor/:id",licao.listarAutor);
@@ -13,8 +12,9 @@ module.exports = function (app) {
     app.get("/licoes/idiomas/:idIdioma",licao.idiomas);
     app.get("/licoes/niveis/:idNivel",licao.niveis);
     app.get("/licoes/situacoes/:idSituacao",licao.situacoes);
+    app.get("/licoes/listar/:idIdioma/:idNivel/:idSituacao",licao.selecionar);
     app.get("/licoes/estudar/:idLicao&:idUsuario",licao.estudarLicao);
-    app.get("/licoes/avaliacao/:idLicao&:avaliacao",licao.editarVotos);
+    app.put("/licoes/avaliacao/:idLicao/:avaliacao",licao.editarVotos);
     app.put("/licoes/:id",licao.editar);
     app.delete("/licoes/:id",licao.deletar);
 }
