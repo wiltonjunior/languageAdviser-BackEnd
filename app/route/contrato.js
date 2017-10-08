@@ -1,19 +1,22 @@
 module.exports = function (app) {
   var contrato = app.controller.contrato;
+  var auth = app.get("auth");
 
-  app.post("/contratos", contrato.salvar);
-  app.get("/contratos", contrato.listar);
-  app.get("/contratos/ativo", contrato.ativo);
-  app.get("/contratos/expirado", contrato.expirado);
-  app.get("/contratos/:id", contrato.listarContrato);
-  app.get("/contratos/empresa/:id", contrato.listarEmpresa);
-  app.get("/contratos/regiao/:id", contrato.listarRegiao);
-  app.get("/contratos/termos/:id", contrato.listarTermos);
-  app.get("/contratos/empresas/:idEmpresa", contrato.listarEmpresas);
-  app.get("/contratos/termosContrato/:idTermos", contrato.listarTermosContrato);
-  app.get("/contratos/regioes/:idRegiao", contrato.listarRegioes);
-  app.put("/contratos/adicionarTermo", contrato.editarTermo);
-  app.put("/contratos/deletarTermo", contrato.deletarTermo);
-  app.put("/contratos/:id", contrato.editar);
-  app.delete("/contratos/:id", contrato.deletar);
+  var versao = "/v1";
+
+  app.post(versao + "/contratos", auth.authenticate(), contrato.salvar);
+  app.get(versao + "/contratos", auth.authenticate(), contrato.listar);
+  app.get(versao + "/contratos/ativo", auth.authenticate(), contrato.ativo);
+  app.get(versao + "/contratos/expirado", auth.authenticate(), contrato.expirado);
+  app.get(versao + "/contratos/:id", auth.authenticate(), contrato.listarContrato);
+  app.get(versao + "/contratos/empresa/:id", auth.authenticate(), contrato.listarEmpresa);
+  app.get(versao + "/contratos/regiao/:id", auth.authenticate(), contrato.listarRegiao);
+  app.get(versao + "/contratos/termos/:id", auth.authenticate(), contrato.listarTermos);
+  app.get(versao + "/contratos/empresas/:idEmpresa", auth.authenticate(), contrato.listarEmpresas);
+  app.get(versao + "/contratos/termosContrato/:idTermos", auth.authenticate(), contrato.listarTermosContrato);
+  app.get(versao + "/contratos/regioes/:idRegiao", auth.authenticate(), contrato.listarRegioes);
+  app.put(versao + "/contratos/adicionarTermo", auth.authenticate(), contrato.editarTermo);
+  app.put(versao + "/contratos/deletarTermo", auth.authenticate(), contrato.deletarTermo);
+  app.put(versao + "/contratos", auth.authenticate(), contrato.editar);
+  app.delete(versao + "/contratos", auth.authenticate(), contrato.deletar);
 }

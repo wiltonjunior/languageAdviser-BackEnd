@@ -6,6 +6,8 @@ module.exports = function (app) {
 
    var dialogo = {};
 
+   var versao = "/v1";
+
    dialogo.salvar = function (req,res) {
       var dados = req.body;
       var result = Joi.validate(dados,model);
@@ -15,9 +17,9 @@ module.exports = function (app) {
          dbDialogo.save(dados)
          .then(val => {
             val._links = [
-              {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/dialogos/" + val._key},
-              {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/dialogos/" + val._key},
-              {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/dialogos/" + val._key}
+              {rel : "procurar", method : "GET", href: "http://" + req.headers.host + versao + "/dialogos/" + val._key},
+              {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + versao + "/dialogos/" + val._key},
+              {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + versao + "/dialogos/" + val._key}
             ]
             res.status(200).json(val).end()
          }, err => {
@@ -33,8 +35,8 @@ module.exports = function (app) {
          .then(val => {
             var links = {
               _links : [
-                  {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/dialogos"},
-                  {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/dialogos"}
+                  {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/dialogos"},
+                  {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/dialogos"}
               ]
             };
             val.push(links);
@@ -48,8 +50,8 @@ module.exports = function (app) {
       dbDialogo.document(id)
       .then(val => {
         val._links = [
-          {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/dialogos"},
-          {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/dialogos"}
+          {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + versao + "/dialogos"},
+          {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + versao + "/dialogos"}
         ]
         res.status(200).json(val).end()
       }, err => {
@@ -65,8 +67,8 @@ module.exports = function (app) {
         .then(val => {
           var links = {
             _links :  [
-              {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/dialogos"},
-              {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/dialogos"}
+              {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + versao + "/dialogos"},
+              {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + versao + "/dialogos"}
             ]
           };
           val.push(links);
@@ -83,8 +85,8 @@ module.exports = function (app) {
         .then(val => {
            var links = {
              _links : [
-               {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/dialogos"},
-               {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/dialogos"}
+               {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + versao + "/dialogos"},
+               {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + versao + "/dialogos"}
              ]
            };
            val.push(links);
@@ -139,19 +141,18 @@ module.exports = function (app) {
    };
 
    dialogo.editar = function (req,res) {
-      var id = req.params.id;
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if (result.error) {
         res.status(400).json(result.error);
       } else {
-        dbDialogo.update(id,dados)
+        dbDialogo.update(dados._key,dados)
         .then(val => {
            val._links = [
-             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/dialogos"},
-             {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/dialogos"},
-             {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/dialogos/" + id},
-             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/dialogos/" + id}
+             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/dialogos"},
+             {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/dialogos"},
+             {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/dialogos/" + dados._key},
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/dialogos"}
            ]
            res.status(200).json(val).end()
         }, err => {
@@ -161,12 +162,12 @@ module.exports = function (app) {
    };
 
    dialogo.deletar = function (req,res) {
-     var id = req.params.id;
-     dbDialogo.remove(id)
+     var dados = req.body;
+     dbDialogo.remove(dados.id)
      .then(val => {
         val._links = [
-          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/dialogos"},
-          {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/dialogos"}
+          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/dialogos"},
+          {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/dialogos"}
         ]
         res.status(200).json(val).end()
      }, err => {

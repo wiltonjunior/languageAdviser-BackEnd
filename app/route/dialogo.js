@@ -1,12 +1,15 @@
 module.exports = function (app) {
    var dialogo = app.controller.dialogo;
+   var auth = app.get("auth");
 
-   app.post("/dialogos",dialogo.salvar);
-   app.post("/dialogos/estudar",dialogo.estudar);
-   app.get("/dialogos",dialogo.listar);
-   app.get("/dialogos/:id",dialogo.listarDialogo);
-   app.get("/dialogos/licao/:id",dialogo.listarLicao)
-   app.get("/dialogos/licoes/:idLicao",dialogo.listarLicoes);
-   app.put("/dialogos/:id",dialogo.editar);
-   app.delete("/dialogos/:id",dialogo.deletar);
+   var versao = "/v1";
+
+   app.post(versao + "/dialogos", auth.authenticate(), dialogo.salvar);
+   app.post(versao + "/dialogos/estudar", auth.authenticate(), dialogo.estudar);
+   app.get(versao + "/dialogos", auth.authenticate(), dialogo.listar);
+   app.get(versao + "/dialogos/:id", auth.authenticate(), dialogo.listarDialogo);
+   app.get(versao + "/dialogos/licao/:id", auth.authenticate(), dialogo.listarLicao)
+   app.get(versao + "/dialogos/licoes/:idLicao", auth.authenticate(), dialogo.listarLicoes);
+   app.put(versao + "/dialogos",auth.authenticate(), dialogo.editar);
+   app.delete(versao + "/dialogos",auth.authenticate(), dialogo.deletar);
 }

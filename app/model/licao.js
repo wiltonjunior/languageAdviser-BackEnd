@@ -8,7 +8,7 @@ module.exports = function (app) {
      data : Joi.string(),
      avaliacao : Joi.number().integer(),
      quantidadeVotos : Joi.number().integer(),
-     idAutor : Joi.string().required(),
+     idUsuario : Joi.string().required(),
      idIdioma : Joi.string().required(),
      idNivel : Joi.string().required(),
      idSituacao : Joi.string().required()

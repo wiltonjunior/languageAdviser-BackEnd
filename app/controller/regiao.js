@@ -6,6 +6,8 @@ module.exports = function (app) {
 
    var regiao = {};
 
+   var versao = "/v1";
+
    regiao.salvar = function (req,res) {
       var dados = req.body;
       var result = Joi.validate(dados,model);
@@ -16,9 +18,9 @@ module.exports = function (app) {
          dbRegiao.save(dados)
          .then(val => {
            val._links = [
-             {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/regioes/" + val._key},
-             {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/regioes/" + val._key},
-             {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/regioes/" + val._key}
+             {rel : "procurar", method : "GET", href: "http://" + req.headers.host + versao + "/regioes/" + val._key},
+             {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + versao + "/regioes/" + val._key},
+             {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + versao + "/regioes/" + val._key}
            ]
            res.status(201).json(val).end()
          }, err => {
@@ -34,8 +36,8 @@ module.exports = function (app) {
         .then(val => {
           var links = {
             _links : [
-              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/regioes"},
-              {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/regioes"}
+              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/regioes"},
+              {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/regioes"}
             ]
           };
           val.push(links);
@@ -49,9 +51,9 @@ module.exports = function (app) {
       dbRegiao.document(id)
       .then(val => {
         val._links = [
-          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/regioes"},
-          {rel : "editar", method: "PUT", href: "http://" + req.headers.host + "/regioes/" + val._key},
-          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/regioes/" + val._key}
+          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/regioes"},
+          {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/regioes/" + val._key},
+          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/regioes/" + val._key}
         ]
         res.status(200).json(val).end()
       }, err=> {
@@ -60,20 +62,19 @@ module.exports = function (app) {
    };
 
    regiao.editar = function (req,res) {
-      var id = req.params.id;
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if (result.error!=null) {
          res.status(400).json(result.error);
       }
       else {
-         dbRegiao.update(id,dados)
+         dbRegiao.update(dados._key,dados)
          .then(val => {
            val._links = [
-             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/regioes"},
-             {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/regioes"},
-             {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/regioes/" + id},
-             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/regioes/" + id}
+             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/regioes"},
+             {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/regioes"},
+             {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/regioes/" + dados._key},
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/regioes"}
            ]
            res.status(200).json(val).end()
          }, err=> {
@@ -83,12 +84,12 @@ module.exports = function (app) {
    };
 
    regiao.deletar = function (req,res) {
-      var id = req.params.id;
-      dbRegiao.remove(id)
+      var dados = req.body;
+      dbRegiao.remove(dados.id)
       .then(val => {
         val._links = [
-          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/regioes"},
-          {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/regioes"}
+          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/regioes"},
+          {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/regioes"}
         ]
         res.status(200).json(val).end()
       }, err => {

@@ -6,6 +6,8 @@ module.exports = function (app) {
 
    var nivel = {};
 
+   var versao = "/v1";
+
    nivel.salvar = function (req,res) {
       var dados = req.body;
       var result = Joi.validate(dados,model);
@@ -16,9 +18,9 @@ module.exports = function (app) {
          dbNivel.save(dados)
          .then(val => {
             val._links = [
-              {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/niveis/" + val._key},
-              {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/niveis/" + val._key},
-              {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/niveis/" + val._key}
+              {rel : "procurar", method : "GET", href: "http://" + req.headers.host + versao + "/niveis/" + val._key},
+              {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + versao + "/niveis/" + val._key},
+              {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + versao + "/niveis/" + val._key}
             ]
             res.status(201).json(val).end()
          }, err => {
@@ -54,9 +56,9 @@ module.exports = function (app) {
                    "caminhoImagem" : caminhoImagem
                  }
                  respostaImagem._links = [
-                   {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/niveis/" + val._key},
-                   {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/niveis/" + val._key},
-                   {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/niveis/" + val._key}
+                   {rel : "procurar", method : "GET", href: "http://" + req.headers.host + versao + "/niveis/" + val._key},
+                   {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + versao + "/niveis/" + val._key},
+                   {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + versao + "/niveis/" + val._key}
                  ]
                  res.status(200).json(respostaImagem).end()
               }, err => {
@@ -74,8 +76,8 @@ module.exports = function (app) {
         .then(val => {
            var links = {
              _links : [
-                 {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/niveis"},
-                 {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/niveis"}
+                 {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/niveis"},
+                 {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/niveis"}
              ]
            };
            val.push(links);
@@ -89,9 +91,9 @@ module.exports = function (app) {
      dbNivel.document(id)
      .then(val => {
         val._links = [
-          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/niveis"},
-          {rel : "editar", method: "PUT", href: "http://" + req.headers.host + "/niveis/" + val._key},
-          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/niveis/" + val._key}
+          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/niveis"},
+          {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/niveis/" + val._key},
+          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/niveis/" + val._key}
         ]
         res.status(200).json(val).end()
      }, err => {
@@ -100,20 +102,19 @@ module.exports = function (app) {
    };
 
    nivel.editar = function (req,res) {
-     var id = req.params.id;
      var dados = req.body;
      var result = Joi.validate(dados,model);
      if (result.error!=null) {
        res.status(400).json(result.error);
      }
      else {
-       dbNivel.update(id,dados)
+       dbNivel.update(dados._key,dados)
        .then(val => {
          val._links = [
-           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/niveis"},
-           {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/niveis"},
-           {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/niveis/" + id},
-           {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/niveis/" + id}
+           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/niveis"},
+           {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/niveis"},
+           {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/niveis/" + dados._key},
+           {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/niveis"}
          ]
          res.status(200).json(val).end()
        }, err => {
@@ -123,12 +124,12 @@ module.exports = function (app) {
    };
 
    nivel.deletar = function (req,res) {
-     var id = req.params.id;
-     dbNivel.remove(id)
+     var dados = req.body;
+     dbNivel.remove(dados.id)
      .then(val => {
        val._links = [
-         {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/niveis"},
-         {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/niveis"}
+         {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/niveis"},
+         {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/niveis"}
        ]
        res.status(200).json(val).end()
      }, err => {

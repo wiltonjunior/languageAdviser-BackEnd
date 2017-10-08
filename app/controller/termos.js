@@ -6,6 +6,8 @@ module.exports = function (app) {
 
    var termo = {};
 
+   var versao = "/v1";
+
    termo.salvar = function (req,res) {
       var dados = req.body;
       var result = Joi.validate(dados,model);
@@ -15,9 +17,9 @@ module.exports = function (app) {
          dbTermo.save(dados)
          .then(val => {
            val._links = [
-             {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/termos/" + val._key},
-             {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/termos/" + val._key},
-             {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/termos/" + val._key}
+             {rel : "procurar", method : "GET", href: "http://" + req.headers.host + versao + "/termos/" + val._key},
+             {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + versao + "/termos/" + val._key},
+             {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + versao + "/termos/" + val._key}
            ]
            res.status(201).json(val).end()
          }, err => {
@@ -33,8 +35,8 @@ module.exports = function (app) {
          .then(val => {
            var links = {
              _links : [
-                 {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/termos"},
-                 {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/termos"}
+                 {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/termos"},
+                 {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/termos"}
              ]
            };
            val.push(links);
@@ -48,9 +50,9 @@ module.exports = function (app) {
      dbTermo.document(id)
      .then(val => {
        val._links = [
-         {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/termos"},
-         {rel : "editar", method: "PUT", href: "http://" + req.headers.host + "/termos/" + val._key},
-         {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/termos/" + val._key}
+         {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/termos"},
+         {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/termos/" + val._key},
+         {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/termos/" + val._key}
        ]
        res.status(200).json(val).end()
      }, err => {
@@ -59,19 +61,18 @@ module.exports = function (app) {
    };
 
    termo.editar = function (req,res) {
-      var id = req.params.id;
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if (result.error!=null) {
          res.status(400).json(result.error);
       } else {
-         dbTermo.update(id,dados)
+         dbTermo.update(dados._key,dados)
          .then(val => {
            val._links = [
-             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/termos"},
-             {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/termos"},
-             {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/termos/" + id},
-             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/termos/" + id}
+             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/termos"},
+             {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/termos"},
+             {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/termos/" + dados._key},
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/termos"}
            ]
            res.status(200).json(val).end()
          }, err => {
@@ -81,12 +82,12 @@ module.exports = function (app) {
    };
 
    termo.deletar = function (req,res) {
-     var id = req.params.id;
-     dbTermo.remove(id)
+     var dados = req.body;
+     dbTermo.remove(dados.id)
      .then(val => {
        val.links = [
-         {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/termos"},
-         {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/termos"}
+         {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/termos"},
+         {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/termos"}
        ]
        res.status(200).json(val).end()
      }, err => {

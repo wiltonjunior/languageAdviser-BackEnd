@@ -1,10 +1,13 @@
 module.exports = function (app) {
    var nivel = app.controller.nivel;
+   var auth = app.get("auth");
 
-   app.post("/niveis",nivel.salvar);
-   app.post("/niveis/imagem/:id",nivel.imagem);
-   app.get("/niveis",nivel.listar);
-   app.get("/niveis/:id",nivel.listarNivel);
-   app.put("/niveis/:id",nivel.editar);
-   app.delete("/niveis/:id",nivel.deletar);
+   var versao = "/v1";
+
+   app.post(versao + "/niveis", auth.authenticate(), nivel.salvar);
+   app.post(versao + "/niveis/imagem/:id", auth.authenticate(), nivel.imagem);
+   app.get(versao + "/niveis", auth.authenticate(), nivel.listar);
+   app.get(versao + "/niveis/:id", auth.authenticate(), nivel.listarNivel);
+   app.put(versao + "/niveis", auth.authenticate(), nivel.editar);
+   app.delete(versao + "/niveis", auth.authenticate(), nivel.deletar);
 }

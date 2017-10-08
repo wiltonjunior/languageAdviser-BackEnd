@@ -6,289 +6,83 @@ module.exports = function (app) {
 
    var usuario = {};
 
+   var versao = "/v1";
+
    usuario.salvar = function (req,res) {
       var dados = req.body;
-      db.query("FOR usuario IN usuario FILTER usuario._key == @id RETURN usuario",{'id' : dados._key})
-      .then(cursor => {
-         cursor.next()
-         .then(val => {
-            if(val==null) {
-              var result = Joi.validate(dados,model);
-              if(result.error!=null) {
-                res.status(400).json(result.error);
-              }
-              else {
-                dbUsuario.save(dados)
-                .then(val => {
-                  val._links = [
-                    {rel : "listar", method : "GET", href: "http://" + req.headers.host + "/usuarios"},
-                    {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/usuarios/" + val._key}
-                  ]
-                  res.status(200).json(val).end()
-                }, err => {
-                  res.status(500).json(err).end()
-                })
-              }
-            }
-            else {
-              var valor = Array.isArray(val.idIdioma);
-              if(valor==true) {
-                var pos = val.idIdioma.indexOf(dados.idIdioma);
-                if(pos>=0) {
-                  var resposta = {"mensagem" : "Idioma já esta sendo estudando"};
-                  res.status(409).json(resposta);
-                }
-                else {
-                  var update = [];
-                  var i;
-                  for(i=0;i<val.idIdioma.length;i++) {
-                    update.push(val.idIdioma[i]);
-                  }
-                  update.push(dados.idIdioma);
-                  dados.idIdioma = update;
-                  dbUsuario.update(dados._key,dados)
-                  .then(val => {
-                     val._links = [
-                       {rel : "listar", method : "GET", href: "http://" + req.headers.host + "/usuarios"},
-                       {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/usuarios/" + val._key}
-                     ]
-                     res.status(200).json(val).end()
-                  }, err => {
-                     res.status(500).json(err).end()
-                  })
-                }
-              }
-              else {
-                if(val.idIdioma==dados.idIdioma) {
-                   var resposta = {"mensagem" : "Idioma já esta sendo estudando"};
-                   res.status(409).json(resposta);
-                }
-                else {
-                  var update = [];
-                  update.push(val.idIdioma);
-                  update.push(dados.idIdioma);
-                  dados.idIdioma = update;
-                  dbUsuario.update(dados._key,dados)
-                  .then(val => {
-                     val._links = [
-                       {rel : "listar", method : "GET", href: "http://" + req.headers.host + "/usuarios"},
-                       {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/usuarios/" + val._key}
-                     ]
-                     res.status(200).json(val).end()
-                  }, err => {
-                     res.status(500).json(err).end()
-                  })
-                }
-              }
-            }
-         })
-      })
-   };
+      var result = Joi.validate(dados,model);
 
-   usuario.login = async function(req,res) {
-      var dados = req.body;
-      var aluno =  await alunoLogin(db,dados);
-      if (aluno==null) {
-         var autor = await autorLogin(db,dados);
-         if(autor==null) {
-           var administrador = await administradorLogin(db,dados);
-           if (administrador==null) {
-              var resposta = {"mensagem" : "Usuario não encontrado"};
-              resposta._links = [
-                {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/alunos"},
-                {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/autores"},
-                {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/administradores"}
-              ]
-              res.status(404).json(resposta).end()
-           }
-           else {
-             administrador._links = [
-               {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/alunos"},
-               {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/autores"},
-               {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/administradores"}
-             ]
-             res.status(200).json(administrador).end()
-           }
-         }
-         else {
-           var googleMaps = req.app.get("googleMaps");
-           if(dados.latitude==0&&dados.longitude==0) {
-             autor._links = [
-               {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/alunos"},
-               {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/autores"},
-               {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/administradores"}
-             ]
-             res.status(200).json(autor).end()
-           }
-           else {
-             googleMaps.reverseGeocode({
-               latlng : {lat: dados.latitude, lng: dados.longitude}
-             }, function (err,result) {
-                if (err) {
-                   res.status(200).json(autor).end()
-                }
-                else {
-                  var pais;
-                  var estado;
-                  var cidade;
-                  for(var i = 0; i < result.json.results[0].address_components.length; i++) {
-                     if (result.json.results[0].address_components[i].types[0] == "administrative_area_level_2") {
-                        cidade = result.json.results[0].address_components[i].long_name;
-                     }
-                     if (result.json.results[0].address_components[i].types[0] == "administrative_area_level_1") {
-                        estado = result.json.results[0].address_components[i].long_name;
-                     }
-                     if (result.json.results[0].address_components[i].types[0] == "country") {
-                        pais = result.json.results[0].address_components[i].long_name;
-                     }
-                  }
-                  if(autor.usuario!=null) {
-                     autor.autor.pais = pais;
-                     autor.autor.estado = estado;
-                     autor.autor.cidade = cidade;
-                  }
-                  else {
-                    autor.pais = pais;
-                    autor.estado = estado;
-                    autor.cidade = cidade;
-                  }
-                  autor._links = [
-                    {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/alunos"},
-                    {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/autores"},
-                    {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/administradores"}
-                  ]
-                  res.status(200).json(autor).end()
-                }
-             })
-           }
-         }
+      if(result.error!=null) {
+        res.status(404).json(result.error);
       }
       else {
-        var googleMaps = req.app.get("googleMaps");
-        if (dados.latitude==0&&dados.longitude==0) {
-          aluno._links = [
-            {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/alunos"},
-            {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/autores"},
-            {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/administradores"}
-          ]
-          res.status(200).json(aluno).end()
-        }
-        else {
-          googleMaps.reverseGeocode({
-            latlng : {lat: dados.latitude, lng: dados.longitude}
-          }, function (err,result) {
-             if (err) {
-                res.status(200).json(autor).end()
-             }
-             else {
-               var pais;
-               var estado;
-               var cidade;
-               for(var i = 0; i < result.json.results[0].address_components.length; i++) {
-                  if (result.json.results[0].address_components[i].types[0] == "administrative_area_level_2") {
-                     cidade = result.json.results[0].address_components[i].long_name;
-                  }
-                  if (result.json.results[0].address_components[i].types[0] == "administrative_area_level_1") {
-                     estado = result.json.results[0].address_components[i].long_name;
-                  }
-                  if (result.json.results[0].address_components[i].types[0] == "country") {
-                     pais = result.json.results[0].address_components[i].long_name;
-                  }
-               }
-               if(aluno.usuario!=null) {
-                 aluno.aluno.pais = pais;
-                 aluno.aluno.estado = estado;
-                 aluno.aluno.cidade = cidade;
-               }
-               else {
-                 aluno.pais = pais;
-                 aluno.estado = estado;
-                 aluno.cidade = cidade;
-               }
-               aluno._links = [
-                 {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/alunos"},
-                 {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/autores"},
-                 {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/administradores"}
-               ]
-               res.status(200).json(aluno).end()
-             }
-          })
-        }
+        dados.caminhoImagem = "/imagem/usuario.jpg";
+        dados.status = 1;
+        dbUsuario.save(dados)
+        .then(val => {
+           val._links = [
+             {rel : "procurar", method : "GET", href: "http://" + req.headers.host + versao + "/usuarios/" + val._key},
+             {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + versao + "/usuarios/" + val._key},
+             {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + versao + "/usuarios/" + val._key}
+           ]
+           res.status(201).json(val).end()
+        }, err => {
+           res.status(500).json(err).end()
+        })
       }
    };
 
-   async function alunoLogin(db,dados) {
-       var resultado = await db.query("FOR aluno IN aluno FOR usuario IN usuario FILTER aluno.emailAluno == @email and aluno.senhaAluno == @senha and aluno._key == usuario._key RETURN {aluno,usuario}",{'email' : dados.email,'senha' : dados.senha});
-       if(resultado._result[0]==null) {
-          resultado = await db.query("FOR aluno IN aluno FILTER aluno.emailAluno == @email and aluno.senhaAluno == @senha RETURN aluno",{'email' : dados.email,'senha' : dados.senha});
-          return resultado._result[0];
-       }
-       else {
-          var aluno = resultado._result[0];
-          var valor = Array.isArray(aluno.usuario.idIdioma);
-          if(valor==true) {
-            var idioma = [];
-            var i;
-            for(i=0;i<aluno.usuario.idIdioma.length;i++) {
-               var rtr = await db.query("FOR idioma IN idioma FILTER idioma._key == @id RETURN idioma",{'id' : aluno.usuario.idIdioma[i]});
-               idioma.push(rtr._result[0]);
-            }
-            aluno.usuario.idIdioma = idioma;
-            return aluno;
-          }
-          else {
-            var idioma;
-            idioma = await db.query("FOR idioma IN idioma FILTER idioma._key == @id RETURN idioma",{'id' : aluno.usuario.idIdioma});
-            aluno.usuario.idIdioma = idioma._result[0];
-            return aluno;
-          }
-       }
+   usuario.imagem = function (req,res) {
+     var id = req.params.id;
+     var fs = app.get("fs");
+     var formidable = app.get("formidable");
+     var hasha = app.get("hasha");
+     var path = app.get("path");
+
+     var form = new formidable.IncomingForm();
+     form.parse(req,function (err,fields,files) {
+        var oldpath = files.photo.path;
+        var hash = hasha.fromFileSync(oldpath,{algorithm : "md5"});
+        var tipo = path.extname(files.photo.name);
+        var imagem = hash + tipo;
+        var newpath = "./public/imagem/usuario/" + imagem;
+        fs.rename(oldpath,newpath,function (err) {
+           if(err) {
+              res.status(500).json(err);
+           }
+           else {
+              var caminhoImagem = "/imagem/usuario/" + imagem;
+              dbUsuario.update(id,{'caminhoImagem' : caminhoImagem})
+              .then(val => {
+                 var respostaImagem = {
+                   "caminhoImagem" : caminhoImagem
+                 }
+                 respostaImagem._links = [
+                   {rel : "adicionar", method: "POST", href:"http://" + req.headers.host + versao + "/usuarios"},
+                   {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/usuarios"},
+                   {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/usuarios/" + id},
+                   {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/usuarios/" + id}
+                 ]
+                 res.status(200).json(respostaImagem).end()
+              }, err => {
+                 res.status(500).json(err).end()
+              })
+           }
+        });
+     });
    };
 
-   async function autorLogin(db,dados) {
-      var resultado = await db.query("FOR autor IN autor FOR usuario IN usuario FILTER autor.emailAutor == @email and autor.senhaAutor == @senha and autor._key == usuario._key RETURN {autor,usuario}",{'email' : dados.email,'senha' : dados.senha});
-      if (resultado._result[0]==null) {
-         resultado = await db.query("FOR autor IN autor FILTER autor.emailAutor == @email and autor.senhaAutor == @senha RETURN autor",{'email' : dados.email,'senha' : dados.senha});
-         return resultado._result[0];
-      }
-      else {
-        var autor = resultado._result[0];
-        var valor = Array.isArray(autor.usuario.idIdioma);
-        if(valor==true) {
-          var idioma = [];
-          var i;
-          for(i=0;i<autor.usuario.idIdioma.length;i++) {
-             var rtr = await db.query("FOR idioma IN idioma FILTER idioma._key == @id RETURN idioma",{'id' : autor.usuario.idIdioma[i]});
-             idioma.push(rtr._result[0]);
-          }
-          autor.usuario.idIdioma = idioma;
-          return autor;
-        }
-        else {
-          var idioma;
-          idioma = await db.query("FOR idioma IN idioma FILTER idioma._key == @id RETURN idioma",{'id' : autor.usuario.idIdioma});
-          autor.usuario.idIdioma = idioma._result[0];
-          return autor;
-        }
-      }
-   };
-
-   async function administradorLogin(db,dados) {
-     var resultado = await db.query("FOR administrador IN administrador FILTER administrador.emailAdministrador == @email and administrador.senhaAdministrador == @senha RETURN administrador",{'email' : dados.email,'senha' : dados.senha});
-     return resultado._result[0];
-   };
-
-  usuario.listar = function (req,res) {
+   usuario.listar = function (req,res) {
       dbUsuario.all()
       .then(cursor => {
          cursor.all()
          .then(val => {
             var links = {
               _links : [
-                   {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/usuarios"},
-                   {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/usuarios"}
+                {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/usuarios"},
+                {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/usuarios"}
               ]
-            };
+            }
             val.push(links);
             res.status(200).json(val).end()
          })
@@ -296,56 +90,52 @@ module.exports = function (app) {
    };
 
    usuario.listarUsuario = function (req,res) {
-     var id = req.params.id;
-     db.query("FOR aluno IN aluno FILTER aluno._key == @id RETURN aluno",{'id' : id})
-     .then(cursor => {
-        cursor.next()
-        .then(val => {
-           if (val==null) {
-             db.query("FOR autor IN autor FILTER autor._key == @id RETURN autor",{'id' : id})
-             .then(cursor => {
-                cursor.next()
-                .then(val => {
-                   if (val==null) {
-                      var resposta = {'mensagem' : 'Usuário não encontrado'};
-                      resposta._links = [
-                        {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/alunos"},
-                        {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/autores"}
-                      ]
-                      res.status(404).json(resposta);
-                   } else {
-                      val._links = [
-                        {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/alunos"},
-                        {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/autores"}
-                      ]
-                      res.status(200).json(val).end()
-                   }
-                })
-             })
-           } else {
-             val._links = [
-               {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/alunos"},
-               {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/autores"}
-             ]
-             res.status(200).json(val).end()
-           }
-        })
-     })
+      var id = req.params.id;
+      dbUsuario.document(id)
+      .then(val => {
+         val.links = [
+           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/usuarios"},
+           {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/usuarios/" + val._key},
+           {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/usuarios/" + val._key}
+         ]
+         res.status(200).json(val).end()
+      }, err => {
+         res.status(500).json(err).end()
+      })
    };
 
-   usuario.listarIdioma = function (req,res) {
+   usuario.avaliacao = function (req,res) {
       var id = req.params.id;
-      var resposta;
-      db.query("LET usuario = (FOR usuario IN usuario FILTER usuario._key == @id RETURN usuario.idIdioma) FOR idioma IN idioma FOR u IN usuario FILTER idioma._key == u or idioma._key IN u RETURN idioma",{'id' : id})
+      db.query("FOR usuario IN usuario FOR licao IN licao FILTER usuario._key == @id and licao.idUsuario == usuario._key COLLECT nomeUsuario = usuario.nomeUsuario AGGREGATE md = SUM(licao.avaliacao), tt = length(licao) RETURN {'nomeUsuario' : nomeUsuario,'Media' : md/tt, 'Total' : tt}",{'id' : id})
+      .then(cursor => {
+         cursor.next()
+         .then(val => {
+            if(val==null) {
+               val = {
+                  "Media" : 0,
+                  "Total" : 0
+               }
+            }
+            val.links = [
+              {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + versao + "/usuarios"},
+              {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + versao + "/usuarios"}
+            ]
+            res.status(200).json(val).end()
+         })
+      })
+   };
+
+   usuario.ranking = function (req,res) {
+      db.query("FOR usuario IN usuario FOR licao IN licao FILTER licao.idUsuario == usuario._key COLLECT idUsuario = usuario._key, nomeUsuario = usuario.nomeUsuario, caminhoImagem = usuario.caminhoImagem AGGREGATE md = SUM(licao.avaliacao), tt = length(licao) RETURN {'nomeUsuario' : nomeUsuario, 'Media' : md/tt, 'Total' : tt, 'caminhoImagem' : caminhoImagem}")
       .then(cursor => {
          cursor.all()
          .then(val => {
             var links = {
-              _links : [
-                {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + "/usuarios"},
-                {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + "/usuarios"}
-              ]
-            };
+               _links : [
+                 {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + versao + "/usuarios"},
+                 {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + versao + "/usuarios"}
+               ]
+            }
             val.push(links);
             res.status(200).json(val).end()
          })
@@ -353,79 +143,35 @@ module.exports = function (app) {
    };
 
    usuario.editar = function (req,res) {
-      var id = req.params.id;
       var dados = req.body;
       var result = Joi.validate(dados,model);
+
       if(result.error!=null) {
          res.status(400).json(result.error);
       }
       else {
-         db.query("FOR usuario IN usuario FILTER usuario._key == @id RETURN usuario",{'id' : id})
-         .then(cursor => {
-            cursor.next()
-            .then(val => {
-                var valor = Array.isArray(val.idIdioma);
-                if (valor==true) {
-                   var pos = val.idIdioma.indexOf(dados.idIdioma);
-                   if(pos>=0) {
-                      var update = [];
-                      var i;
-                      for(i=0;i<val.idIdioma.length;i++) {
-                         update.push(val.idIdioma[i]);
-                      }
-                      update.splice(pos,1);
-                      if(update.length==1) {
-                        dados.idIdioma = update[0];
-                      }
-                      else {
-                        dados.idIdioma = update;
-                      }
-                      dbUsuario.update(dados._key,{'idIdioma' : dados.idIdioma})
-                      .then(val => {
-                        val._links = [
-                          {rel : "listar", method : "GET", href: "http://" + req.headers.host + "/usuarios"},
-                          {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/usuarios/" + val._key}
-                        ]
-                        res.status(200).json(val).end()
-                      }, err => {
-                        res.status(500).json(err).end()
-                      })
-                   }
-                   else {
-                      var resposta = {"mensagem" : "Idioma não esta sendo estudando"};
-                      res.status(200).json(resposta);
-                   }
-                }
-                else {
-                   if(val.idIdioma == dados.idIdioma) {
-                       dbUsuario.remove(dados._key)
-                       .then(val => {
-                         val._links = [
-                           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/usuarios"},
-                           {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/usuarios"}
-                         ]
-                         res.status(200).json(val).end()
-                       }, err => {
-                         res.status(500).json(err).end()
-                       })
-                   }
-                   else {
-                     var resposta = {"mensagem" : "Idioma não esta sendo estudando"};
-                     res.status(200).json(resposta);
-                   }
-                }
-            })
+         dbUsuario.update(dados._key,dados)
+         .then(val => {
+            val.links = [
+              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/usuarios"},
+              {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/usuarios"},
+              {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/usuarios/" + dados._key},
+              {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/usuarios"}
+            ]
+            res.status(200).json(val).end()
+         }, err => {
+            res.status(500).json(err).end()
          })
       }
    };
 
    usuario.deletar = function (req,res) {
-      var id = req.params.id;
-      dbUsuario.remove(id)
+      var dados = req.body;
+      dbUsuario.remove(dados.id)
       .then(val => {
-         val._links = [
-           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/usuarios"},
-           {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/usuarios"}
+         val.links = [
+           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/usuarios"},
+           {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/usuarios"}
          ]
          res.status(200).json(val).end()
       }, err => {
@@ -433,5 +179,7 @@ module.exports = function (app) {
       })
    }
 
+
    return usuario;
+
 }

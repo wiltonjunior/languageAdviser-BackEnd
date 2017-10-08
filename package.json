@@ -20,6 +20,9 @@
     "fs": "0.0.1-security",
     "hasha": "^3.0.0",
     "joi": "^10.6.0",
-    "method-override": "^2.3.9"
+    "jwt-simple": "^0.5.1",
+    "method-override": "^2.3.9",
+    "passport": "^0.4.0",
+    "passport-jwt": "^3.0.0"
   }
 }

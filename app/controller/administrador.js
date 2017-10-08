@@ -6,6 +6,8 @@ module.exports = function (app) {
 
    var administrador = {};
 
+   var versao = "/v1";
+
    administrador.salvar = function (req,res) {
       var dados = req.body;
       var result = Joi.validate(dados,model);
@@ -13,13 +15,13 @@ module.exports = function (app) {
          res.status(400).json(result.error);
       } else {
          dados.caminhoImagem = "/imagem/usuario.jpg";
-         dados.status = 3;
+         dados.status = 2;
          dbAdministrador.save(dados)
          .then(val => {
             val._links = [
-              {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/administradores/" + val._key},
-              {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/administradores/" + val._key},
-              {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/administradores/" + val._key}
+              {rel : "procurar", method : "GET", href: "http://" + req.headers.host + versao + "/administradores" + val._key},
+              {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + versao + "/administradores"},
+              {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + versao + "/administradores"}
             ]
             res.status(201).json(val).end()
          }, err => {
@@ -53,10 +55,10 @@ module.exports = function (app) {
                    "caminhoImagem" : caminhoImagem
                  }
                  respostaImagem._links = [
-                   {rel : "adicionar", method: "POST", href:"http://" + req.headers.host + "/administradores"},
-                   {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/administradores"},
-                   {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/administradores/" + id},
-                   {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/administradores/" + id}
+                   {rel : "adicionar", method: "POST", href:"http://" + req.headers.host + versao + "/administradores"},
+                   {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/administradores"},
+                   {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/administradores/" + id},
+                   {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/administradores"}
                  ]
                  res.status(200).json(respostaImagem).end()
               }, err => {
@@ -74,8 +76,8 @@ module.exports = function (app) {
          .then(val => {
             var links = {
               _links : [
-                  {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/administradores"},
-                  {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/administradores"}
+                  {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/administradores"},
+                  {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/administradores"}
                 ]
             };
             val.push(links);
@@ -89,9 +91,9 @@ module.exports = function (app) {
      dbAdministrador.document(id)
      .then(val => {
         val._links = [
-          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/administradores"},
-          {rel : "editar", method: "PUT", href: "http://" + req.headers.host + "/administradores/" + val._key},
-          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/administradores/" + val._key}
+          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/administradores"},
+          {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/administradores"},
+          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/administradores"}
         ]
         res.status(200).json(val).end()
      }, err => {
@@ -100,19 +102,18 @@ module.exports = function (app) {
    };
 
    administrador.editar = function (req,res) {
-     var id = req.params.id;
      var dados = req.body;
      var result = Joi.validate(dados,model);
      if (result.error!=null) {
        res.status(400).json(result.error);
      } else {
-        dbAdministrador.update(id,dados)
+        dbAdministrador.update(dados._key,dados)
         .then(val => {
            val._links = [
-             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/administradores"},
-             {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/administradores"},
-             {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/administradores/" + id},
-             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/administradores/" + id}
+             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/administradores"},
+             {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/administradores"},
+             {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/administradores/" + dados._key},
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/administradores"}
            ]
            res.status(200).json(val).end()
         }, err => {
@@ -122,12 +123,12 @@ module.exports = function (app) {
   };
 
    administrador.deletar = function (req,res) {
-      var id = req.params.id;
-      dbAdministrador.remove(id)
+      var dados = req.body;
+      dbAdministrador.remove(dados.id)
       .then(val => {
          val._links = [
-           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/administradores"},
-           {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/administradores"}
+           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/administradores"},
+           {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/administradores"}
          ]
          res.status(200).json(val).end()
       }, err => {

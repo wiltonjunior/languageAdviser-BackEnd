@@ -1,9 +1,12 @@
 module.exports = function (app) {
    var termos = app.controller.termos;
+   var auth = app.get("auth");
 
-   app.post("/termos", termos.salvar);
-   app.get("/termos", termos.listar);
-   app.get("/termos/:id", termos.listarTermo);
-   app.put("/termos/:id", termos.editar);
-   app.delete("/termos/:id", termos.deletar);
+   var versao = "/v1";
+
+   app.post(versao + "/termos", auth.authenticate(), termos.salvar);
+   app.get(versao + "/termos", auth.authenticate(), termos.listar);
+   app.get(versao + "/termos/:id", auth.authenticate(), termos.listarTermo);
+   app.put(versao + "/termos", auth.authenticate(), termos.editar);
+   app.delete(versao + "/termos", auth.authenticate(), termos.deletar);
 }

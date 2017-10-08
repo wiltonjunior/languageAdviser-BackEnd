@@ -6,6 +6,8 @@ module.exports = function (app) {
 
    var empresa = {};
 
+   var versao = "/v1";
+
    empresa.salvar = async function (req,res) {
       var dados = req.body;
       var result = Joi.validate(dados,model);
@@ -44,9 +46,9 @@ module.exports = function (app) {
    async function salvarEmpresa(req,dados) {
       var resultados = await dbEmpresa.save(dados);
       resultados._links = [
-        {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/empresas/" + resultados._key},
-        {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/empresas/" + resultados._key},
-        {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/empresas/" + resultados._key}
+        {rel : "procurar", method : "GET", href: "http://" + req.headers.host + versao + "/empresas/" + resultados._key},
+        {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + versao + "/empresas/" + resultados._key},
+        {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + versao + "/empresas/" + resultados._key}
       ];
       return resultados;
    }
@@ -58,8 +60,8 @@ module.exports = function (app) {
         .then(val => {
           var links = {
             _links : [
-              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/empresas"},
-              {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/empresas"}
+              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/empresas"},
+              {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/empresas"}
             ]
           };
           val.push(links);
@@ -73,9 +75,9 @@ module.exports = function (app) {
       dbEmpresa.document(id)
       .then(val => {
         val._links = [
-          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/empresas"},
-          {rel : "editar", method: "PUT", href: "http://" + req.headers.host + "/empresas/" + val._key},
-          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/empresas/" + val._key}
+          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/empresas"},
+          {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/empresas/" + val._key},
+          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/empresas/" + val._key}
         ]
         res.status(200).json(val).end()
       }, err => {
@@ -84,7 +86,6 @@ module.exports = function (app) {
    };
 
    empresa.editar = function (req,res) {
-      var id = req.params.id;
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if(result.error!=null) {
@@ -96,7 +97,7 @@ module.exports = function (app) {
           address : dados.cidade + "," + dados.estado + "," + dados.pais
         }, async function (err,result) {
             if(err) {
-              var resultado = await editarEmpresa(req,id,dados);
+              var resultado = await editarEmpresa(req,dados);
               if(resultado==null) {
                 res.status(500).json();
               }
@@ -107,7 +108,7 @@ module.exports = function (app) {
             else {
               dados.latitude = result.json.results[0].geometry.location.lat;
               dados.longitude = result.json.results[0].geometry.location.lng;
-              var resultado = await editarEmpresa(req,id,dados);
+              var resultado = await editarEmpresa(req,dados);
               if(resultado==null) {
                 res.status(500).json();
               }
@@ -119,24 +120,24 @@ module.exports = function (app) {
       }
    };
 
-   async function editarEmpresa(req,id,dados) {
-      var resultados = await dbEmpresa.update(id,dados);
+   async function editarEmpresa(req,dados) {
+      var resultados = await dbEmpresa.update(dados._key,dados);
       resultados._links = [
-        {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/empresas"},
-        {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/empresas"},
-        {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/empresas/" + id},
-        {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/empresas/" + id}
+        {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/empresas"},
+        {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/empresas"},
+        {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/empresas/" + dados._key},
+        {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/empresas"}
       ];
       return resultados;
    }
 
    empresa.deletar = function (req,res) {
-      var id = req.params.id;
-      dbEmpresa.remove(id)
+      var dados = req.body;
+      dbEmpresa.remove(dados.id)
       .then(val => {
         val._links = [
-          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/empresas"},
-          {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/empresas"}
+          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/empresas"},
+          {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/empresas"}
         ]
         res.status(200).json(val).end()
       }, err => {

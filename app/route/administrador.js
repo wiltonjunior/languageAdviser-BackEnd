@@ -1,10 +1,13 @@
 module.exports = function (app) {
    var administrador = app.controller.administrador;
+   var auth = app.get("auth");
 
-   app.post("/administradores",administrador.salvar);
-   app.post("/administradores/imagem/:id",administrador.imagem);
-   app.get("/administradores",administrador.listar);
-   app.get("/administradores/:id",administrador.listarAdministrador);
-   app.put("/administradores/:id",administrador.editar);
-   app.delete("/administradores/:id",administrador.deletar);
+   var versao = "/v1";
+
+   app.post(versao + "/administradores", auth.authenticate(), administrador.salvar);
+   app.post(versao + "/administradores/imagem/:id",auth.authenticate(), administrador.imagem);
+   app.get(versao + "/administradores",auth.authenticate(), administrador.listar);
+   app.get(versao + "/administradores/:id",auth.authenticate(), administrador.listarAdministrador);
+   app.put(versao + "/administradores",auth.authenticate(), administrador.editar);
+   app.delete(versao + "/administradores",auth.authenticate(), administrador.deletar);
 }

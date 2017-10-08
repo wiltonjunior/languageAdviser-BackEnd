@@ -7,8 +7,10 @@ var fs = require("fs");
 var formidable = require("formidable");
 var hasha = require("hasha");
 var path = require("path");
+var jwt = require("jwt-simple");
 const database = require("./database")();
 const googleMaps = require("./googleMaps")();
+const auth = require("./auth")();
 
 module.exports = function () {
   var app = express();
@@ -23,12 +25,15 @@ module.exports = function () {
   app.set("googleMaps",googleMaps);
   app.set("view engine","ejs");
   app.set("views","./app/view");
+  app.set("auth",auth);
+  app.set("jwt",jwt);
 
   app.use(bodyParser.urlencoded({extended:true}));
   app.use(bodyParser.json());
   app.use(require("method-override")());
   app.use(cors());
   app.use(express.static("./public"));
+  app.use(auth.initialize());
 
   app.disable("x-powered-by");
 

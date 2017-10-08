@@ -6,6 +6,8 @@ module.exports = function (app) {
 
    var situacao = {};
 
+   var versao = "/v1";
+
    situacao.salvar = function (req,res) {
       var dados = req.body;
       var result = Joi.validate(dados,model);
@@ -16,9 +18,9 @@ module.exports = function (app) {
          dbSituacao.save(dados)
          .then(val => {
             val._links = [
-              {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/situacoes/" + val._key},
-              {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/situacoes/" + val._key},
-              {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/situacoes/" + val._key}
+              {rel : "procurar", method : "GET", href: "http://" + req.headers.host + versao + "/situacoes/" + val._key},
+              {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + versao + "/situacoes/" + val._key},
+              {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + versao + "/situacoes/" + val._key}
             ]
             res.status(201).json(val).end()
          }, err => {
@@ -54,9 +56,9 @@ module.exports = function (app) {
                   "caminhoImagem" : caminhoImagem
                 }
                 respostaImagem._links = [
-                  {rel : "procurar", method : "GET", href: "http://" + req.headers.host + "/situacoes/" + val._key},
-                  {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + "/situacoes/" + val._key},
-                  {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + "/situacoes/" + val._key}
+                  {rel : "procurar", method : "GET", href: "http://" + req.headers.host + versao + "/situacoes/" + val._key},
+                  {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + versao + "/situacoes/" + val._key},
+                  {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + versao + "/situacoes/" + val._key}
                 ]
                 res.status(200).json(respostaImagem).end()
               }, err => {
@@ -74,8 +76,8 @@ module.exports = function (app) {
          .then(val => {
             var links = {
                _links : [
-                   {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/situacoes"},
-                   {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/situacoes"}
+                   {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/situacoes"},
+                   {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/situacoes"}
                ]
             };
             val.push(links);
@@ -89,9 +91,9 @@ module.exports = function (app) {
       dbSituacao.document(id)
       .then(val => {
          val._links = [
-           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/situacoes"},
-           {rel : "editar", method: "PUT", href: "http://" + req.headers.host + "/situacoes/" + val._key},
-           {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/situacoes/" + val._key}
+           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/situacoes"},
+           {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/situacoes/" + val._key},
+           {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/situacoes/" + val._key}
          ]
          res.status(200).json(val).end()
       }, err => {
@@ -100,20 +102,19 @@ module.exports = function (app) {
    };
 
    situacao.editar = function (req,res) {
-      var id = req.params.id;
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if (result.error!=null) {
          res.status(400).json(result.error);
       }
       else {
-         dbSituacao.update(id,dados)
+         dbSituacao.update(dados._key,dados)
          .then(val => {
             val._links = [
-              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/situacoes"},
-              {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/situacoes"},
-              {rel : "procurar", method: "GET", href: "http://" + req.headers.host + "/situacoes/" + id},
-              {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + "/situacoes/" + id}
+              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/situacoes"},
+              {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/situacoes"},
+              {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/situacoes/" + dados._key},
+              {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/situacoes"}
             ]
             res.status(200).json(val).end()
          }, err => {
@@ -123,12 +124,12 @@ module.exports = function (app) {
    };
 
    situacao.deletar = function (req,res) {
-     var id = req.params.id;
-     dbSituacao.remove(id)
+     var dados = req.body;
+     dbSituacao.remove(dados.id)
      .then(val => {
         val._links = [
-          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + "/situacoes"},
-          {rel : "listar", method: "GET", href: "http://" + req.headers.host + "/situacoes"}
+          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/situacoes"},
+          {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/situacoes"}
         ]
         res.status(200).json(val).end()
      }, err => {
