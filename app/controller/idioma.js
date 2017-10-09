@@ -99,12 +99,13 @@ module.exports = function (app) {
     };
 
     idioma.editar = function (req,res) {
+      var id = req.params.id;
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if (result.error!=null) {
         res.status(400).json(result.error);
       } else {
-        dbIdioma.update(dados._key,dados)
+        dbIdioma.update(id,dados)
         .then(val => {
           val._links = [
             {rel : "procurar", method : "GET", href: "http://" + req.headers.host + versao + "/idiomas/" + val._key},
@@ -119,8 +120,8 @@ module.exports = function (app) {
     };
 
     idioma.deletar = function (req,res) {
-       var dados = req.body;
-       dbIdioma.remove(dados.id)
+       var id = req.params.id;
+       dbIdioma.remove(id)
        .then(val => {
          val._links = [
            {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/idiomas"},

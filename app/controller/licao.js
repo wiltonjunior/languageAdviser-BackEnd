@@ -252,12 +252,13 @@ module.exports = function (app) {
    }
 
    licao.editar = function (req,res) {
+      var id = req.params.id;
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if (result.error!=null) {
          res.status(400).json(result.error).end()
       } else {
-         dbLicao.update(dados._key,dados)
+         dbLicao.update(id,dados)
          .then(val => {
             val._links = [
               {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/licoes"},
@@ -307,8 +308,8 @@ module.exports = function (app) {
    };
 
    licao.deletar = function (req,res) {
-      var dados = req.body;
-      dbLicao.remove(dados.id)
+      var id = req.params.id;
+      dbLicao.remove(id)
       .then(val => {
          val._links = [
            {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/licoes"},

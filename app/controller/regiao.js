@@ -62,13 +62,14 @@ module.exports = function (app) {
    };
 
    regiao.editar = function (req,res) {
+      var id = req.params.id;
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if (result.error!=null) {
          res.status(400).json(result.error);
       }
       else {
-         dbRegiao.update(dados._key,dados)
+         dbRegiao.update(id,dados)
          .then(val => {
            val._links = [
              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/regioes"},
@@ -84,8 +85,8 @@ module.exports = function (app) {
    };
 
    regiao.deletar = function (req,res) {
-      var dados = req.body;
-      dbRegiao.remove(dados.id)
+      var id = req.params.id;
+      dbRegiao.remove(id)
       .then(val => {
         val._links = [
           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/regioes"},

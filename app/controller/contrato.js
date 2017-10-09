@@ -309,12 +309,13 @@ module.exports = function (app) {
    };
 
    contrato.editar = function (req,res) {
+      var id = req.params.id;
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if (result.error!=null) {
          res.status(400).json(result.error);
       } else {
-         dbContrato.update(dados._key,dados)
+         dbContrato.update(id,dados)
          .then(val => {
            val._links = [
              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos"},
@@ -330,8 +331,8 @@ module.exports = function (app) {
    };
 
    contrato.deletar = function (req,res) {
-      var dados = req.body;
-      dbContrato.remove(dados.id)
+      var id = req.params.id;
+      dbContrato.remove(id)
       .then(val => {
         val._links = [
           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos"},

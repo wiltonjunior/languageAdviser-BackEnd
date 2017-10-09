@@ -8,6 +8,6 @@ module.exports = function (app) {
    app.post(versao + "/idiomas/imagem/:id", auth.authenticate(), idioma.imagem);
    app.get(versao + "/idiomas", auth.authenticate(), idioma.listar);
    app.get(versao + "/idiomas/:id", auth.authenticate(), idioma.listarIdioma);
-   app.put(versao + "/idiomas", auth.authenticate(), idioma.editar);
-   app.delete(versao + "/idiomas", auth.authenticate(), idioma.deletar);
+   app.put(versao + "/idiomas/:id", auth.authenticate(), idioma.editar);
+   app.delete(versao + "/idiomas/:id", auth.authenticate(), idioma.deletar);
 }

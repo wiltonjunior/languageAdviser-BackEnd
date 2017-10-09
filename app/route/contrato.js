@@ -17,6 +17,6 @@ module.exports = function (app) {
   app.get(versao + "/contratos/regioes/:idRegiao", auth.authenticate(), contrato.listarRegioes);
   app.put(versao + "/contratos/adicionarTermo", auth.authenticate(), contrato.editarTermo);
   app.put(versao + "/contratos/deletarTermo", auth.authenticate(), contrato.deletarTermo);
-  app.put(versao + "/contratos", auth.authenticate(), contrato.editar);
-  app.delete(versao + "/contratos", auth.authenticate(), contrato.deletar);
+  app.put(versao + "/contratos/:id", auth.authenticate(), contrato.editar);
+  app.delete(versao + "/contratos/:id", auth.authenticate(), contrato.deletar);
 }

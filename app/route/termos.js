@@ -7,6 +7,6 @@ module.exports = function (app) {
    app.post(versao + "/termos", auth.authenticate(), termos.salvar);
    app.get(versao + "/termos", auth.authenticate(), termos.listar);
    app.get(versao + "/termos/:id", auth.authenticate(), termos.listarTermo);
-   app.put(versao + "/termos", auth.authenticate(), termos.editar);
-   app.delete(versao + "/termos", auth.authenticate(), termos.deletar);
+   app.put(versao + "/termos/:id", auth.authenticate(), termos.editar);
+   app.delete(versao + "/termos/:id", auth.authenticate(), termos.deletar);
 }

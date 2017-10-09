@@ -8,6 +8,6 @@ module.exports = function (app) {
    app.post(versao + "/situacoes/imagem/:id", auth.authenticate(), situacao.imagem);
    app.get(versao + "/situacoes", auth.authenticate(), situacao.listar);
    app.get(versao + "/situacoes/:id", auth.authenticate(), situacao.listarSituacao);
-   app.put(versao + "/situacoes", auth.authenticate(), situacao.editar);
-   app.delete(versao + "/situacoes", auth.authenticate(), situacao.deletar);
+   app.put(versao + "/situacoes/:id", auth.authenticate(), situacao.editar);
+   app.delete(versao + "/situacoes/:id", auth.authenticate(), situacao.deletar);
 }

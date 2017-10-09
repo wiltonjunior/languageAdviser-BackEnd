@@ -102,12 +102,13 @@ module.exports = function (app) {
    };
 
    administrador.editar = function (req,res) {
+     var id = req.params.id;
      var dados = req.body;
      var result = Joi.validate(dados,model);
      if (result.error!=null) {
        res.status(400).json(result.error);
      } else {
-        dbAdministrador.update(dados._key,dados)
+        dbAdministrador.update(id,dados)
         .then(val => {
            val._links = [
              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/administradores"},
@@ -123,8 +124,8 @@ module.exports = function (app) {
   };
 
    administrador.deletar = function (req,res) {
-      var dados = req.body;
-      dbAdministrador.remove(dados.id)
+      var id = req.params.id;
+      dbAdministrador.remove(id)
       .then(val => {
          val._links = [
            {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/administradores"},

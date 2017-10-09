@@ -61,12 +61,13 @@ module.exports = function (app) {
    };
 
    termo.editar = function (req,res) {
+      var id = req.params.id;
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if (result.error!=null) {
          res.status(400).json(result.error);
       } else {
-         dbTermo.update(dados._key,dados)
+         dbTermo.update(id,dados)
          .then(val => {
            val._links = [
              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/termos"},
@@ -82,8 +83,8 @@ module.exports = function (app) {
    };
 
    termo.deletar = function (req,res) {
-     var dados = req.body;
-     dbTermo.remove(dados.id)
+     var id = req.params.id;
+     dbTermo.remove(id)
      .then(val => {
        val.links = [
          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/termos"},

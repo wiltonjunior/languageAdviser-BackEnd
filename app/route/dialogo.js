@@ -10,6 +10,6 @@ module.exports = function (app) {
    app.get(versao + "/dialogos/:id", auth.authenticate(), dialogo.listarDialogo);
    app.get(versao + "/dialogos/licao/:id", auth.authenticate(), dialogo.listarLicao)
    app.get(versao + "/dialogos/licoes/:idLicao", auth.authenticate(), dialogo.listarLicoes);
-   app.put(versao + "/dialogos",auth.authenticate(), dialogo.editar);
-   app.delete(versao + "/dialogos",auth.authenticate(), dialogo.deletar);
+   app.put(versao + "/dialogos/:id",auth.authenticate(), dialogo.editar);
+   app.delete(versao + "/dialogos/:id",auth.authenticate(), dialogo.deletar);
 }

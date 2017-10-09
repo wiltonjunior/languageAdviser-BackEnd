@@ -143,6 +143,7 @@ module.exports = function (app) {
    };
 
    usuario.editar = function (req,res) {
+      var id = req.params.id;
       var dados = req.body;
       var result = Joi.validate(dados,model);
 
@@ -150,7 +151,7 @@ module.exports = function (app) {
          res.status(400).json(result.error);
       }
       else {
-         dbUsuario.update(dados._key,dados)
+         dbUsuario.update(id,dados)
          .then(val => {
             val.links = [
               {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/usuarios"},
@@ -166,8 +167,8 @@ module.exports = function (app) {
    };
 
    usuario.deletar = function (req,res) {
-      var dados = req.body;
-      dbUsuario.remove(dados.id)
+      var id = req.params.id;
+      dbUsuario.remove(id)
       .then(val => {
          val.links = [
            {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/usuarios"},

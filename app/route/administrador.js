@@ -8,6 +8,6 @@ module.exports = function (app) {
    app.post(versao + "/administradores/imagem/:id",auth.authenticate(), administrador.imagem);
    app.get(versao + "/administradores",auth.authenticate(), administrador.listar);
    app.get(versao + "/administradores/:id",auth.authenticate(), administrador.listarAdministrador);
-   app.put(versao + "/administradores",auth.authenticate(), administrador.editar);
-   app.delete(versao + "/administradores",auth.authenticate(), administrador.deletar);
+   app.put(versao + "/administradores/:id",auth.authenticate(), administrador.editar);
+   app.delete(versao + "/administradores/:id",auth.authenticate(), administrador.deletar);
 }

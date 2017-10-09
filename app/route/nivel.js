@@ -8,6 +8,6 @@ module.exports = function (app) {
    app.post(versao + "/niveis/imagem/:id", auth.authenticate(), nivel.imagem);
    app.get(versao + "/niveis", auth.authenticate(), nivel.listar);
    app.get(versao + "/niveis/:id", auth.authenticate(), nivel.listarNivel);
-   app.put(versao + "/niveis", auth.authenticate(), nivel.editar);
-   app.delete(versao + "/niveis", auth.authenticate(), nivel.deletar);
+   app.put(versao + "/niveis/:id", auth.authenticate(), nivel.editar);
+   app.delete(versao + "/niveis/:id", auth.authenticate(), nivel.deletar);
 }

@@ -206,8 +206,8 @@ module.exports = function (app) {
    };
 
    estudo.deletar = function (req,res) {
-      var dados = req.body;
-      dbEstudo.remove(dados.id)
+      var id = req.params.id;
+      dbEstudo.remove(id)
       .then(val => {
          val._links = [
            {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/estudos"},

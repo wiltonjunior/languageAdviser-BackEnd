@@ -7,6 +7,6 @@ module.exports = function (app) {
    app.post(versao + "/empresas", auth.authenticate(), empresa.salvar);
    app.get(versao + "/empresas", auth.authenticate(), empresa.listar);
    app.get(versao + "/empresas/:id", auth.authenticate(), empresa.listarEmpresa);
-   app.put(versao + "/empresas", auth.authenticate(), empresa.editar);
-   app.delete(versao + "/empresas", auth.authenticate(), empresa.deletar);
+   app.put(versao + "/empresas/:id", auth.authenticate(), empresa.editar);
+   app.delete(versao + "/empresas/:id", auth.authenticate(), empresa.deletar);
 }

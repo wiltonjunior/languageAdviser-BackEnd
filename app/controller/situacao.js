@@ -102,13 +102,14 @@ module.exports = function (app) {
    };
 
    situacao.editar = function (req,res) {
+      var id = req.params.id;
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if (result.error!=null) {
          res.status(400).json(result.error);
       }
       else {
-         dbSituacao.update(dados._key,dados)
+         dbSituacao.update(id,dados)
          .then(val => {
             val._links = [
               {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/situacoes"},
@@ -124,8 +125,8 @@ module.exports = function (app) {
    };
 
    situacao.deletar = function (req,res) {
-     var dados = req.body;
-     dbSituacao.remove(dados.id)
+     var id = req.params.id;
+     dbSituacao.remove(id)
      .then(val => {
         val._links = [
           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/situacoes"},

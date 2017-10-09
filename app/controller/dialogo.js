@@ -141,12 +141,13 @@ module.exports = function (app) {
    };
 
    dialogo.editar = function (req,res) {
+      var id = req.params.id;
       var dados = req.body;
       var result = Joi.validate(dados,model);
       if (result.error) {
         res.status(400).json(result.error);
       } else {
-        dbDialogo.update(dados._key,dados)
+        dbDialogo.update(id,dados)
         .then(val => {
            val._links = [
              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/dialogos"},
@@ -162,8 +163,8 @@ module.exports = function (app) {
    };
 
    dialogo.deletar = function (req,res) {
-     var dados = req.body;
-     dbDialogo.remove(dados.id)
+     var id = req.params.id;
+     dbDialogo.remove(id)
      .then(val => {
         val._links = [
           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/dialogos"},

@@ -18,6 +18,6 @@ module.exports = function (app) {
     app.get(versao + "/licoes/listar/:idIdioma/:idNivel/:idSituacao", auth.authenticate(), licao.selecionar);
     app.get(versao + "/licoes/estudar/:idLicao&:idUsuario", auth.authenticate(), licao.estudarLicao);
     app.put(versao + "/licoes/avaliacao", auth.authenticate(), licao.editarVotos);
-    app.put(versao + "/licoes", auth.authenticate(), licao.editar);
-    app.delete(versao + "/licoes", auth.authenticate(), licao.deletar);
+    app.put(versao + "/licoes/:id", auth.authenticate(), licao.editar);
+    app.delete(versao + "/licoes/:id", auth.authenticate(), licao.deletar);
 }

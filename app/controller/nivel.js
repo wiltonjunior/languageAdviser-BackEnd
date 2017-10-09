@@ -102,6 +102,7 @@ module.exports = function (app) {
    };
 
    nivel.editar = function (req,res) {
+     var id = req.params.id;
      var dados = req.body;
      var result = Joi.validate(dados,model);
      if (result.error!=null) {
@@ -124,8 +125,8 @@ module.exports = function (app) {
    };
 
    nivel.deletar = function (req,res) {
-     var dados = req.body;
-     dbNivel.remove(dados.id)
+     var id = req.params.id;
+     dbNivel.remove(id)
      .then(val => {
        val._links = [
          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/niveis"},

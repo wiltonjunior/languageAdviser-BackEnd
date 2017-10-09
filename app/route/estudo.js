@@ -8,5 +8,5 @@ module.exports = function (app) {
    app.get(versao + "/estudos", auth.authenticate(), estudo.listar);
    app.get(versao + "/estudos/:id", auth.authenticate(), estudo.listarUsuario);
    app.put(versao + "/estudos", auth.authenticate(), estudo.editar);
-   app.delete(versao + "/estudos", auth.authenticate(), estudo.deletar);
+   app.delete(versao + "/estudos/:id", auth.authenticate(), estudo.deletar);
 }
