@@ -86,8 +86,10 @@ module.exports = function (app) {
       var resultado = await db.query("FOR usuario IN usuario FOR estudo IN estudo FILTER usuario.emailUsuario == @email and usuario.senhaUsuario == @senha and usuario._key == estudo._key RETURN {usuario,estudo}",{'email' : dados.email,'senha' : dados.senha});
       if(resultado._result[0]==null) {
          resultado = await db.query("FOR usuario IN usuario FILTER usuario.emailUsuario == @email and usuario.senhaUsuario == @senha RETURN usuario",{'email' : dados.email,'senha' : dados.senha});
-         var token = "JWT " + jwt.encode(resultado._result[0]._key,"MyS3cr3tK3Y");
-         resultado._result[0].token = token;
+         if(resultado._result[0]!=null) {
+           var token = "JWT " + jwt.encode(resultado._result[0]._key,"MyS3cr3tK3Y");
+           resultado._result[0].token = token;
+         }
          return resultado._result[0];
       }
       else {

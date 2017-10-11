@@ -19,8 +19,8 @@ module.exports = function (app) {
         .then(val => {
            val._links = [
              {rel : "procurar", method : "GET", href: "http://" + req.headers.host + versao + "/contratos/" + val._key},
-             {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + versao + "/contratos"},
-             {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + versao + "/contratos"}
+             {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + versao + "/contratos/" + val._key},
+             {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + versao + "/contratos/" + val._key}
            ]
            res.status(201).json(val).end()
         }, err => {
@@ -99,11 +99,11 @@ module.exports = function (app) {
       .then(val => {
         val._links = [
           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos/"},
-          {rel : "empresa", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/empresa/" + val._key},
-          {rel : "termos", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/termos/" + val._key},
-          {rel : "regiao", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/regiao/" + val._key},
-          {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/contratos"},
-          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/contratos"}
+          {rel : "empresa", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/empresa/" + id},
+          {rel : "termos", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/termos/" + id},
+          {rel : "regiao", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/regiao/" + id},
+          {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/contratos/" + id},
+          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/contratos/" + id}
         ]
         res.status(200).json(val).end()
       }, err => {
@@ -120,8 +120,8 @@ module.exports = function (app) {
            val.links = [
              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos/"},
              {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/"},
-             {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/contratos"},
-             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/contratos"}
+             {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/contratos/" + id},
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/contratos/" + id}
            ]
            res.status(200).json(val).end();
          });
@@ -154,8 +154,8 @@ module.exports = function (app) {
            val._links = [
              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos/"},
              {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/"},
-             {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/contratos"},
-             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/contratos"}
+             {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/contratos/" + id},
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/contratos/" + id}
            ]
            res.status(200).json(val).end();
          });
@@ -232,7 +232,7 @@ module.exports = function (app) {
              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos/"},
              {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/"},
              {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/" + dados._key},
-             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/contratos"}
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/contratos/" + dados._key}
            ]
            res.status(200).json(result).end()
          }
@@ -243,7 +243,7 @@ module.exports = function (app) {
           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos/"},
           {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/"},
           {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/" + dados._key},
-          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/contratos"}
+          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/contratos/" + dados._key}
         ]
         res.status(200).json(result).end()
       }
@@ -300,7 +300,7 @@ module.exports = function (app) {
           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos"},
           {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/"},
           {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos" + dados._key},
-          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/contratos"}
+          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/contratos/" + dados._key}
         ]
         res.status(200).json(val).end()
       }, err => {
@@ -321,7 +321,7 @@ module.exports = function (app) {
              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos"},
              {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos"},
              {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/" + dados._key},
-             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/contratos"}
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/contratos/" + dados._key}
            ]
            res.status(200).json(val).end()
          }, err => {

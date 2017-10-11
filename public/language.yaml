@@ -1,12 +1,10 @@
-swagger: '2.0'
+swagger: "2.0"
 info:
   title: LANGUAGE ADVISER
-  description: >-
-    Documentação da API RESTful do Language Adviser. Nesta Documentação mostra
-    todas as rotas e recursos que estão disponíveis para a API.
+  description: Documentação da API RESTful do Language Adviser. O Language Adviser é uma plataforma colaborativa de ensino de línguas onde as lições são propostas para os estudantes se baseiam no método situacional e utiliza de um marketing implícito. Empresas irão contratar termos que estarão presentes nas lições e os nomes delas que estão relacionadas a esses termos irão aparecer na lição junto com o termo contratado, para o usuário que esteja estudando, dependendo da região em que o usuário está acessando a plataforma. Um termo pode ser comprado por várias empresas dependendo da região em que o contrato foi firmado. 
   version: 1.0.0
 host: languageadviser.com
-basePath: /
+basePath: /v1
 schemes:
   - http
 produces:
@@ -31,7 +29,7 @@ paths:
             $ref: '#/definitions/Erro'
     post:
       summary: Cadastrar Administrador
-      description: Cadastrar Administrador.
+      description: Realizar Cadastro de Administrador.
       parameters:
         - name: Administrador
           in: body
@@ -53,7 +51,7 @@ paths:
           description: Erro inesperado.
           schema:
             $ref: '#/definitions/Erro'
-  '/administradores/imagem/{id}':
+  /administradores/imagem/{id}:
     post:
       summary: Fazer o upload de imagem
       description: Fazer o upload de imagem.
@@ -81,12 +79,10 @@ paths:
           description: Erro inesperado.
           schema:
             $ref: '#/definitions/Erro'
-  '/administradores/{id}':
+  /administradores/{id}:
     get:
       summary: Retorna Dados do Administrador
-      description: >-
-        Por meio do id do Administrador, todas as informações do administrador
-        vão ser mostrada.
+      description: Por meio do id de um Administrador, todas as informações de um determinado administrador vão ser exibida.
       parameters:
         - name: id
           in: path
@@ -106,14 +102,19 @@ paths:
             $ref: '#/definitions/Erro'
     put:
       summary: Atualizar Administrador
-      description: Autalizar dados de um administrador.
+      description: Autalizar dados de um administrador particular.
       parameters:
+        - name: id
+          in: path
+          description: ID Administrador
+          required: true
+          type: integer
         - name: administrador
           in: body
-          description: Informações do Administrador.
+          description: Dados do Administrador.
           required: true
           schema:
-            $ref: '#/definitions/Administrador'
+            $ref: '#/definitions/AdministradorPOST'
       tags:
         - Administradores
       responses:
@@ -131,9 +132,7 @@ paths:
             $ref: '#/definitions/Erro'
     delete:
       summary: Apagar Administrador
-      description: >-
-        Por meio do ID do administrador, o administrador especifico vai ser
-        excluido.
+      description: Por meio do ID do administrador, o administrador especifico vai ser excluido.
       parameters:
         - name: id
           in: path
@@ -151,338 +150,15 @@ paths:
           description: Erro inesperado
           schema:
             $ref: '#/definitions/Erro'
-  /alunos:
-    get:
-      summary: Lista dos Alunos
-      description: Retorna todos os alunos cadastrados.
-      tags:
-        - Alunos
-      responses:
-        '200':
-          description: Uma lista de Alunos.
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Aluno'
-        '500':
-          description: Erro inesperado
-          schema:
-            $ref: '#/definitions/Erro'
-    post:
-      summary: Cadastrar Alunos
-      description: Cadastrar alunos.
-      parameters:
-        - name: Aluno
-          in: body
-          description: Dados para inserir um aluno.
-          schema:
-            $ref: '#/definitions/AlunoPOST'
-      tags:
-        - Alunos
-      responses:
-        '201':
-          description: Operação Confirmada.
-          schema:
-            $ref: '#/definitions/Confirmacao'
-        '400':
-          description: Problema na validação.
-          schema:
-            $ref: '#/definitions/Erro'
-        '500':
-          description: Erro inesperado.
-          schema:
-            $ref: '#/definitions/Erro'
-  '/alunos/imagem/{id}':
-    post:
-      summary: Fazer o upload de imagem
-      description: Fazer o upload de imagem.
-      consumes:
-        - multipart/form-data
-      parameters:
-        - name: id
-          in: path
-          description: ID Aluno
-          required: true
-          type: integer
-        - name: photo
-          in: formData
-          description: Imagem
-          type: file
-          required: true
-      tags:
-        - Alunos
-      responses:
-        '200':
-          description: Operação Confirmada.
-          schema:
-            $ref: '#/definitions/Imagem'
-        '500':
-          description: Erro inesperado.
-          schema:
-            $ref: '#/definitions/Erro'
-  '/alunos/{id}':
-    get:
-      summary: Retorna Dados do Aluno
-      description: 'Por meio do id do Aluno, todas as informações do aluno vão ser mostrada.'
-      parameters:
-        - name: id
-          in: path
-          description: ID Aluno
-          required: true
-          type: integer
-      tags:
-        - Alunos
-      responses:
-        '200':
-          description: Operação Confirmada.
-          schema:
-            $ref: '#/definitions/Aluno'
-        '500':
-          description: Erro inesperado
-          schema:
-            $ref: '#/definitions/Erro'
-    put:
-      summary: Atualizar Aluno
-      description: Autalizar dados de um aluno.
-      parameters:
-        - name: aluno
-          in: body
-          description: Informações do Aluno.
-          required: true
-          schema:
-            $ref: '#/definitions/AlunoPOST'
-      tags:
-        - Alunos
-      responses:
-        '200':
-          description: Operação Confirmada
-          schema:
-            $ref: '#/definitions/Confirmacao'
-        '400':
-          description: Problema na validação.
-          schema:
-            $ref: '#/definitions/Erro'
-        '500':
-          description: Erro inesperado
-          schema:
-            $ref: '#/definitions/Erro'
-    delete:
-      summary: Apagar Aluno
-      description: 'Por meio do ID do Aluno, o aluno especifico vai ser excluido.'
-      parameters:
-        - name: id
-          in: path
-          description: ID do Aluno
-          required: true
-          type: integer
-      tags:
-        - Alunos
-      responses:
-        '200':
-          description: Operação Confirmada
-          schema:
-            $ref: '#/definitions/Confirmacao'
-        '500':
-          description: Erro inesperado
-          schema:
-            $ref: '#/definitions/Erro'
-  /autores:
-    get:
-      summary: Lista dos Autores
-      description: Retorna todos os autores cadastrados.
-      tags:
-        - Autores
-      responses:
-        '200':
-          description: Uma lista de Autores.
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Autor'
-        '500':
-          description: Erro inesperado
-    post:
-      summary: Cadastrar Autor
-      description: Cadastrar autor.
-      parameters:
-        - name: Autor
-          in: body
-          description: Dados para inserir um autor.
-          schema:
-            $ref: '#/definitions/AutorPOST'
-      tags:
-        - Autores
-      responses:
-        '201':
-          description: Operação Confirmada.
-          schema:
-            $ref: '#/definitions/Confirmacao'
-        '400':
-          description: Problema na validação.
-          schema:
-            $ref: '#/definitions/Erro'
-        '500':
-          description: Erro inesperado.
-          schema:
-            $ref: '#/definitions/Erro'
-  '/autores/imagem/{id}':
-    post:
-      summary: Fazer o upload de imagem
-      description: Fazer o upload de imagem.
-      consumes:
-        - multipart/form-data
-      parameters:
-        - name: id
-          in: path
-          description: ID Autor
-          required: true
-          type: integer
-        - name: photo
-          in: formData
-          description: Imagem
-          type: file
-          required: true
-      tags:
-        - Autores
-      responses:
-        '200':
-          description: Operação Confirmada.
-          schema:
-            $ref: '#/definitions/Imagem'
-        '500':
-          description: Erro inesperado.
-          schema:
-            $ref: '#/definitions/Erro'
-  /autores/avaliacao/{id}:
-    get:
-      summary: Avaliação do Autor
-      description: Retorna a avaliação do autor.
-      parameters:
-        - name: id
-          in: path
-          description: ID Autor
-          required: true
-          type: integer
-      tags:
-        - Autores
-      responses:
-        '200':
-          description: Avaliação do autor.
-          schema:
-              $ref: '#/definitions/Ranking'
-        '500':
-          description: Erro inesperado
-  /autores/ranking:
-    get:
-      summary: Avaliações dos autores
-      description: Retorna todas avaliações dos autores.
-      tags:
-        - Autores
-      responses:
-        '200':
-          description: Avaliações dos autores
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Ranking'
-        '500':
-          description: Erro inesperado
-  '/autores/idioma/{id}':
-    get:
-      summary: Retorna idioma do Autor
-      description: Retorna o idioma em que o autor colabora.
-      parameters:
-        - name: id
-          in: path
-          description: ID Autor
-          required: true
-          type: integer
-      tags:
-        - Autores
-      responses:
-        '200':
-          description: Operação Confirmada;
-          schema:
-            $ref: '#/definitions/Idioma'
-        '500':
-          description: Erro inesperado.
-          schema:
-            $ref: '#/definitions/Erro'
-  '/autores/{id}':
-    get:
-      summary: Retorna Dados do Autor
-      description: 'Por meio do id do Autor, todas as informações do autor vão ser mostrada.'
-      parameters:
-        - name: id
-          in: path
-          description: ID Autor
-          required: true
-          type: integer
-      tags:
-        - Autores
-      responses:
-        '200':
-          description: Operação Confirmada.
-          schema:
-            $ref: '#/definitions/Autor'
-        '500':
-          description: Erro inesperado
-          schema:
-            $ref: '#/definitions/Erro'
-    put:
-      summary: Atualizar Autor
-      description: Autalizar dados de um autor.
-      parameters:
-        - name: autor
-          in: body
-          description: Informações do Autor.
-          required: true
-          schema:
-            $ref: '#/definitions/AutorPOST'
-      tags:
-        - Autores
-      responses:
-        '200':
-          description: Operação Confirmada
-          schema:
-            $ref: '#/definitions/Confirmacao'
-        '400':
-          description: Problema na validação.
-          schema:
-            $ref: '#/definitions/Erro'
-        '500':
-          description: Erro inesperado
-          schema:
-            $ref: '#/definitions/Erro'
-    delete:
-      summary: Apagar Autor
-      description: 'Por meio do ID do Autor, o autor especifico vai ser excluido.'
-      parameters:
-        - name: id
-          in: path
-          description: ID do Autor
-          required: true
-          type: integer
-      tags:
-        - Autores
-      responses:
-        '200':
-          description: Operação Confirmada
-          schema:
-            $ref: '#/definitions/Confirmacao'
-        '500':
-          description: Erro inesperado
-          schema:
-            $ref: '#/definitions/Erro'
   /contratos:
     get:
       summary: Lista dos Contratos.
-      description: Retorna todos os contratos cadastrados.
+      description: Retorna todos os contratos cadastrados que foram realizados.
       tags:
         - Contratos
       responses:
         '200':
-          description: Uma lista de Contratos.
+          description: Lista de todos os Contratos já realizados
           schema:
             type: array
             items:
@@ -491,11 +167,11 @@ paths:
           description: Erro inesperado
     post:
       summary: Cadastrar Contrato
-      description: Cadastrar Contrato.
+      description: Realizar Cadastro de Contrato.
       parameters:
         - name: Contrato
           in: body
-          description: Dados para inserir um contrato.
+          description: Dados para inserir contrato.
           schema:
             $ref: '#/definitions/ContratoPOST'
       tags:
@@ -509,10 +185,6 @@ paths:
           description: Problema na validação.
           schema:
             $ref: '#/definitions/Erro'
-        '409':
-          description: Conflito no contrato.
-          schema:
-            $ref: '#/definitions/Erro'
         '500':
           description: Erro inesperado.
           schema:
@@ -520,7 +192,7 @@ paths:
   /contratos/ativo:
     get:
       summary: Retorna Contratos Ativos
-      description: Retorna todos os contratos ativos.
+      description: Retorna todos os contratos ativos que estão atuando no sistema.
       tags:
         - Contratos
       responses:
@@ -537,7 +209,7 @@ paths:
   /contratos/expirado:
     get:
       summary: Retorna Contratos Expirados
-      description: Retorna todos os contratos expirados.
+      description: Retorna todos os contratos expirados que já atuaram no sistema.
       tags:
         - Contratos
       responses:
@@ -554,7 +226,7 @@ paths:
   '/contratos/empresa/{id}':
     get:
       summary: Retorna Empresa do Contrato
-      description: Retorna a Empresa do contrato.
+      description: Retorna a Empresa que esta associado a um contrato.
       parameters:
         - name: id
           in: path
@@ -575,7 +247,7 @@ paths:
   '/contratos/regiao/{id}':
     get:
       summary: Retorna região do contrato
-      description: Retorna região do contrato.
+      description: Retorna região que está associado a um contrato.
       parameters:
         - name: id
           in: path
@@ -596,7 +268,7 @@ paths:
   '/contratos/termos/{id}':
     get:
       summary: Retorna termos do contrato
-      description: Retorna termos do contrato.
+      description: Retorna termos que está associado a um contrato.
       parameters:
         - name: id
           in: path
@@ -617,7 +289,7 @@ paths:
   '/contratos/empresas/{idEmpresa}':
     get:
       summary: Retorna todos os contratos de uma empresa.
-      description: Retorna todos os contratos de uma empresa.
+      description: Retorna todos os contratos que está associado a uma determinada empresa.
       parameters:
         - name: idEmpresa
           in: path
@@ -640,7 +312,7 @@ paths:
   '/contratos/termosContrato/{idTermos}':
     get:
       summary: Retorna todos os contratos de um determinado termo.
-      description: Retorna todos os contratos de um determinado termo.
+      description: Retorna todos os contratos que está associado a um determinado termo.
       parameters:
         - name: idTermos
           in: path
@@ -663,7 +335,7 @@ paths:
   '/contratos/regioes/{idRegiao}':
     get:
       summary: Retorna todos os contratos de uma determinada região.
-      description: Retorna todos os contratos de uma determinada região.
+      description: Retorna todos os contratos que está associado a uma determinada região.
       parameters:
         - name: idRegiao
           in: path
@@ -701,6 +373,10 @@ paths:
           description: Operação Confirmada.
           schema:
             $ref: '#/definitions/Confirmacao'
+        '409':
+          description: Conflito no contrato.
+          schema:
+            $ref: '#/definitions/Erro'    
         '500':
           description: Erro inesperado
           schema:
@@ -752,8 +428,13 @@ paths:
             $ref: '#/definitions/Erro'
     put:
       summary: Atualizar Contrato
-      description: Autalizar dados de um contrato.
+      description: Atualizar dados de um contrato.
       parameters:
+        - name: id
+          in: path
+          description: ID Contrato
+          required: true
+          type: integer
         - name: contrato
           in: body
           description: Informações do Contrato.
@@ -777,7 +458,7 @@ paths:
             $ref: '#/definitions/Erro'
     delete:
       summary: Apagar Contrato
-      description: 'Por meio do ID do contrato, o aluno especifico vai ser excluido.'
+      description: 'Por meio do ID do contrato, o contrato especifico vai ser excluido.'
       parameters:
         - name: id
           in: path
@@ -925,6 +606,11 @@ paths:
       summary: Atualizar Diálogos
       description: Autalizar dados de um diálogo.
       parameters:
+        - name: id
+          in: path
+          description: ID Dialogo
+          required: true
+          type: integer
         - name: dialogo
           in: body
           description: Informações do Dialogo.
@@ -1032,6 +718,11 @@ paths:
       summary: Atualizar Empresa
       description: Autalizar dados de uma empresa.
       parameters:
+        - name: id
+          in: path
+          description: ID Empresa
+          required: true
+          type: integer
         - name: empresa
           in: body
           description: Informações da Empresa.
@@ -1064,6 +755,118 @@ paths:
           type: integer
       tags:
         - Empresas
+      responses:
+        '200':
+          description: Operação Confirmada
+          schema:
+            $ref: '#/definitions/Confirmacao'
+        '500':
+          description: Erro inesperado
+          schema:
+            $ref: '#/definitions/Erro'
+  /estudos:
+    get:
+      summary: Lista de todos os idiomas estudados pelos usuários
+      description: Lista de todos os idiomas estudados pelos usuários.
+      tags:
+        - Estudos
+      responses:
+        '200':
+          description: Lista de idiomas estudados pelos usuários.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Estudo'
+        '500':
+          description: Erro inesperado
+          schema:
+            $ref: '#/definitions/Erro'
+    post:
+      summary: Cadastrar idiomas para os usuários
+      description: Cadastrar idiomas para os usuários.
+      parameters:
+        - name: Estudo
+          in: body
+          description: Dados para inserir um idioma para o usuário.
+          schema:
+            $ref: '#/definitions/EstudoPOST'
+      tags:
+        - Estudos
+      responses:
+        '201':
+          description: Operação Confirmada.
+          schema:
+            $ref: '#/definitions/Confirmacao'
+        '400':
+          description: Problema na validação.
+          schema:
+            $ref: '#/definitions/Erro'
+        '500':
+          description: Erro inesperado.
+          schema:
+            $ref: '#/definitions/Erro'
+  /estudos/{id}:
+    get:
+      summary: Retorna os idiomas estudados por um determinado usuário
+      description: Retorna os idiomas estudados por um determinado usuário.
+      parameters:
+        - name: id
+          in: path
+          description: ID Usuário
+          required: true
+          type: integer
+      tags:
+        - Estudos
+      responses:
+        '200':
+          description: Operação Confirmada.
+          schema:
+            $ref: '#/definitions/Estudo'
+        '500':
+          description: Erro inesperado
+          schema:
+            $ref: '#/definitions/Erro'
+    put:
+      summary: Remover um idioma que um determinado usuário tava estudando
+      description: Remover um idioma que um determinado usuário tava estudando.
+      parameters:
+        - name: id
+          in: path
+          description: ID Usuário
+          required: true
+          type: integer
+        - name: Usuario
+          in: body
+          description: Informações do Usuario
+          required: true
+          schema:
+            $ref: '#/definitions/EstudoPOST'
+      tags:
+        - Estudos
+      responses:
+        '200':
+          description: Operação Confirmada
+          schema:
+            $ref: '#/definitions/Confirmacao'
+        '400':
+          description: Problema na validação.
+          schema:
+            $ref: '#/definitions/Erro'
+        '500':
+          description: Erro inesperado. 
+          schema:
+            $ref: '#/definitions/Erro'
+    delete:
+      summary: Apagar todos os idiomas de estudo de um usuário
+      description: Apagar todos os idiomas de estudo de um usuário.
+      parameters:
+        - name: id
+          in: path
+          description: ID do Usuário
+          required: true
+          type: integer
+      tags:
+        - Estudos
       responses:
         '200':
           description: Operação Confirmada
@@ -1167,6 +970,11 @@ paths:
       summary: Atualizar Idioma
       description: Autalizar dados de um Idioma.
       parameters:
+        - name: id
+          in: path
+          description: ID Idioma
+          required: true
+          type: integer
         - name: idioma
           in: body
           description: Informações do Idioma.
@@ -1218,7 +1026,9 @@ paths:
             items:
               $ref: '#/definitions/Licao'
         '500':
-          description: Erro inesperado
+          description: Erro inesperado.
+          schema:
+            $ref: '#/definitions/Erro'
     post:
       summary: Cadastrar Lição
       description: Cadastrar Lição.
@@ -1243,50 +1053,49 @@ paths:
           description: Erro inesperado.
           schema:
             $ref: '#/definitions/Erro'
-  /licoes/listar:
-    post:
-      summary: Retornar todas as lições aptas.
-      description: 'De acordo com o idioma, nível e a situação as lições serão selecionadas.'
+  /licoes/listar/{idIdioma}/{idNivel}/{idSituacao}:
+    get:
+      summary: Listar lições a partir do id de um idioma, nível e situação.
+      description: Listar lições a partir do id de um idioma, nível e situação.
       parameters:
-        - name: Lição
-          in: body
-          description: Lições
-          schema:
-            $ref: '#/definitions/LicaoSelecionar'
+        - name: idIdioma
+          in: path
+          description: ID Idioma
+          required: true
+          type: integer
+        - name: idNivel
+          in: path
+          description: ID Nivel
+          required: true
+          type: integer
+        - name: idSituacao
+          in: path
+          description: ID Situação
+          required: true
+          type: integer  
       tags:
         - Lições
       responses:
-        '201':
+        '200':
           description: Uma lista de Lições.
           schema:
             type: array
             items:
               $ref: '#/definitions/Licao'
-        '400':
-          description: Problema na validação.
-          schema:
-            $ref: '#/definitions/Erro'
         '500':
-          description: Erro inesperado.
+          description: Erro inesperado    
           schema:
             $ref: '#/definitions/Erro'
-  '/licoes/avaliacao/{idLicao}&{avaliacao}':
-    get:
-      summary: Avaliar a Lição.
-      description: >-
-        Por meio de do idLicao e da avaliação, que contém a nota da Lição, as
-        lições vão ter uma avaliação.
+  '/licoes/avaliacao':
+    put:
+      summary: Avaliar Lição
+      description: Avaliar Lição.
       parameters:
-        - name: idLicao
-          in: path
-          description: ID Lição
-          required: true
-          type: integer
-        - name: avaliacao
-          in: path
-          description: avaliacao
-          required: true
-          type: integer
+        - name: Avaliar Lição
+          in: body
+          description: Avaliar Lição.
+          schema:
+            $ref: '#/definitions/LicaoAvaliacao'
       tags:
         - Lições
       responses:
@@ -1298,10 +1107,10 @@ paths:
           description: Erro inesperado.
           schema:
             $ref: '#/definitions/Erro'
-  '/licoes/autor/{id}':
+  '/licoes/usuario/{id}':
     get:
-      summary: Retorna o Autor da Lição
-      description: Retorna o Autor da Lição.
+      summary: Retorna o Usuário da Lição
+      description: Retorna o Usuário da Lição.
       parameters:
         - name: id
           in: path
@@ -1314,7 +1123,7 @@ paths:
         '200':
           description: Operação Confirmada.
           schema:
-            $ref: '#/definitions/Autor'
+            $ref: '#/definitions/Usuario'
         '500':
           description: Erro inesperado.
           schema:
@@ -1382,12 +1191,12 @@ paths:
           description: Erro inesperado.
           schema:
             $ref: '#/definitions/Erro'
-  '/licoes/autores/{idAutor}':
+  '/licoes/usuarios/{idUsuario}':
     get:
-      summary: Retorna todas as lições de um determinado autor.
-      description: Retorna todas as lições de um determinado autor.
+      summary: Retorna todas as lições de um determinado usuário
+      description: Retorna todas as lições de um determinado usuário.
       parameters:
-        - name: idAutor
+        - name: idUsuario
           in: path
           description: ID Autor
           required: true
@@ -1540,6 +1349,31 @@ paths:
           description: Erro inesperado
           schema:
             $ref: '#/definitions/Erro'
+  /login:
+    post:
+      summary: Login do usuário
+      description: Login do usuário.
+      parameters:
+        - name: Login
+          in: body
+          description: Login
+          schema:
+            $ref: '#/definitions/Login'
+      tags:
+        - Login
+      responses:
+        '200':
+          description: Operação Confirmada.
+          schema:
+            $ref: '#/definitions/Confirmacao'
+        '404':
+          description: Usuário não encontrado.
+          schema:
+            $ref: '#/definitions/Erro'
+        '500':
+          description: Erro inesperado.
+          schema:
+            $ref: '#/definitions/Erro'
   /niveis:
     get:
       summary: Lista de Niveis.
@@ -1632,6 +1466,11 @@ paths:
       summary: Atualizar Nível
       description: Autalizar dados de um nível.
       parameters:
+        - name: id
+          in: path
+          description: ID Nivel
+          required: true
+          type: integer
         - name: nivel
           in: body
           description: Informações do Nível.
@@ -1737,8 +1576,13 @@ paths:
             $ref: '#/definitions/Erro'
     put:
       summary: Atualizar Região
-      description: Autalizar dados de uma região.
+      description: Atualizar dados de uma região.
       parameters:
+        - name: id
+          in: path
+          description: ID Região
+          required: true
+          type: integer
         - name: regiao
           in: body
           description: Informações da Região.
@@ -1874,6 +1718,11 @@ paths:
       summary: Atualizar Situação.
       description: Autalizar dados de uma situação.
       parameters:
+        - name: id
+          in: path
+          description: ID Situação
+          required: true
+          type: integer
         - name: situação
           in: body
           description: Informações da Situação.
@@ -1979,6 +1828,11 @@ paths:
       summary: Atualizar Termo
       description: Atualizar dados de um termo.
       parameters:
+        - name: id
+          in: path
+          description: ID Termo
+          required: true
+          type: integer
         - name: Termo
           in: body
           description: Informações do Termo.
@@ -2038,7 +1892,7 @@ paths:
           schema:
             $ref: '#/definitions/Erro'
     post:
-      summary: Cadastrar Usuário.
+      summary: Cadastrar Usuário
       description: Cadastrar Usuário.
       parameters:
         - name: Usuario
@@ -2061,33 +1915,38 @@ paths:
           description: Erro inesperado.
           schema:
             $ref: '#/definitions/Erro'
-  /usuarios/login:
+  /usuarios/imagem/{id}:
     post:
-      summary: Login de Usuários
-      description: Login de Usuários.
+      summary: Fazer o upload de imagem
+      description: Fazer o upload de imagem.
+      consumes:
+        - multipart/form-data
       parameters:
-        - name: Usuario
-          in: body
-          description: Dados para login do sistema.
-          schema:
-            $ref: '#/definitions/Login'
+        - name: id
+          in: path
+          description: ID Usuario
+          required: true
+          type: integer
+        - name: photo
+          in: formData
+          description: Imagem
+          type: file
+          required: true
       tags:
         - Usuarios
       responses:
         '200':
           description: Operação Confirmada.
-        '404':
-          description: Usuário não encontrado.
           schema:
-            $ref: '#/definitions/Erro'
+            $ref: '#/definitions/Imagem'
         '500':
           description: Erro inesperado.
           schema:
             $ref: '#/definitions/Erro'
-  '/usuarios/idioma/{id}':
+  /usuarios/avaliacao/{id}:
     get:
-      summary: Retorna o Idioma do Usuário
-      description: Retorna o idioma do usuário.
+      summary: Avaliação do Usuário
+      description: Retorna a avaliação do usuário.
       parameters:
         - name: id
           in: path
@@ -2098,23 +1957,38 @@ paths:
         - Usuarios
       responses:
         '200':
-          description: Operação Confirmada.
+          description: Avaliação do usuario.
           schema:
-            $ref: '#/definitions/Idioma'
+              $ref: '#/definitions/Ranking'
         '500':
           description: Erro inesperado.
           schema:
             $ref: '#/definitions/Erro'
-  '/usuarios/{id}':
+  /usuarios/ranking:
+    get:
+      summary: Avaliações dos usuarios
+      description: Retorna todas avaliações dos usuarios.
+      tags:
+        - Usuarios
+      responses:
+        '200':
+          description: Avaliações dos usuarios
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Ranking'
+        '500':
+          description: Erro inesperado  
+          schema:
+            $ref: '#/definitions/Erro'
+  /usuarios/{id}:
     get:
       summary: Retorna Dados do Usuário
-      description: >-
-        Por meio do id do usuário, todas as informações do usuário vão ser
-        mostrada e os idiomas que os usuários estão estudando.
+      description: Por meio do id de um usuário, todas as informações de um determinado usuário vão ser exibida.
       parameters:
         - name: id
           in: path
-          description: ID Usuário
+          description: ID Usuario
           required: true
           type: integer
       tags:
@@ -2129,12 +2003,17 @@ paths:
           schema:
             $ref: '#/definitions/Erro'
     put:
-      summary: Atualizar Usuário.
-      description: Atualizar dados do Usuário.
+      summary: Atualizar Usuário
+      description: Autalizar dados de um usuário particular.
       parameters:
-        - name: Usuário
+        - name: id
+          in: path
+          description: ID Usuario
+          required: true
+          type: integer
+        - name: usuario
           in: body
-          description: Informações do Usuário.
+          description: Dados do Usuario.
           required: true
           schema:
             $ref: '#/definitions/UsuarioPOST'
@@ -2154,12 +2033,12 @@ paths:
           schema:
             $ref: '#/definitions/Erro'
     delete:
-      summary: Apagar Usuário
-      description: 'Por meio do ID do usuário, o usuário especifico vai ser excluido.'
+      summary: Apagar usuário
+      description: Por meio do ID do usuário, o usuário especifico vai ser excluido.
       parameters:
         - name: id
           in: path
-          description: ID do Usuário
+          description: ID do Usuario
           required: true
           type: integer
       tags:
@@ -2172,7 +2051,7 @@ paths:
         '500':
           description: Erro inesperado
           schema:
-            $ref: '#/definitions/Erro'
+            $ref: '#/definitions/Erro'          
 definitions:
   Administrador:
     type: object
@@ -2217,130 +2096,6 @@ definitions:
         type: string
       sexo:
         type: string
-  Aluno:
-    type: object
-    required:
-      - nomeAluno
-      - emailAluno
-      - senhaAluno
-      - sexo
-      - telefone
-      - pais
-      - estado
-      - cidade
-    properties:
-      _key:
-        type: string
-      _id:
-        type: string
-      _rev:
-        type: string
-      nomeAluno:
-        type: string
-      emailAluno:
-        type: string
-      senhaAluno:
-        type: string
-        format: password
-      sexo:
-        type: string
-      telefone:
-        type: string
-      pais:
-        type: string
-      estado:
-        type: string
-      cidade:
-        type: string
-      caminhoImagem:
-        type: string
-      status:
-        type: number
-        format: integer
-  AlunoPOST:
-    type: object
-    properties:
-      nomeAluno:
-        type: string
-      emailAluno:
-        type: string
-      senhaAluno:
-        type: string
-        format: password
-      sexo:
-        type: string
-      telefone:
-        type: string
-      pais:
-        type: string
-      estado:
-        type: string
-      cidade:
-        type: string
-  Autor:
-    type: object
-    required:
-      - nomeAutor
-      - emailAutor
-      - senhaAutor
-      - sexo
-      - telefone
-      - pais
-      - estado
-      - idIdioma
-    properties:
-      _key:
-        type: string
-      _id:
-        type: string
-      _rev:
-        type: string
-      nomeAutor:
-        type: string
-      emailAutor:
-        type: string
-      senhaAutor:
-        type: string
-        format: password
-      sexo:
-        type: string
-      telefone:
-        type: string
-      pais:
-        type: string
-      estado:
-        type: string
-      cidade:
-        type: string
-      idIdioma:
-        type: string
-      caminhoImagem:
-        type: string
-      status:
-        type: number
-        format: integer
-  AutorPOST:
-    type: object
-    properties:
-      nomeAutor:
-        type: string
-      emailAutor:
-        type: string
-      senhaAutor:
-        type: string
-        format: password
-      sexo:
-        type: string
-      telefone:
-        type: string
-      pais:
-        type: string
-      estado:
-        type: string
-      cidade:
-        type: string
-      idIdioma:
-        type: string
   Contrato:
     type: object
     required:
@@ -2371,7 +2126,8 @@ definitions:
         type: string
       idTermo:
         type: array
-        format: string
+        items:
+         format: string
   ContratoPOST:
     type: object
     properties:
@@ -2468,6 +2224,26 @@ definitions:
         type: string
       longitude:
         type: string
+  Estudo:
+    type: object
+    properties:
+      _key:
+        type: string
+      _id:
+        type: string
+      _rev:
+        type: string
+      idIdioma:
+        type: array
+        items:
+          format: string
+  EstudoPOST:
+    type: object
+    properties:
+      _key:
+        type: string
+      idIdioma:
+        type: string      
   Idioma:
     type: object
     required:
@@ -2499,7 +2275,7 @@ definitions:
       - nomeLicao
       - descricao
       - data
-      - idAutor
+      - idUsuario
       - idIdioma
       - idNivel
       - idSituacao
@@ -2520,7 +2296,7 @@ definitions:
         type: integer
       quantidadeVotos:
         type: integer
-      idAutor:
+      idUsuario:
         type: string
       idIdioma:
         type: string
@@ -2537,7 +2313,7 @@ definitions:
         type: string
       data:
         type: string
-      idAutor:
+      idUsuario:
         type: string
       idIdioma:
         type: string
@@ -2545,14 +2321,12 @@ definitions:
         type: string
       idSituacao:
         type: string
-  LicaoSelecionar:
+  LicaoAvaliacao:
     type: object
     properties:
-      idIdioma:
+      idLicao:
         type: string
-      idNivel:
-        type: string
-      idSituacao:
+      avaliacao:
         type: string
   Nivel:
     type: object
@@ -2636,7 +2410,7 @@ definitions:
     type: object
     required:
       - termo
-      - termoTraducao
+      - idIdioma
     properties:
       _key:
         type: string
@@ -2646,17 +2420,26 @@ definitions:
         type: string
       termo:
         type: string
-      termoTraducao:
+      idIdioma:
         type: string
   TermosPOST:
     type: object
     properties:
       termo:
         type: string
-      termoTraducao:
+      idIdioma:
         type: string
   Usuario:
     type: object
+    required:
+      - nomeUsuario
+      - emailUsuario
+      - senhaUsuario
+      - telefone
+      - sexo
+      - pais
+      - estado
+      - cidade
     properties:
       _key:
         type: string
@@ -2664,17 +2447,48 @@ definitions:
         type: string
       _rev:
         type: string
-      idIdioma:
-        type: array
-        format: string
+      nomeUsuario:
+        type: string
+      emailUsuario:
+        type: string
+      senhaUsuario:
+        type: string
+        format: password
+      telefone:
+        type: string
+      sexo:
+        type: string
+      pais:
+        type: string
+      estado:
+        type: string
+      cidade:
+        type: string
+      caminhoImagem:
+        type: string
+      status:
+        type: number
+        format: integer
   UsuarioPOST:
     type: object
     properties:
-      _key:
+      nomeUsuario:
         type: string
-      idIdioma:
-        type: array
-        format: string
+      emailUsuario:
+        type: string
+      senhaUsuario:
+        type: string
+        format: password
+      telefone:
+        type: string
+      sexo:
+        type: string
+      pais:
+        type: string
+      estado:
+        type: string
+      cidade:
+        type: string      
   Confirmacao:
     type: object
     properties:

@@ -114,8 +114,8 @@ module.exports = function (app) {
          val._links = [
            {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/niveis"},
            {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/niveis"},
-           {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/niveis/" + dados._key},
-           {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/niveis"}
+           {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/niveis/" + id},
+           {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/niveis/" + id}
          ]
          res.status(200).json(val).end()
        }, err => {

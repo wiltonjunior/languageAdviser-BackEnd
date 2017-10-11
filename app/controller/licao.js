@@ -263,8 +263,8 @@ module.exports = function (app) {
             val._links = [
               {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/licoes"},
               {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/licoes"},
-              {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/licoes/" + dados._key},
-              {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/licoes"}
+              {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/licoes/" + id},
+              {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/licoes/" + id}
             ]
             res.status(200).json(val).end()
          }, err => {
@@ -296,7 +296,7 @@ module.exports = function (app) {
                   {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/licoes"},
                   {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/licoes"},
                   {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/licoes/" + dados.idLicao},
-                  {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/licoes"}
+                  {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/licoes/" + dados.idLicao}
                 ]
                 res.status(200).json(val).end()
               }, err => {

@@ -72,8 +72,8 @@ module.exports = function (app) {
            val._links = [
              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/termos"},
              {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/termos"},
-             {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/termos/" + dados._key},
-             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/termos"}
+             {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/termos/" + id},
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/termos/" + id}
            ]
            res.status(200).json(val).end()
          }, err => {

@@ -21,7 +21,7 @@ module.exports = function (app) {
             val._links = [
               {rel : "procurar", method : "GET", href: "http://" + req.headers.host + versao + "/administradores" + val._key},
               {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + versao + "/administradores"},
-              {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + versao + "/administradores"}
+              {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + versao + "/administradores/" + val._key}
             ]
             res.status(201).json(val).end()
          }, err => {
@@ -58,7 +58,7 @@ module.exports = function (app) {
                    {rel : "adicionar", method: "POST", href:"http://" + req.headers.host + versao + "/administradores"},
                    {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/administradores"},
                    {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/administradores/" + id},
-                   {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/administradores"}
+                   {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/administradores/" + id}
                  ]
                  res.status(200).json(respostaImagem).end()
               }, err => {
@@ -93,7 +93,7 @@ module.exports = function (app) {
         val._links = [
           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/administradores"},
           {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/administradores"},
-          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/administradores"}
+          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/administradores/" + id}
         ]
         res.status(200).json(val).end()
      }, err => {
@@ -113,8 +113,8 @@ module.exports = function (app) {
            val._links = [
              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/administradores"},
              {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/administradores"},
-             {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/administradores/" + dados._key},
-             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/administradores"}
+             {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/administradores/" + id},
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/administradores/" + id}
            ]
            res.status(200).json(val).end()
         }, err => {

@@ -156,8 +156,8 @@ module.exports = function (app) {
             val.links = [
               {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/usuarios"},
               {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/usuarios"},
-              {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/usuarios/" + dados._key},
-              {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/usuarios"}
+              {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/usuarios/" + id},
+              {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/usuarios/" + id}
             ]
             res.status(200).json(val).end()
          }, err => {

@@ -153,7 +153,7 @@ module.exports = function (app) {
              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/dialogos"},
              {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/dialogos"},
              {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/dialogos/" + dados._key},
-             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/dialogos"}
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/dialogos/" + dados._key}
            ]
            res.status(200).json(val).end()
         }, err => {

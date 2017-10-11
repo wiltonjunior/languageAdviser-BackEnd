@@ -110,7 +110,7 @@ module.exports = function (app) {
           val._links = [
             {rel : "procurar", method : "GET", href: "http://" + req.headers.host + versao + "/idiomas/" + val._key},
             {rel : "atualizar", method : "PUT", href: "http://" + req.headers.host + versao + "/idiomas/" + val._key},
-            {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + versao + "/idiomas"}
+            {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + versao + "/idiomas/" + val._key}
           ]
           res.status(200).json(val).end()
         }, err => {
