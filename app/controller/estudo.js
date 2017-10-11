@@ -11,22 +11,53 @@ module.exports = function (app) {
 
    estudo.salvar = function (req,res) {
        var dados = req.body;
+       var result = Joi.validate(dados,model);
+       if(result.error!=null) {
+         res.status(400).json(result.error);
+       }
+       else {
+         db.query("FOR estudo IN estudo FILTER estudo._key == @id RETURN estudo",{'id' : dados._key})
+         .then(cursor => {
+           cursor.next()
+           .then(val => {
+              if(val==null) {
+                dbEstudo.save(dados)
+                .then(val => {
+                  val._links = [
+                     {rel : "listar", method : "GET", href: "http://" + req.headers.host + versao + "/estudos"},
+                     {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + versao + "/estudos/" + val._key}
+                   ]
+                   res.status(201).json(val).end()
+                }, err => {
+                   res.status(500).json(err).end()
+                })
+              }
+
+           })
+         })
+       }
        db.query("FOR estudo IN estudo FILTER estudo._key == @id RETURN estudo",{'id' : dados._key})
        .then(cursor => {
           cursor.next()
           .then(val => {
              if(val==null) {
-                dbEstudo.save(dados)
-                .then(val => {
-                   val._links = [
-                      {rel : "listar", method : "GET", href: "http://" + req.headers.host + versao + "/estudos"},
-                      {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + versao + "/estudos/" + val._key}
-                    ]
-                    res.status(201).json(val).end()
-                  }, err => {
-                    res.status(500).json(err).end()
-                })
-            }
+              var result = Joi.validate(dados,model);
+               if(result.error!=null) {
+                  console.log(result.error);
+               }
+               else {
+                 dbEstudo.save(dados)
+                 .then(val => {
+                    val._links = [
+                       {rel : "listar", method : "GET", href: "http://" + req.headers.host + versao + "/estudos"},
+                       {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + versao + "/estudos/" + val._key}
+                     ]
+                     res.status(201).json(val).end()
+                   }, err => {
+                     res.status(500).json(err).end()
+                 })
+               }
+             }
              else {
                var valor = Array.isArray(val.idIdioma);
                if(valor==true) {
@@ -81,7 +112,6 @@ module.exports = function (app) {
           })
        })
    };
-
 
    estudo.listar = function (req,res) {
       dbEstudo.all()

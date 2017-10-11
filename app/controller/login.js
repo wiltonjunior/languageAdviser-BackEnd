@@ -94,7 +94,7 @@ module.exports = function (app) {
       }
       else {
          var usuario = resultado._result[0];
-         var token = "JWT " + jwt.encode(usuario._key,"MyS3cr3tK3Y");
+         var token = "JWT " + jwt.encode(usuario.usuario._key,"MyS3cr3tK3Y");
          usuario.usuario.token = token;
          var valor = Array.isArray(usuario.estudo.idIdioma);
          if(valor==true) {
