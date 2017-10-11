@@ -5,7 +5,7 @@ module.exports = function (app) {
    var versao = "/v1";
 
    app.post(versao + "/usuarios", usuario.salvar);
-   app.post(versao + "/usuarios/imagem/:id", auth.authenticate(), usuario.imagem);
+   app.post(versao + "/usuarios/imagem/:id", usuario.imagem);
    app.get(versao + "/usuarios", auth.authenticate(), usuario.listar);
    app.get(versao + "/usuarios/avaliacao/:id", auth.authenticate(), usuario.avaliacao);
    app.get(versao + "/usuarios/ranking", auth.authenticate(), usuario.ranking);

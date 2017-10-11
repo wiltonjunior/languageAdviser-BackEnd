@@ -2,7 +2,7 @@ module.exports = function (app) {
    var Joi = app.get("joi");
 
    const estudo = {
-     _key : Joi.string().required(),
+     _Key : Joi.string(),
      idIdioma : Joi.array().single().required()
    }
 

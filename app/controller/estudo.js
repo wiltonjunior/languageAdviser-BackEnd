@@ -16,23 +16,17 @@ module.exports = function (app) {
           cursor.next()
           .then(val => {
              if(val==null) {
-                var result = Joi.validate(model,dados);
-                if(result.error!=null) {
-                   res.status(400).json(result.error);
-                }
-                else {
-                   dbEstudo.save(dados)
-                   .then(val => {
-                      val._links = [
-                        {rel : "listar", method : "GET", href: "http://" + req.headers.host + versao + "/estudos"},
-                        {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + versao + "/estudos/" + val._key}
-                      ]
-                      res.status(201).json(val).end()
-                   }, err => {
-                      res.status(500).json(err).end()
-                   })
-                }
-             }
+                dbEstudo.save(dados)
+                .then(val => {
+                   val._links = [
+                      {rel : "listar", method : "GET", href: "http://" + req.headers.host + versao + "/estudos"},
+                      {rel : "excluir", method : "DELETE", href: "http://" + req.headers.host + versao + "/estudos/" + val._key}
+                    ]
+                    res.status(201).json(val).end()
+                  }, err => {
+                    res.status(500).json(err).end()
+                })
+            }
              else {
                var valor = Array.isArray(val.idIdioma);
                if(valor==true) {

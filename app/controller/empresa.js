@@ -126,8 +126,8 @@ module.exports = function (app) {
       resultados._links = [
         {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/empresas"},
         {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/empresas"},
-        {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/empresas/" + dados._key},
-        {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/empresas/" + dados._key}
+        {rel : "procurar", method: "GET", href: "http://" + req.headers.host + versao + "/empresas/" + id},
+        {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/empresas/" + id}
       ];
       return resultados;
    }
