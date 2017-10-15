@@ -165,7 +165,7 @@ module.exports = function (app) {
 
    estudo.editar = function (req,res) {
       var dados = req.body;
-      var result = Joi.validate(model,dados);
+      var result = Joi.validate(dados,model);
       if (result.error!=null) {
          res.status(400).json(result.error);
       }

@@ -97,7 +97,7 @@ module.exports = function (app) {
 
    dialogo.estudar = async function (req,res) {
       var dados = req.body;
-      db.query("FOR dialogo IN dialogo FILTER dialogo._key == @id RETURN dialogo",{'id' : dados.idDialogo})
+      db.query("FOR dialogo IN dialogo FILTER dialogo._key == @id RETURN dialogo",{'id' : dados._key})
       .then(cursor => {
          cursor.next()
          .then(async val => {

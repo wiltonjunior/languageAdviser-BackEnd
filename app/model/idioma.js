@@ -5,6 +5,7 @@ module.exports = function (app) {
       _key : Joi.string(),
       idioma : Joi.string().required(),
       descricao : Joi.string().required(),
+      lang : Joi.string().required(),
       caminhoImagem : Joi.string()
    };
 
