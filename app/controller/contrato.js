@@ -282,19 +282,37 @@ module.exports = function (app) {
    };
 
 
-   contrato.deletarTermo = function (req,res) {
+   contrato.deletarTermo = async function (req,res) {
       var dados = req.body;
-      var termos = dados.idTermo;
-      var termo = [];
+      var resultados = await db.query("FOR contrato IN contrato FILTER contrato._key == @id RETURN contrato",{'id' : dados._key});
+      var termos = resultados._result[0].idTermo;
       var valor = Array.isArray(termos);
       if(valor==true) {
-         termo = termos;
-         termo.pop(termos);
+         var pos = termos.indexOf(dados.idTermo);
+         if(pos>=0) {
+            termos.splice(pos,1);
+            if(termos.length==1) {
+              dados.idTermo = termos[0];
+            }
+            else {
+              dados.idTermo = termos;
+            }
+         }
+         else {
+            var resposta = {"mensagem" : "Termo não tem neste contrato"};
+            res.status(404).json(resposta);
+         }
       }
       else {
-        termo = null;
+         if(dados.idTermo==termos) {
+            dados.idTermo = null;
+         }
+         else {
+            var resposta = {"mensagem" : "Termo não tem neste contrato"};
+            res.status(404).json(resposta);
+         }
       }
-      dbContrato.update(dados._key,termo)
+      dbContrato.update(dados._key,{"idTermo" : dados.idTermo})
       .then(val => {
         val._links = [
           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos"},
