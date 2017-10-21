@@ -8,8 +8,22 @@ module.exports = function (app) {
 
    var versao = "/v1";
 
-   dialogo.salvar = function (req,res) {
+   dialogo.salvar = async function (req,res) {
       var dados = req.body;
+      var valor = Array.isArray(dados.personagem);
+      if(valor==true) {
+        var personagens = [];
+        var i;
+        for(i=0;i<dados.personagem.length;i++) {
+          personagens.push(JSON.parse(dados.personagem[i]));
+        }
+        var persg = await adicionarPersonagem(personagens);
+      }
+      else {
+        var personagem = JSON.parse(dados.personagem);
+        var persg = await adicionarPersonagem(personagem);
+      }
+      dados.personagem = persg;
       var result = Joi.validate(dados,model);
       if (result.error!=null) {
          res.status(400).json(result.error)
@@ -25,6 +39,22 @@ module.exports = function (app) {
          }, err => {
             res.status(500).json(err).end()
          })
+      }
+   };
+
+   async function adicionarPersonagem(personagem) {
+      var valor = Array.isArray(personagem);
+      if(valor==true) {
+         var pergs = [];
+         var i;
+         for (i=0;i<personagem.length;i++) {
+            pergs.push({"idPersonagem": i,"nomePersonagem": personagem[i].nomePersonagem,"tomVoz": personagem[i].tomVoz});
+         }
+         return pergs;
+      }
+      else {
+         var perg = {"idPersonagem": 1,"nomePersonagem": personagem.nomePersonagem,"tomVoz": personagem.tomVoz};
+         return perg;
       }
    };
 
@@ -45,10 +75,19 @@ module.exports = function (app) {
       })
    };
 
-   dialogo.listarDialogo = function (req,res) {
+   dialogo.listarDialogo = async function (req,res) {
       var id = req.params.id;
       dbDialogo.document(id)
-      .then(val => {
+      .then(async val => {
+        var resultados = await db.query("FOR momento IN momento FILTER momento.idDialogo == @id SORT momento.ordem ASC RETURN momento",{'id' : id});
+        var dialogo = [];
+        var momento = resultados._result;
+        var i;
+        for(i=0;i<momento.length;i++) {
+          var personagem = await procurarPersonagem(val.personagem,momento[i].idPersonagem);
+          dialogo.push({"personagem":{"nomePersonagem": personagem.nomePersonagem,"tomVoz": personagem.tomVoz},"momento":{"textoNativo": momento[i].textoNativo,"textoTraduzido": momento[i].textoTraduzido}});
+        }
+        val.dialogo = dialogo;
         val._links = [
           {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + versao + "/dialogos"},
           {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + versao + "/dialogos"}
@@ -57,6 +96,23 @@ module.exports = function (app) {
       }, err => {
         res.status(500).json(err).end()
       })
+   };
+
+   async function procurarPersonagem(personagem,idPersonagem) {
+      var valor = Array.isArray(personagem);
+      if (valor==true) {
+         var i;
+         for(i=0;i<personagem.length;i++) {
+            if(personagem[i].idPersonagem==idPersonagem) {
+               return personagem[i];
+            }
+         }
+      }
+      else {
+         if(personagem.idPersonagem==idPersonagem) {
+            return personagem;
+         }
+      }
    };
 
    dialogo.listarLicao = function (req,res) {
@@ -102,6 +158,15 @@ module.exports = function (app) {
          cursor.next()
          .then(async val => {
             var dialogo = val;
+            var resultados = await db.query("FOR momento IN momento FILTER momento.idDialogo == @id SORT momento.ordem ASC RETURN momento",{'id' : dialogo._key});
+            var dialogos = [];
+            var momento = resultados._result;
+            var i;
+            for(i=0;i<momento.length;i++) {
+               var personagem = await procurarPersonagem(dialogo.personagem,momento[i].idPersonagem);
+               dialogos.push({"personagem":{"nomePersonagem": personagem.nomePersonagem,"tomVoz": personagem.tomVoz},"momento":{"textoNativo": momento[i].textoNativo,"textoTraduzido": momento[i].textoTraduzido}});
+            }
+            dialogo.dialogo = dialogos;
             var contrato = await contratoAtivo(db);
             db.query("LET reg = (FOR regiao IN regiao FILTER regiao.localizacao == @pais or regiao.localizacao == @estado or regiao.localizacao == @cidade RETURN regiao._key) LET cont = (FOR c IN @contrato FOR r IN reg FILTER c.idRegiao == r RETURN c) LET term = (FOR termo IN termos FOR c IN cont FILTER termo._key == c.idTermo or termo._key IN c.idTermo RETURN {'_key' : termo._key,'termo' : termo.termo,'palavraChave' : c.palavraChave}) RETURN term",{'pais' : dados.pais,'estado' : dados.estado,'cidade' : dados.cidade,'contrato' : contrato})
             .then(cursor => {
@@ -110,11 +175,14 @@ module.exports = function (app) {
                   if (val!=null) {
                     for(var i = 0; i < val.length; i++) {
                        var palavra = val[i].termo;
-                       var resultado = dialogo.texto.search(palavra);
-                       if(resultado>0) {
-                         var re = new RegExp(palavra,"g");
-                         var textoFinal = dialogo.texto.replace(re,palavra + " " + val[i].palavraChave);
-                         dialogo.texto = textoFinal;
+                       var j;
+                       for(j=0;j<dialogo.dialogo.length;j++) {
+                         var resultado = dialogo.dialogo[j].momento.textoNativo.search(palavra);
+                         if(resultado>0) {
+                           var re = new RegExp(palavra,"g");
+                           var textoFinal = dialogo.dialogo[j].momento.textoNativo.replace(re,palavra + " " + val[i].palavraChave);
+                           dialogo.dialogo[j].momento.textoNativo = textoFinal;
+                         }
                        }
                     }
                   }
@@ -162,10 +230,11 @@ module.exports = function (app) {
       }
    };
 
-   dialogo.deletar = function (req,res) {
+   dialogo.deletar = async function (req,res) {
      var id = req.params.id;
      dbDialogo.remove(id)
-     .then(val => {
+     .then(async val => {
+        var resultados = await db.query("FOR momento IN momento FILTER momento.idDialogo == @id REMOVE momento IN momento",{'id' : id});
         val._links = [
           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/dialogos"},
           {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/dialogos"}
