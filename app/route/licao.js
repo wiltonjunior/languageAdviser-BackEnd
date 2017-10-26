@@ -11,7 +11,7 @@ module.exports = function (app) {
     app.get(versao + "/licoes/idioma/:id", auth.authenticate(), licao.listarIdioma);
     app.get(versao + "/licoes/nivel/:id", auth.authenticate(), licao.listarNivel);
     app.get(versao + "/licoes/situacao/:id", auth.authenticate(), licao.listarSituacao);
-    app.get(versao + "/licoes/usuario/:idUsuario", auth.authenticate(), licao.usuarios);
+    app.get(versao + "/licoes/usuarios/:idUsuario", auth.authenticate(), licao.usuarios);
     app.get(versao + "/licoes/idiomas/:idIdioma", auth.authenticate(), licao.idiomas);
     app.get(versao + "/licoes/niveis/:idNivel", auth.authenticate(), licao.niveis);
     app.get(versao + "/licoes/situacoes/:idSituacao", auth.authenticate(), licao.situacoes);

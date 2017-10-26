@@ -2,7 +2,7 @@ module.exports = function (app) {
    var model = app.model.administrador;
    var Joi = app.get("joi");
    var db = app.get("database");
-   var dbAdministrador = db.collection("administrador");
+   var dbAdministrador = db.collection("administrador");   
 
    var administrador = {};
 
@@ -70,6 +70,7 @@ module.exports = function (app) {
    };
 
    administrador.listar = function (req,res) {
+
       dbAdministrador.all()
       .then(cursor => {
          cursor.all()
