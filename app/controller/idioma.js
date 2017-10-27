@@ -4,6 +4,8 @@ module.exports = function (app) {
     var db = app.get("database");
     var dbIdioma = db.collection("idioma");
 
+    var cache = app.get("cache");
+
     var idioma = {};
 
     var versao = "/v1";
@@ -67,35 +69,50 @@ module.exports = function (app) {
     };
 
     idioma.listar = function (req,res) {
-       dbIdioma.all()
-       .then(cursor => {
-          cursor.all()
-          .then(val => {
-            var links = {
-              _links : [
-                {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/idiomas"},
-                {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/idiomas"}
-              ]
-            };
-            val.push(links);
-            res.status(200).json(val).end()
-          });
-       });
+       var resultado = cache.get("listarIdioma");
+       if(resultado==undefined) {
+         dbIdioma.all()
+         .then(cursor => {
+            cursor.all()
+            .then(val => {
+              var links = {
+                _links : [
+                  {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/idiomas"},
+                  {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/idiomas"}
+                ]
+              };
+              val.push(links);
+              cache.set("listarIdioma",val,10);
+              res.status(200).json(val).end()
+            });
+         });
+       }
+       else {
+          res.status(200).json(resultado).end()
+       }
     };
 
     idioma.listarIdioma = function (req,res) {
        var id = req.params.id;
-       dbIdioma.document(id)
-       .then(val => {
-         val._links = [
-           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/idiomas"},
-           {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/idiomas/" + val._key},
-           {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/idiomas/" + val._key}
-         ]
-         res.status(200).json(val).end()
-       }, err => {
-          res.status(500).json(err).end()
-       });
+       var nomeCache = "listarIdioma" + id;
+       var resultado = cache.get(nomeCache);
+       if(resultado==undefined) {
+         dbIdioma.document(id)
+         .then(val => {
+           val._links = [
+             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/idiomas"},
+             {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/idiomas/" + val._key},
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/idiomas/" + val._key}
+           ]
+           cache.set(nomeCache,val,20);
+           res.status(200).json(val).end()
+         }, err => {
+            res.status(500).json(err).end()
+         });
+       }
+       else {
+         res.status(200).json(resultado).end()
+       }
     };
 
     idioma.editar = function (req,res) {

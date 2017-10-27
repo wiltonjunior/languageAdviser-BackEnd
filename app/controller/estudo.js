@@ -4,6 +4,8 @@ module.exports = function (app) {
    var db = app.get("database");
    var dbEstudo = db.collection("estudo");
 
+   var cache = app.get("cache");
+
    var estudo = {};
 
    var versao = "/v1";
@@ -114,53 +116,76 @@ module.exports = function (app) {
    };
 
    estudo.listar = function (req,res) {
-      dbEstudo.all()
-      .then(cursor => {
-         cursor.all()
-         .then(val => {
-            var links = {
-              _links : [
-                {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + versao + "/estudos"},
-                {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + versao + "/estudos"}
-              ]
-            }
-            val.push(links);
-            res.status(200).json(val).end()
-         })
-      })
+      var resultado = cache.get("listarEstudo");
+      if(resultado==undefined) {
+        dbEstudo.all()
+        .then(cursor => {
+           cursor.all()
+           .then(val => {
+              var links = {
+                _links : [
+                  {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + versao + "/estudos"},
+                  {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + versao + "/estudos"}
+                ]
+              }
+              val.push(links);
+              cache.set("listarEstudo",val,10);
+              res.status(200).json(val).end()
+           })
+        })
+      }
+      else {
+        res.status(200).json(resultado).end()
+      }
    };
 
    estudo.listarUsuario = function (req,res) {
       var id = req.params.id;
-      db.query("FOR estudo IN estudo FOR usuario IN usuario FILTER estudo._key == usuario.key RETURN usuario")
-      .then(cursor => {
-         cursor.next()
-         .then(val => {
-            val.links = [
-              {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + versao + "/estudos"},
-              {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + versao + "/estudos"}
-            ]
-            res.status(200).json(val).end()
-         })
-      })
+      var nomeCache = "listarEstudoUsuario" + id;
+      var resultado = cache.get(nomeCache);
+      if(resultado==undefined) {
+        db.query("FOR estudo IN estudo FOR usuario IN usuario FILTER estudo._key == usuario.key RETURN usuario")
+        .then(cursor => {
+           cursor.next()
+           .then(val => {
+              val.links = [
+                {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + versao + "/estudos"},
+                {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + versao + "/estudos"}
+              ]
+              cache.set(nomeCache,val,20);
+              res.status(200).json(val).end()
+           })
+        })
+      }
+      else {
+        res.status(200).json(resultado).end()
+      }
    };
 
    estudo.listarIdioma = function (req,res) {
       var id = req.params.id;
-      db.query("LET estudo = (FOR estudo IN estudo FILTER estudo._key == @id RETURN estudo.idIdioma) FOR idioma IN idioma FOR est IN estudo FILTER idioma._key == est or idioma._key IN est RETURN idioma",{'id' : id})
-      .then(cursor => {
-         cursor.all()
-         .then(val => {
-            var links = {
-               _links : [
-                 {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + versao + "/estudos"},
-                 {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + versao + "/estudos"}
-               ]
-            }
-            val.push(links);
-            res.status(200).json(val).end()
-         })
-      })
+      var nomeCache = "listarEstudoIdioma" + id;
+      var resultado = cache.get(nomeCache);
+      if(resultado==undefined) {
+        db.query("LET estudo = (FOR estudo IN estudo FILTER estudo._key == @id RETURN estudo.idIdioma) FOR idioma IN idioma FOR est IN estudo FILTER idioma._key == est or idioma._key IN est RETURN idioma",{'id' : id})
+        .then(cursor => {
+           cursor.all()
+           .then(val => {
+              var links = {
+                 _links : [
+                   {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + versao + "/estudos"},
+                   {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + versao + "/estudos"}
+                 ]
+              }
+              val.push(links);
+              cache.set(nomeCache,val,20);
+              res.status(200).json(val).end()
+           })
+        })
+      }
+      else {
+        res.status(200).json(resultado).end()
+      }
    };
 
    estudo.editar = function (req,res) {

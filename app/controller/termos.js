@@ -4,6 +4,8 @@ module.exports = function (app) {
    var db = app.get("database");
    var dbTermo = db.collection("termos");
 
+   var cache = app.get("cache");
+
    var termo = {};
 
    var versao = "/v1";
@@ -29,35 +31,50 @@ module.exports = function (app) {
    };
 
    termo.listar = function (req,res) {
-      dbTermo.all()
-      .then(cursor => {
-         cursor.all()
-         .then(val => {
-           var links = {
-             _links : [
-                 {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/termos"},
-                 {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/termos"}
-             ]
-           };
-           val.push(links);
-           res.status(200).json(val).end()
-         });
-      });
+      var resultado = cache.get("listarTermos");
+      if(resultado==undefined) {
+        dbTermo.all()
+        .then(cursor => {
+           cursor.all()
+           .then(val => {
+             var links = {
+               _links : [
+                   {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/termos"},
+                   {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/termos"}
+               ]
+             };
+             val.push(links);
+             cache.set("listarTermos",val,10);
+             res.status(200).json(val).end()
+           });
+        });
+      }
+      else {
+         res.status(200).json(resultado).end()
+      }
    };
 
    termo.listarTermo = function (req,res) {
      var id = req.params.id;
-     dbTermo.document(id)
-     .then(val => {
-       val._links = [
-         {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/termos"},
-         {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/termos/" + val._key},
-         {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/termos/" + val._key}
-       ]
-       res.status(200).json(val).end()
-     }, err => {
-        res.status(500).json(err).end()
-     });
+     var nomeCache = "listarTermos" + id;
+     var resultado = cache.get(nomeCache);
+     if(resultado==undefined) {
+       dbTermo.document(id)
+       .then(val => {
+         val._links = [
+           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/termos"},
+           {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/termos/" + val._key},
+           {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/termos/" + val._key}
+         ]
+         cache.set(nomeCache,val,10);
+         res.status(200).json(val).end()
+       }, err => {
+          res.status(500).json(err).end()
+       });
+     }
+     else {
+        res.status(200).json(resultado).end()
+     }
    };
 
    termo.editar = function (req,res) {

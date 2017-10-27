@@ -2,7 +2,9 @@ module.exports = function (app) {
    var model = app.model.administrador;
    var Joi = app.get("joi");
    var db = app.get("database");
-   var dbAdministrador = db.collection("administrador");   
+   var dbAdministrador = db.collection("administrador");
+
+   var cache = app.get("cache");
 
    var administrador = {};
 
@@ -69,37 +71,51 @@ module.exports = function (app) {
      });
    };
 
-   administrador.listar = function (req,res) {
-
-      dbAdministrador.all()
-      .then(cursor => {
-         cursor.all()
-         .then(val => {
-            var links = {
-              _links : [
-                  {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/administradores"},
-                  {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/administradores"}
-                ]
-            };
-            val.push(links);
-            res.status(200).json(val).end()
-         })
-      })
+   administrador.listar = async function (req,res) {
+      var resultado = cache.get("listarAdministrador");
+      if(resultado==undefined) {
+        dbAdministrador.all()
+        .then(cursor => {
+           cursor.all()
+           .then(val => {
+              var links = {
+                _links : [
+                    {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/administradores"},
+                    {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/administradores"}
+                  ]
+              };
+              val.push(links);
+              cache.set("listarAdministrador",val,10);
+              res.status(200).json(val).end()
+           })
+        })
+      }
+      else {
+         res.status(200).json(resultado).end()
+      }
    };
 
    administrador.listarAdministrador = function (req,res) {
      var id = req.params.id;
-     dbAdministrador.document(id)
-     .then(val => {
-        val._links = [
-          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/administradores"},
-          {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/administradores"},
-          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/administradores/" + id}
-        ]
-        res.status(200).json(val).end()
-     }, err => {
-        res.status(500).json(err).end()
-     })
+     var nomeCache = "listarAdministrador" + id;
+     var resultado = cache.get(nomeCache);
+     if (resultado==undefined) {
+       dbAdministrador.document(id)
+       .then(val => {
+          val._links = [
+            {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/administradores"},
+            {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/administradores"},
+            {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/administradores/" + id}
+          ]
+          cache.set(nomeCache,val,20);
+          res.status(200).json(val).end()
+       }, err => {
+          res.status(500).json(err).end()
+       })
+     }
+     else {
+       res.status(200).json(resultado).end()
+     }
    };
 
    administrador.editar = function (req,res) {

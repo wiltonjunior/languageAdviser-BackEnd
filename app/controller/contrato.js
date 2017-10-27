@@ -4,6 +4,8 @@ module.exports = function (app) {
    var db = app.get("database");
    var dbContrato = db.collection("contrato");
 
+   var cache = app.get("cache");
+
    var contrato = {};
 
    var versao = "/v1";
@@ -31,58 +33,79 @@ module.exports = function (app) {
 
 
    contrato.listar = function (req,res) {
-      dbContrato.all()
-      .then(cursor => {
-         cursor.all()
-         .then(val => {
-           var links = {
-             _links : [
-                 {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos/"},
-                 {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/"}
-             ]
-           };
-           val.push(links);
-           res.status(200).json(val).end()
-         });
-      });
+      var resultado = cache.get("listarContrato");
+      if(resultado==undefined) {
+        dbContrato.all()
+        .then(cursor => {
+           cursor.all()
+           .then(val => {
+             var links = {
+               _links : [
+                   {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos/"},
+                   {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/"}
+               ]
+             };
+             val.push(links);
+             cache.set("listarContrato",val,10);
+             res.status(200).json(val).end()
+           });
+        });
+      }
+      else {
+         res.status(200).json(resultado).end()
+      }
    };
 
    contrato.ativo = function (req,res) {
-       var today = new Date();
-       var data = dataAtual(today);
-       db.query("LET ANO = (FOR contrato IN contrato RETURN {'idContrato' : contrato._key,'dataTermino' : contrato.dataTermino, 'data' : DATE_DIFF(@data,contrato.dataTermino,'y',false)}) LET MES = (FOR a IN ANO FILTER a.data >= 0 RETURN {'idContrato' : a.idContrato, 'dataTermino' : a.dataTermino, 'data' : DATE_DIFF(@data,a.dataTermino,'m',false)}) LET DIA = (FOR m IN MES FILTER m.data >= 0 RETURN {'idContrato' : m.idContrato, 'dataTermino' : m.dataTermino, 'data' : DATE_DIFF(@data,m.dataTermino,'d',false)}) LET cont = (FOR contrato IN contrato FOR d IN DIA FILTER d.data >= 0 and d.idContrato == contrato._key RETURN contrato) RETURN cont",{'data' : data})
-       .then(cursor => {
-          cursor.all()
-          .then(val => {
-              var links = {
-                _links : [
-                  {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos/"},
-                  {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/"}
-                ]
-              };
+      var resultado = cache.get("listarContratoAtivo");
+      if(resultado==undefined) {
+        var today = new Date();
+        var data = dataAtual(today);
+        db.query("LET ANO = (FOR contrato IN contrato RETURN {'idContrato' : contrato._key,'dataTermino' : contrato.dataTermino, 'data' : DATE_DIFF(@data,contrato.dataTermino,'y',false)}) LET MES = (FOR a IN ANO FILTER a.data >= 0 RETURN {'idContrato' : a.idContrato, 'dataTermino' : a.dataTermino, 'data' : DATE_DIFF(@data,a.dataTermino,'m',false)}) LET DIA = (FOR m IN MES FILTER m.data >= 0 RETURN {'idContrato' : m.idContrato, 'dataTermino' : m.dataTermino, 'data' : DATE_DIFF(@data,m.dataTermino,'d',false)}) LET cont = (FOR contrato IN contrato FOR d IN DIA FILTER d.data >= 0 and d.idContrato == contrato._key RETURN contrato) RETURN cont",{'data' : data})
+        .then(cursor => {
+           cursor.all()
+           .then(val => {
+               var links = {
+                 _links : [
+                   {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos/"},
+                   {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/"}
+                 ]
+               };
               val.push(links);
-             res.status(200).json(val).end()
-          })
-       })
+              cache.set("listarContratoAtivo",val,10);
+              res.status(200).json(val).end()
+           })
+        })
+      }
+      else {
+         res.status(200).json(resultado).end()
+      }
    };
 
    contrato.expirado = function (req,res) {
-      var today = new Date();
-      var data = dataAtual(today);
-      db.query("LET ANO = (FOR contrato IN contrato RETURN {'idContrato' : contrato._key,'dataTermino' : contrato.dataTermino, 'data' : DATE_DIFF(@data,contrato.dataTermino,'y',false)}) LET MES = (FOR a IN ANO FILTER a.data <= 0 RETURN {'idContrato' : a.idContrato, 'dataTermino' : a.dataTermino, 'data' : DATE_DIFF(@data,a.dataTermino,'m',false)}) LET DIA = (FOR m IN MES FILTER m.data <= 0 RETURN {'idContrato' : m.idContrato, 'dataTermino' : m.dataTermino, 'data' : DATE_DIFF(@data,m.dataTermino,'d',false)}) LET cont = (FOR contrato IN contrato FOR d IN DIA FILTER d.data < 0 and d.idContrato == contrato._key RETURN contrato) RETURN cont",{'data' : data})
-      .then(cursor => {
-         cursor.next()
-         .then(val => {
-            var links = {
-              _links : [
-                {rel: "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos/"},
-                {rel: "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/"}
-              ]
-            };
-            val.push(links);
-            res.status(200).json(val).end()
-         })
-      })
+      var resultado = cache.get("listarContratoExpirado");
+      if(resultado==undefined) {
+        var today = new Date();
+        var data = dataAtual(today);
+        db.query("LET ANO = (FOR contrato IN contrato RETURN {'idContrato' : contrato._key,'dataTermino' : contrato.dataTermino, 'data' : DATE_DIFF(@data,contrato.dataTermino,'y',false)}) LET MES = (FOR a IN ANO FILTER a.data <= 0 RETURN {'idContrato' : a.idContrato, 'dataTermino' : a.dataTermino, 'data' : DATE_DIFF(@data,a.dataTermino,'m',false)}) LET DIA = (FOR m IN MES FILTER m.data <= 0 RETURN {'idContrato' : m.idContrato, 'dataTermino' : m.dataTermino, 'data' : DATE_DIFF(@data,m.dataTermino,'d',false)}) LET cont = (FOR contrato IN contrato FOR d IN DIA FILTER d.data < 0 and d.idContrato == contrato._key RETURN contrato) RETURN cont",{'data' : data})
+        .then(cursor => {
+           cursor.next()
+           .then(val => {
+              var links = {
+                _links : [
+                  {rel: "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos/"},
+                  {rel: "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/"}
+                ]
+              };
+              val.push(links);
+              cache.set("listarContratoExpirado",val,10);
+              res.status(200).json(val).end()
+           })
+        })
+      }
+      else {
+         res.status(200).json(resultado).end()
+      }
    }
 
    function dataAtual(today) {
@@ -95,125 +118,181 @@ module.exports = function (app) {
 
    contrato.listarContrato = function (req,res) {
       var id = req.params.id;
-      dbContrato.document(id)
-      .then(val => {
-        val._links = [
-          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos/"},
-          {rel : "empresa", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/empresa/" + id},
-          {rel : "termos", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/termos/" + id},
-          {rel : "regiao", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/regiao/" + id},
-          {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/contratos/" + id},
-          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/contratos/" + id}
-        ]
-        res.status(200).json(val).end()
-      }, err => {
-        res.status(500).json(err).end()
-      });
+      var nomeCache = "listarContrato" + id;
+      var resultado = cache.get(nomeCache);
+      if(resultado==undefined) {
+        dbContrato.document(id)
+        .then(val => {
+          val._links = [
+            {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos/"},
+            {rel : "empresa", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/empresa/" + id},
+            {rel : "termos", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/termos/" + id},
+            {rel : "regiao", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/regiao/" + id},
+            {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/contratos/" + id},
+            {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/contratos/" + id}
+          ]
+          cache.set(nomeCache,val,20);
+          res.status(200).json(val).end()
+        }, err => {
+          res.status(500).json(err).end()
+        });
+      }
+      else {
+         res.status(200).json(resultado).end()
+      }
    };
 
    contrato.listarEmpresa = function (req,res) {
       var id = req.params.id;
-      db.query("FOR empresa IN empresa FOR contrato IN contrato FILTER contrato._key == @id and contrato.idEmpresa == empresa._key RETURN empresa",{'id' : id})
-      .then(cursor => {
-         cursor.next()
-         .then(val => {
-           val.links = [
-             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos/"},
-             {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/"},
-             {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/contratos/" + id},
-             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/contratos/" + id}
-           ]
-           res.status(200).json(val).end();
-         });
-      });
+      var nomeCache = "listarContratoEmpresa" + id;
+      var resultado = cache.get(nomeCache);
+      if(resultado==undefined) {
+        db.query("FOR empresa IN empresa FOR contrato IN contrato FILTER contrato._key == @id and contrato.idEmpresa == empresa._key RETURN empresa",{'id' : id})
+        .then(cursor => {
+           cursor.next()
+           .then(val => {
+             val.links = [
+               {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos/"},
+               {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/"},
+               {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/contratos/" + id},
+               {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/contratos/" + id}
+             ]
+             cache.set(nomeCache,val,20);
+             res.status(200).json(val).end();
+           });
+        });
+      }
+      else {
+        res.status(200).json(resultado).end()
+      }
    };
 
    contrato.listarTermos = function (req,res) {
       var id = req.params.id;
-      db.query("FOR termos IN termos FOR contrato IN contrato FILTER contrato._key == @id and contrato.idTermo == termos._key RETURN termos",{'id' : id})
-      .then(cursor => {
-         cursor.next()
-         .then(val => {
-           val.links = [
-             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos/"},
-             {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/"},
-             {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/contratos/" + id},
-             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/contratos/" + id}
-           ]
-           res.status(200).json(val).end();
-         });
-      });
+      var nomeCache = "listarContratoTermo" + id;
+      var resultado = cache.get(nomeCache);
+      if(resultado==undefined) {
+        db.query("FOR termos IN termos FOR contrato IN contrato FILTER contrato._key == @id and contrato.idTermo == termos._key RETURN termos",{'id' : id})
+        .then(cursor => {
+           cursor.next()
+           .then(val => {
+             val.links = [
+               {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos/"},
+               {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/"},
+               {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/contratos/" + id},
+               {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/contratos/" + id}
+             ]
+             cache.set(nomeCache,val,20);
+             res.status(200).json(val).end();
+           });
+        });
+      }
+      else {
+        res.status(200).json(resultado).end()
+      }
    };
 
    contrato.listarRegiao = function (req,res) {
       var id = req.params.id;
-      db.query("FOR regiao IN regiao FOR contrato IN contrato FILTER contrato._key == @id and contrato.idRegiao == regiao._key or regiao._key IN contrato.idRegiao RETURN regiao",{'id' : id})
-      .then(cursor => {
-         cursor.all()
-         .then(val => {
-           val._links = [
-             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos/"},
-             {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/"},
-             {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/contratos/" + id},
-             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/contratos/" + id}
-           ]
-           res.status(200).json(val).end();
-         });
-      });
+      var nomeCache = "listarContratoRegiao" + id;
+      var resultado = cache.get(nomeCache);
+      if(resultado==undefined) {
+        db.query("FOR regiao IN regiao FOR contrato IN contrato FILTER contrato._key == @id and contrato.idRegiao == regiao._key or regiao._key IN contrato.idRegiao RETURN regiao",{'id' : id})
+        .then(cursor => {
+           cursor.all()
+           .then(val => {
+             val._links = [
+               {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos"},
+               {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos"},
+               {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/contratos/" + id},
+               {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/contratos/" + id}
+             ]
+             cache.set(nomeCache,val,20);
+             res.status(200).json(val).end();
+           });
+        });
+      }
+      else {
+        res.status(200).json(resultado).end()
+      }
    };
 
    contrato.listarEmpresas = function (req,res) {
       var idEmpresa = req.params.idEmpresa;
-      db.query("FOR contrato IN contrato FILTER contrato.idEmpresa == @id RETURN contrato",{'id' : idEmpresa})
-      .then(cursor => {
-         cursor.all()
-         .then(val => {
-            var links = {
-              _links : [
-                  {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos/"},
-                  {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/"}
-              ]
-            };
-            val.push(links);
-            res.status(200).json(val).end();
-         })
-      })
+      var nomeCache = "listarContratoEmpresas" + idEmpresa;
+      var resultado = cache.get(nomeCache);
+      if(resultado==undefined) {
+        db.query("FOR contrato IN contrato FILTER contrato.idEmpresa == @id RETURN contrato",{'id' : idEmpresa})
+        .then(cursor => {
+           cursor.all()
+           .then(val => {
+              var links = {
+                _links : [
+                    {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos"},
+                    {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos"}
+                ]
+              };
+              val.push(links);
+              cache.set(nomeCache,val,20);
+              res.status(200).json(val).end();
+           })
+        })
+      }
+      else {
+        res.status(200).json(resultado).end()
+      }
    };
 
    contrato.listarTermosContrato = function (req,res) {
       var idTermo = req.params.idTermo;
-      db.query("FOR contrato IN contrato FILTER @id IN contrato.idTermo or contrato.idTermo == @id RETURN contrato",{'id' : idTermo})
-      .then(cursor => {
-        cursor.all()
-        .then(val => {
-          var links = {
-            _links : [
-              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos/"},
-              {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/"}
-            ]
-          };
-          val.push(links);
-          res.status(200).json(val).end();
+      var nomeCache = "listarContratoTermos" + idTermo;
+      var resultado = cache.get(nomeCache);
+      if (resultado==undefined) {
+        db.query("FOR contrato IN contrato FILTER @id IN contrato.idTermo or contrato.idTermo == @id RETURN contrato",{'id' : idTermo})
+        .then(cursor => {
+          cursor.all()
+          .then(val => {
+            var links = {
+              _links : [
+                {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos"},
+                {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos"}
+              ]
+            };
+            val.push(links);
+            cache.set(nomeCache,val,20);
+            res.status(200).json(val).end();
+          })
         })
-      })
+      }
+      else {
+         res.status(200).json(resultado).end()
+      }
    };
 
    contrato.listarRegioes = function (req,res) {
       var idRegiao = req.params.idRegiao;
-      db.query("FOR contrato IN contrato FILTER contrato.idRegiao == @id RETURN contrato",{'id' : idRegiao})
-      .then(cursor => {
-         cursor.all()
-         .then(val => {
-            var links = {
-              _links : [
-                {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos/"},
-                {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos/"}
-              ]
-            };
-            val.push(links);
-            res.status(200).json(val).end();
-         })
-      })
+      var nomeCache = "listarContratoRegioes" + idRegiao;
+      var resultado = cache.get(nomeCache);
+      if(resultado==undefined) {
+        db.query("FOR contrato IN contrato FILTER contrato.idRegiao == @id RETURN contrato",{'id' : idRegiao})
+        .then(cursor => {
+           cursor.all()
+           .then(val => {
+              var links = {
+                _links : [
+                  {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/contratos"},
+                  {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/contratos"}
+                ]
+              };
+              val.push(links);
+              cache.set(nomeCache,val,20);
+              res.status(200).json(val).end();
+           })
+        })
+      }
+      else {
+         res.status(200).json(resultado).end()
+      }
    };
 
    contrato.editarTermo = async function (req,res) {

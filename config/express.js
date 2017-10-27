@@ -11,6 +11,7 @@ var jwt = require("jwt-simple");
 const database = require("./database")();
 const googleMaps = require("./googleMaps")();
 const auth = require("./auth")();
+const cache = require("./cache")();
 
 module.exports = function () {
   var app = express();
@@ -27,6 +28,7 @@ module.exports = function () {
   app.set("views","./app/view");
   app.set("auth",auth);
   app.set("jwt",jwt);
+  app.set("cache",cache);
 
   app.use(bodyParser.urlencoded({extended:true}));
   app.use(bodyParser.json());

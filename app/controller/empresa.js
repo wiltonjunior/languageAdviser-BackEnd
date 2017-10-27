@@ -4,6 +4,8 @@ module.exports = function (app) {
    var db = app.get("database");
    var dbEmpresa = db.collection("empresa");
 
+   var cache = app.get("cache");
+
    var empresa = {};
 
    var versao = "/v1";
@@ -54,35 +56,50 @@ module.exports = function (app) {
    }
 
    empresa.listar = function (req,res) {
-      dbEmpresa.all()
-      .then(cursor => {
-        cursor.all()
-        .then(val => {
-          var links = {
-            _links : [
-              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/empresas"},
-              {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/empresas"}
-            ]
-          };
-          val.push(links);
-          res.status(200).json(val).end();
+      var resultado = cache.get("listarEmpresa");
+      if(resultado==undefined) {
+        dbEmpresa.all()
+        .then(cursor => {
+          cursor.all()
+          .then(val => {
+            var links = {
+              _links : [
+                {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/empresas"},
+                {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/empresas"}
+              ]
+            };
+            val.push(links);
+            cache.set("listarEmpresa",val,10);
+            res.status(200).json(val).end();
+          });
         });
-      });
+      }
+      else {
+        res.status(200).json(resultado).end()
+      }
    };
 
    empresa.listarEmpresa = function (req,res) {
       var id = req.params.id;
-      dbEmpresa.document(id)
-      .then(val => {
-        val._links = [
-          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/empresas"},
-          {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/empresas/" + val._key},
-          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/empresas/" + val._key}
-        ]
-        res.status(200).json(val).end()
-      }, err => {
-         res.status(500).json(err).end()
-      });
+      var nomeCache = "listarEmpresas" + id;
+      var resultado = cache.get(nomeCache);
+      if(resultado==undefined) {
+        dbEmpresa.document(id)
+        .then(val => {
+          val._links = [
+            {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/empresas"},
+            {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/empresas/" + val._key},
+            {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/empresas/" + val._key}
+          ]
+          cache.set(nomeCache,val,20);
+          res.status(200).json(val).end()
+        }, err => {
+           res.status(500).json(err).end()
+        });
+      }
+      else {
+         res.status(200).json(resultado).end()
+      }
    };
 
    empresa.editar = function (req,res) {

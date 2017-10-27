@@ -4,6 +4,8 @@ module.exports = function (app) {
    var db = app.get("database");
    var dbRegiao = db.collection("regiao");
 
+   var cache = app.get("cache");
+
    var regiao = {};
 
    var versao = "/v1";
@@ -30,35 +32,50 @@ module.exports = function (app) {
    };
 
    regiao.listar = function (req,res) {
-      dbRegiao.all()
-      .then(cursor => {
-        cursor.all()
-        .then(val => {
-          var links = {
-            _links : [
-              {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/regioes"},
-              {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/regioes"}
-            ]
-          };
-          val.push(links);
-          res.status(200).json(val).end()
+      var resultado = cache.get("listarRegiao");
+      if(resultado==undefined) {
+        dbRegiao.all()
+        .then(cursor => {
+          cursor.all()
+          .then(val => {
+            var links = {
+              _links : [
+                {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/regioes"},
+                {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/regioes"}
+              ]
+            };
+            val.push(links);
+            cache.set(nomeCache,val,10);
+            res.status(200).json(val).end()
+          });
         });
-      });
+      }
+      else {
+         res.status(200).json(resultado).end()
+      }
    };
 
    regiao.listarRegiao = function (req,res) {
       var id = req.params.id;
-      dbRegiao.document(id)
-      .then(val => {
-        val._links = [
-          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/regioes"},
-          {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/regioes/" + val._key},
-          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/regioes/" + val._key}
-        ]
-        res.status(200).json(val).end()
-      }, err=> {
-         res.status(500).json(err).end()
-      });
+      var nomeCache = "listarRegiao" + id;
+      var resultado = cache.get(nomeCache);
+      if(resultado==undefined) {
+        dbRegiao.document(id)
+        .then(val => {
+          val._links = [
+            {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/regioes"},
+            {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/regioes/" + val._key},
+            {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/regioes/" + val._key}
+          ]
+          cache.set(nomeCache,val,20);
+          res.status(200).json(val).end()
+        }, err=> {
+           res.status(500).json(err).end()
+        });
+      }
+      else {
+         res.status(200).json(resultado).end()
+      }
    };
 
    regiao.editar = function (req,res) {

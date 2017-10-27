@@ -4,6 +4,8 @@ module.exports = function (app) {
    var db = app.get("database");
    var dbSituacao = db.collection("situacao");
 
+   var cache = app.get("cache");
+
    var situacao = {};
 
    var versao = "/v1";
@@ -70,35 +72,50 @@ module.exports = function (app) {
    };
 
    situacao.listar = function (req,res) {
-      dbSituacao.all()
-      .then(cursor => {
-         cursor.all()
-         .then(val => {
-            var links = {
-               _links : [
-                   {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/situacoes"},
-                   {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/situacoes"}
-               ]
-            };
-            val.push(links);
-            res.status(200).json(val).end()
-         })
-      })
+      var resultado = cache.get("listarSituacao");
+      if(resultado==undefined) {
+        dbSituacao.all()
+        .then(cursor => {
+           cursor.all()
+           .then(val => {
+              var links = {
+                 _links : [
+                     {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/situacoes"},
+                     {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/situacoes"}
+                 ]
+              };
+              val.push(links);
+              cache.set("listarSituacao",val,10);
+              res.status(200).json(val).end()
+           })
+        })
+      }
+      else {
+         res.status(200).json(resultado).end()
+      }
    };
 
    situacao.listarSituacao = function (req,res) {
       var id = req.params.id;
-      dbSituacao.document(id)
-      .then(val => {
-         val._links = [
-           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/situacoes"},
-           {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/situacoes/" + val._key},
-           {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/situacoes/" + val._key}
-         ]
-         res.status(200).json(val).end()
-      }, err => {
-         res.status(500).json(err).end()
-      })
+      var nomeCache = "listarSituacao" + id;
+      var resultado = cache.get(nomeCache);
+      if(resultado==undefined) {
+        dbSituacao.document(id)
+        .then(val => {
+           val._links = [
+             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/situacoes"},
+             {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/situacoes/" + val._key},
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/situacoes/" + val._key}
+           ]
+           cache.set(nomeCache,val,20);
+           res.status(200).json(val).end()
+        }, err => {
+           res.status(500).json(err).end()
+        })
+      }
+      else {
+         res.status(200).json(resultado).end()
+      }
    };
 
    situacao.editar = function (req,res) {

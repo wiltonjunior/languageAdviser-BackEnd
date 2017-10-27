@@ -4,6 +4,8 @@ module.exports = function (app) {
    var db = app.get("database");
    var dbDialogo = db.collection("dialogo");
 
+   var cache = app.get("cache");
+
    var dialogo = {};
 
    var versao = "/v1";
@@ -59,43 +61,58 @@ module.exports = function (app) {
    };
 
    dialogo.listar = function (req,res) {
-      dbDialogo.all()
-      .then(cursor => {
-         cursor.all()
-         .then(val => {
-            var links = {
-              _links : [
-                  {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/dialogos"},
-                  {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/dialogos"}
-              ]
-            };
-            val.push(links);
-            res.status(200).json(val).end()
-         })
-      })
+      var resultado = cache.get("listarDialogo");
+      if(resultado==undefined) {
+        dbDialogo.all()
+        .then(cursor => {
+           cursor.all()
+           .then(val => {
+              var links = {
+                _links : [
+                    {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/dialogos"},
+                    {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/dialogos"}
+                ]
+              };
+              val.push(links);
+              cache.set("listarDialogo",val,10);
+              res.status(200).json(val).end()
+           })
+        })
+      }
+      else {
+        res.status(200).json(resultado).end()
+      }
    };
 
    dialogo.listarDialogo = async function (req,res) {
       var id = req.params.id;
-      dbDialogo.document(id)
-      .then(async val => {
-        var resultados = await db.query("FOR momento IN momento FILTER momento.idDialogo == @id SORT momento.ordem ASC RETURN momento",{'id' : id});
-        var dialogo = [];
-        var momento = resultados._result;
-        var i;
-        for(i=0;i<momento.length;i++) {
-          var personagem = await procurarPersonagem(val.personagem,momento[i].idPersonagem);
-          dialogo.push({"personagem":{"nomePersonagem": personagem.nomePersonagem,"tomVoz": personagem.tomVoz},"momento":{"textoNativo": momento[i].textoNativo,"textoTraduzido": momento[i].textoTraduzido}});
-        }
-        val.dialogo = dialogo;
-        val._links = [
-          {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + versao + "/dialogos"},
-          {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + versao + "/dialogos"}
-        ]
-        res.status(200).json(val).end()
-      }, err => {
-        res.status(500).json(err).end()
-      })
+      var nomeCache = "listarDialogo" + id;
+      var resultado = cache.get(nomeCache);
+      if(resultado==undefined) {
+        dbDialogo.document(id)
+        .then(async val => {
+          var resultados = await db.query("FOR momento IN momento FILTER momento.idDialogo == @id SORT momento.ordem ASC RETURN momento",{'id' : id});
+          var dialogo = [];
+          var momento = resultados._result;
+          var i;
+          for(i=0;i<momento.length;i++) {
+            var personagem = await procurarPersonagem(val.personagem,momento[i].idPersonagem);
+            dialogo.push({"personagem":{"nomePersonagem": personagem.nomePersonagem,"tomVoz": personagem.tomVoz},"momento":{"textoNativo": momento[i].textoNativo,"textoTraduzido": momento[i].textoTraduzido}});
+          }
+          val.dialogo = dialogo;
+          val._links = [
+            {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + versao + "/dialogos"},
+            {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + versao + "/dialogos"}
+          ]
+          cache.set(nomeCache,val,20);
+          res.status(200).json(val).end()
+        }, err => {
+          res.status(500).json(err).end()
+        })
+      }
+      else {
+        res.status(200).json(resultado).end()
+      }
    };
 
    async function procurarPersonagem(personagem,idPersonagem) {
@@ -117,38 +134,53 @@ module.exports = function (app) {
 
    dialogo.listarLicao = function (req,res) {
      var id = req.params.id;
-     db.query("FOR licao IN licao FOR dialogo IN dialogo FILTER dialogo._key == @id and licao._key == dialogo.idLicao RETURN licao",{'id' : id})
-     .then(cursor => {
-        cursor.all()
-        .then(val => {
-          var links = {
-            _links :  [
-              {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + versao + "/dialogos"},
-              {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + versao + "/dialogos"}
-            ]
-          };
-          val.push(links);
-          res.status(200).json(val).end();
-        })
-     })
+     var nomeCache = "listarDialogoLicao" + id;
+     var resultado = cache.get(nomeCache);
+     if(resultado==undefined) {
+       db.query("FOR licao IN licao FOR dialogo IN dialogo FILTER dialogo._key == @id and licao._key == dialogo.idLicao RETURN licao",{'id' : id})
+       .then(cursor => {
+          cursor.all()
+          .then(val => {
+            var links = {
+              _links :  [
+                {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + versao + "/dialogos"},
+                {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + versao + "/dialogos"}
+              ]
+            };
+            val.push(links);
+            cache.set(nomeCache,val,20);
+            res.status(200).json(val).end();
+          })
+       })
+     }
+     else {
+       res.status(200).json(resultado).end()
+     }
    };
 
    dialogo.listarLicoes = function (req,res) {
      var idLicao = req.params.idLicao;
-     db.query("FOR dialogo IN dialogo FILTER dialogo.idLicao == @id RETURN dialogo",{'id' : idLicao})
-     .then(cursor => {
-        cursor.all()
-        .then(val => {
-           var links = {
-             _links : [
-               {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + versao + "/dialogos"},
-               {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + versao + "/dialogos"}
-             ]
-           };
-           val.push(links);
-           res.status(200).json(val).end()
-        })
-     })
+     var nomeCache = "listarDialogoLicoes" + idLicao;
+     if(resultado==undefined) {
+       db.query("FOR dialogo IN dialogo FILTER dialogo.idLicao == @id RETURN dialogo",{'id' : idLicao})
+       .then(cursor => {
+          cursor.all()
+          .then(val => {
+             var links = {
+               _links : [
+                 {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + versao + "/dialogos"},
+                 {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + versao + "/dialogos"}
+               ]
+             };
+             val.push(links);
+             cache.set(nomeCache,val,20);
+             res.status(200).json(val).end()
+          })
+       })
+     }
+     else {
+        res.status(200).json(nomeCache).end()
+     }
    };
 
    dialogo.estudar = async function (req,res) {
@@ -208,9 +240,23 @@ module.exports = function (app) {
      return data;
    };
 
-   dialogo.editar = function (req,res) {
+   dialogo.editar = async function (req,res) {
       var id = req.params.id;
       var dados = req.body;
+      var valor = Array.isArray(dados.personagem);
+      if (valor==true) {
+         var personagens = [];
+         var i;
+         for(i=0;i<dados.personagem.length;i++) {
+            personagens.push(JSON.parse(dados.personagem[i]));
+         }
+         var persg = await adicionarPersonagem(personagens);
+      }
+      else {
+         var personagem = JSON.parse(dados.personagem);
+         var persg = await adicionarPersonagem(personagem);
+      }
+      dados.personagem = persg;
       var result = Joi.validate(dados,model);
       if (result.error) {
         res.status(400).json(result.error);

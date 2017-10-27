@@ -4,6 +4,8 @@ module.exports = function (app) {
    var db = app.get("database");
    var dbNivel = db.collection("nivel");
 
+   var cache = app.get("cache");
+
    var nivel = {};
 
    var versao = "/v1";
@@ -70,35 +72,50 @@ module.exports = function (app) {
    };
 
    nivel.listar = function (req,res) {
-     dbNivel.all()
-     .then(cursor => {
-        cursor.all()
-        .then(val => {
-           var links = {
-             _links : [
-                 {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/niveis"},
-                 {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/niveis"}
-             ]
-           };
-           val.push(links);
-           res.status(200).json(val).end()
-        })
-     })
+     var resultado = cache.get("listarNivel");
+     if (resultado==undefined) {
+       dbNivel.all()
+       .then(cursor => {
+          cursor.all()
+          .then(val => {
+             var links = {
+               _links : [
+                   {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/niveis"},
+                   {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/niveis"}
+               ]
+             };
+             val.push(links);
+             cache.set("listarNivel",val,10);
+             res.status(200).json(val).end()
+          })
+       })
+     }
+     else {
+         res.status(200).json(resultado).end()
+     }
    };
 
    nivel.listarNivel = function (req,res) {
      var id = req.params.id;
-     dbNivel.document(id)
-     .then(val => {
-        val._links = [
-          {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/niveis"},
-          {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/niveis/" + val._key},
-          {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/niveis/" + val._key}
-        ]
-        res.status(200).json(val).end()
-     }, err => {
-        res.status(500).json(err).end()
-     })
+     var nomeCache = "listarNivel" + id;
+     var resultado = cache.get(nomeCache);
+     if (resultado==undefined) {
+       dbNivel.document(id)
+       .then(val => {
+          val._links = [
+            {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/niveis"},
+            {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/niveis/" + val._key},
+            {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/niveis/" + val._key}
+          ]
+          cache.set(nomeCache,val,20);
+          res.status(200).json(val).end()
+       }, err => {
+          res.status(500).json(err).end()
+       })
+     }
+     else {
+        res.status(200).json(resultado).end()
+     }
    };
 
    nivel.editar = function (req,res) {

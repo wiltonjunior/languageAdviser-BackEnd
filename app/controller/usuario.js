@@ -4,6 +4,8 @@ module.exports = function (app) {
    var db = app.get("database");
    var dbUsuario = db.collection("usuario");
 
+   var cache = app.get("cache");
+
    var usuario = {};
 
    var versao = "/v1";
@@ -73,73 +75,103 @@ module.exports = function (app) {
    };
 
    usuario.listar = function (req,res) {
-      dbUsuario.all()
-      .then(cursor => {
-         cursor.all()
-         .then(val => {
-            var links = {
-              _links : [
-                {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/usuarios"},
-                {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/usuarios"}
-              ]
-            }
-            val.push(links);
-            res.status(200).json(val).end()
-         })
-      })
+      var resultado = cache.get("listarUsuario");
+      if(resultado==undefined) {
+        dbUsuario.all()
+        .then(cursor => {
+           cursor.all()
+           .then(val => {
+              var links = {
+                _links : [
+                  {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/usuarios"},
+                  {rel : "listar", method: "GET", href: "http://" + req.headers.host + versao + "/usuarios"}
+                ]
+              }
+              val.push(links);
+              cache.set("listarUsuario",val,10);
+              res.status(200).json(val).end()
+           })
+        })
+      }
+      else {
+         res.status(200).json(resultado).end()
+      }
    };
 
    usuario.listarUsuario = function (req,res) {
       var id = req.params.id;
-      dbUsuario.document(id)
-      .then(val => {
-         val.links = [
-           {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/usuarios"},
-           {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/usuarios/" + val._key},
-           {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/usuarios/" + val._key}
-         ]
-         res.status(200).json(val).end()
-      }, err => {
-         res.status(500).json(err).end()
-      })
+      var nomeCache = "listarUsuario" + id;
+      var resultado = cache.get(nomeCache);
+      if (resultado==undefined) {
+        dbUsuario.document(id)
+        .then(val => {
+           val.links = [
+             {rel : "adicionar", method: "POST", href: "http://" + req.headers.host + versao + "/usuarios"},
+             {rel : "editar", method: "PUT", href: "http://" + req.headers.host + versao + "/usuarios/" + val._key},
+             {rel : "excluir", method: "DELETE", href: "http://" + req.headers.host + versao + "/usuarios/" + val._key}
+           ]
+           cache.set(nomeCache,val,20);
+           res.status(200).json(val).end()
+        }, err => {
+           res.status(500).json(err).end()
+        })
+      }
+      else {
+         res.status(200).json(resultado).end()
+      }
    };
 
    usuario.avaliacao = function (req,res) {
       var id = req.params.id;
-      db.query("FOR usuario IN usuario FOR licao IN licao FILTER usuario._key == @id and licao.idUsuario == usuario._key COLLECT nomeUsuario = usuario.nomeUsuario AGGREGATE md = SUM(licao.avaliacao), tt = length(licao) RETURN {'nomeUsuario' : nomeUsuario,'Media' : md/tt, 'Total' : tt}",{'id' : id})
-      .then(cursor => {
-         cursor.next()
-         .then(val => {
-            if(val==null) {
-               val = {
-                  "Media" : 0,
-                  "Total" : 0
-               }
-            }
-            val.links = [
-              {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + versao + "/usuarios"},
-              {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + versao + "/usuarios"}
-            ]
-            res.status(200).json(val).end()
-         })
-      })
+      var nomeCache = "listarUsuarioAvaliacao" + id;
+      var resultado = cache.get(nomeCache);
+      if(resultado==undefined) {
+        db.query("FOR usuario IN usuario FOR licao IN licao FILTER usuario._key == @id and licao.idUsuario == usuario._key COLLECT nomeUsuario = usuario.nomeUsuario AGGREGATE md = SUM(licao.avaliacao), tt = length(licao) RETURN {'nomeUsuario' : nomeUsuario,'Media' : md/tt, 'Total' : tt}",{'id' : id})
+        .then(cursor => {
+           cursor.next()
+           .then(val => {
+              if(val==null) {
+                 val = {
+                    "Media" : 0,
+                    "Total" : 0
+                 }
+              }
+              val.links = [
+                {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + versao + "/usuarios"},
+                {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + versao + "/usuarios"}
+              ]
+              cache.set(nomeCache,val,10);
+              res.status(200).json(val).end()
+           })
+        })
+      }
+      else {
+         res.status(200).json(resultado).end()
+      }
    };
 
    usuario.ranking = function (req,res) {
-      db.query("FOR usuario IN usuario FOR licao IN licao FILTER licao.idUsuario == usuario._key COLLECT idUsuario = usuario._key, nomeUsuario = usuario.nomeUsuario, caminhoImagem = usuario.caminhoImagem AGGREGATE md = SUM(licao.avaliacao), tt = length(licao) RETURN {'nomeUsuario' : nomeUsuario, 'Media' : md/tt, 'Total' : tt, 'caminhoImagem' : caminhoImagem}")
-      .then(cursor => {
-         cursor.all()
-         .then(val => {
-            var links = {
-               _links : [
-                 {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + versao + "/usuarios"},
-                 {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + versao + "/usuarios"}
-               ]
-            }
-            val.push(links);
-            res.status(200).json(val).end()
-         })
-      })
+      var resultado = cache.get("listarUsuarioRanking");
+      if(resultado==undefined) {
+        db.query("FOR usuario IN usuario FOR licao IN licao FILTER licao.idUsuario == usuario._key COLLECT idUsuario = usuario._key, nomeUsuario = usuario.nomeUsuario, caminhoImagem = usuario.caminhoImagem AGGREGATE md = SUM(licao.avaliacao), tt = length(licao) RETURN {'nomeUsuario' : nomeUsuario, 'Media' : md/tt, 'Total' : tt, 'caminhoImagem' : caminhoImagem}")
+        .then(cursor => {
+           cursor.all()
+           .then(val => {
+              var links = {
+                 _links : [
+                   {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + versao + "/usuarios"},
+                   {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + versao + "/usuarios"}
+                 ]
+              }
+              val.push(links);
+              cache.set("listarUsuarioRanking",val,10);
+              res.status(200).json(val).end()
+           })
+        })
+      }
+      else {
+         res.status(200).json(resultado).end()
+      }
    };
 
    usuario.editar = function (req,res) {
