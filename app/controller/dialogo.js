@@ -84,7 +84,7 @@ module.exports = function (app) {
       }
    };
 
-   dialogo.listarDialogo = async function (req,res) {
+   dialogo.listarDialogo = function (req,res) {
       var id = req.params.id;
       var nomeCache = "listarDialogo" + id;
       var resultado = cache.get(nomeCache);
