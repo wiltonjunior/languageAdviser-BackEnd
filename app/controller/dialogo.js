@@ -90,16 +90,7 @@ module.exports = function (app) {
       var resultado = cache.get(nomeCache);
       if(resultado==undefined) {
         dbDialogo.document(id)
-        .then(async val => {
-          var resultados = await db.query("FOR momento IN momento FILTER momento.idDialogo == @id SORT momento.ordem ASC RETURN momento",{'id' : id});
-          var dialogo = [];
-          var momento = resultados._result;
-          var i;
-          for(i=0;i<momento.length;i++) {
-            var personagem = await procurarPersonagem(val.personagem,momento[i].idPersonagem);
-            dialogo.push({"personagem":{"nomePersonagem": personagem.nomePersonagem,"tomVoz": personagem.tomVoz},"momento":{"textoNativo": momento[i].textoNativo,"textoTraduzido": momento[i].textoTraduzido}});
-          }
-          val.dialogo = dialogo;
+        .then(val => {
           val._links = [
             {rel : "adicionar" ,method: "POST", href: "http://" + req.headers.host + versao + "/dialogos"},
             {rel : "listar" ,method: "GET", href: "http://" + req.headers.host + versao + "/dialogos"}
