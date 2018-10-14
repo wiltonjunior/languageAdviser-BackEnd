@@ -2,7 +2,7 @@ module.exports = function (app) {
    var empresa = app.controller.empresa;
    var auth = app.get("auth");
 
-   var versao = "/v1";
+   var versao = app.get("version");
 
    app.post(versao + "/empresas", auth.authenticate(), empresa.salvar);
    app.get(versao + "/empresas", auth.authenticate(), empresa.listar);

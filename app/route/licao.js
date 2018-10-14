@@ -2,7 +2,7 @@ module.exports = function (app) {
     var licao = app.controller.licao;
     var auth = app.get("auth");
 
-    var versao = "/v1";
+    var versao = app.get("version");
 
     app.post(versao + "/licoes", auth.authenticate(), licao.salvar);
     app.get(versao + "/licoes", auth.authenticate(), licao.listar);

@@ -2,7 +2,7 @@ module.exports = function (app) {
    var dialogo = app.controller.dialogo;
    var auth = app.get("auth");
 
-   var versao = "/v1";
+   var versao = app.get("version");
 
    app.post(versao + "/dialogos", auth.authenticate(), dialogo.salvar);
    app.post(versao + "/dialogos/estudar", auth.authenticate(), dialogo.estudar);

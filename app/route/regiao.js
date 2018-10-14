@@ -2,7 +2,7 @@ module.exports = function (app) {
    var regiao = app.controller.regiao;
    var auth = app.get("auth");
 
-   var versao = "/v1";
+   var versao = app.get("version");
 
    app.post(versao + "/regioes", auth.authenticate(), regiao.salvar);
    app.get(versao + "/regioes", auth.authenticate(), regiao.listar);

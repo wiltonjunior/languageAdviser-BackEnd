@@ -2,7 +2,7 @@ module.exports = function (app) {
    var usuario = app.controller.usuario;
    var auth = app.get("auth");
 
-   var versao = "/v1";
+   var versao = app.get("version");
 
    app.post(versao + "/usuarios", usuario.salvar);
    app.post(versao + "/usuarios/imagem/:id", usuario.imagem);

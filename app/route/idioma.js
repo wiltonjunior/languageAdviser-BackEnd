@@ -2,7 +2,7 @@ module.exports = function (app) {
    var idioma = app.controller.idioma;
    var auth = app.get("auth");
 
-   var versao = "/v1";
+   var versao = app.get("version");
 
    app.post(versao + "/idiomas", auth.authenticate(), idioma.salvar);
    app.post(versao + "/idiomas/imagem/:id", idioma.imagem);
